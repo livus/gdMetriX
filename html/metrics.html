@@ -1,0 +1,769 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Features &#8212; gdMetriX  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3ba4146"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'metrics';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Reference" href="modules.html" />
+    <link rel="prev" title="Tutorial" href="notebooks/tutorial.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.svg" class="logo__image only-light" alt="gdMetriX  documentation - Home"/>
+    <script>document.write(`<img src="_static/logo_dark.svg" class="logo__image only-dark" alt="gdMetriX  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="notebooks/tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        Features
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="modules.html">
+                        Reference
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="notebooks/tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        Features
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="modules.html">
+                        Reference
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Features</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="features">
+<span id="metrics-label"></span><h1>Features<a class="headerlink" href="#features" title="Permalink to this heading">#</a></h1>
+<section id="metrics">
+<h2>Metrics<a class="headerlink" href="#metrics" title="Permalink to this heading">#</a></h2>
+<section id="crossings">
+<h3>Crossings<a class="headerlink" href="#crossings" title="Permalink to this heading">#</a></h3>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Implementation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Crossings</p></td>
+<td><p>A list of all crossings</p></td>
+<td><p><span id="id1">Purchase <em>et al.</em> [<a class="reference internal" href="#id26" title="Helen C. Purchase, Robert F. Cohen, and Murray James. Validating graph drawing aesthetics. In Franz J. Brandenburg, editor, Graph Drawing, 435–446. Berlin, Heidelberg, 1996. Springer Berlin Heidelberg.">PCJ96</a>]</span></p></td>
+<td><p><a class="reference internal" href="crossings.html#crossings.get_crossings" title="crossings.get_crossings"><code class="xref py py-func docutils literal notranslate"><span class="pre">crossings.get_crossings()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Crossing number</p></td>
+<td><p>Number of crossings</p></td>
+<td><p><span id="id2">Purchase <em>et al.</em> [<a class="reference internal" href="#id26" title="Helen C. Purchase, Robert F. Cohen, and Murray James. Validating graph drawing aesthetics. In Franz J. Brandenburg, editor, Graph Drawing, 435–446. Berlin, Heidelberg, 1996. Springer Berlin Heidelberg.">PCJ96</a>]</span></p></td>
+<td><p><a class="reference internal" href="crossings.html#crossings.number_of_crossings" title="crossings.number_of_crossings"><code class="xref py py-func docutils literal notranslate"><span class="pre">crossings.number_of_crossings()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Crossing metric</p></td>
+<td><p>The total number of crossings divided by the number of possible crossings</p></td>
+<td><p><span id="id3">Mooney <em>et al.</em> [<a class="reference internal" href="#id32" title="Gavin J. Mooney, Helen C. Purchase, Michael Wybrow, and Stephen G. Kobourov. The multi-dimensional landscape of graph drawing metrics. In 17th IEEE Pacific Visualization Symposium. Pacific Visualization 2024, 2024.">MPWK24</a>]</span></p></td>
+<td><p><a class="reference internal" href="crossings.html#crossings.crossing_metric" title="crossings.crossing_metric"><code class="xref py py-func docutils literal notranslate"><span class="pre">crossings.crossing_metric()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Crossing angles</p></td>
+<td><p>A list of all angles between pairwise crossing edges</p></td>
+<td><p><span id="id4">Coleman and Parker [<a class="reference internal" href="#id27" title="Michael K. Coleman and D. Stott Parker. Aesthetics-based Graph Layout for Human Consumption. Software: Practice and Experience, 26(12):1415–1438, December 1996.">CP96</a>]</span></p></td>
+<td><p><a class="reference internal" href="crossings.html#crossings.crossing_angles" title="crossings.crossing_angles"><code class="xref py py-func docutils literal notranslate"><span class="pre">crossings.crossing_angles()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Crossing angular resolution</p></td>
+<td><p>The minimum angle formed between two pair-wise crossing edges</p></td>
+<td><p><span id="id5">Coleman and Parker [<a class="reference internal" href="#id27" title="Michael K. Coleman and D. Stott Parker. Aesthetics-based Graph Layout for Human Consumption. Software: Practice and Experience, 26(12):1415–1438, December 1996.">CP96</a>]</span></p></td>
+<td><p><a class="reference internal" href="crossings.html#crossings.crossing_angular_resolution" title="crossings.crossing_angular_resolution"><code class="xref py py-func docutils literal notranslate"><span class="pre">crossings.crossing_angular_resolution()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="area-and-boundary">
+<h3>Area and boundary<a class="headerlink" href="#area-and-boundary" title="Permalink to this heading">#</a></h3>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Implementation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Area</p></td>
+<td><p>The size of an axis-aligned rectangular bounding box</p></td>
+<td><p><span id="id6">Taylor and Rodgers [<a class="reference internal" href="#id28" title="M. Taylor and P. Rodgers. Applying graphical design techniques to graph visualisation. In Ninth International Conference on Information Visualisation (IV'05), 651–656. IEEE, 2005. doi:10.1109/IV.2005.19.">TR05</a>]</span></p></td>
+<td><p><a class="reference internal" href="boundary.html#boundary.area" title="boundary.area"><code class="xref py py-func docutils literal notranslate"><span class="pre">boundary.area()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Tight area</p></td>
+<td><p>The size of the convex hull of the graph</p></td>
+<td><p><span id="id7">Taylor and Rodgers [<a class="reference internal" href="#id28" title="M. Taylor and P. Rodgers. Applying graphical design techniques to graph visualisation. In Ninth International Conference on Information Visualisation (IV'05), 651–656. IEEE, 2005. doi:10.1109/IV.2005.19.">TR05</a>]</span></p></td>
+<td><p><a class="reference internal" href="boundary.html#boundary.area_tight" title="boundary.area_tight"><code class="xref py py-func docutils literal notranslate"><span class="pre">boundary.area_tight()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Height</p></td>
+<td><p>Height of the graph</p></td>
+<td></td>
+<td><p><a class="reference internal" href="boundary.html#boundary.height" title="boundary.height"><code class="xref py py-func docutils literal notranslate"><span class="pre">boundary.height()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Width</p></td>
+<td><p>Width of the graph</p></td>
+<td></td>
+<td><p><a class="reference internal" href="boundary.html#boundary.width" title="boundary.width"><code class="xref py py-func docutils literal notranslate"><span class="pre">boundary.width()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Aspect ratio</p></td>
+<td><p>The proportion between the smaller and the bigger side of the axis-aligned rectangular bounding box containing the graph</p></td>
+<td><p><span id="id8">Taylor and Rodgers [<a class="reference internal" href="#id28" title="M. Taylor and P. Rodgers. Applying graphical design techniques to graph visualisation. In Ninth International Conference on Information Visualisation (IV'05), 651–656. IEEE, 2005. doi:10.1109/IV.2005.19.">TR05</a>]</span></p></td>
+<td><p><a class="reference internal" href="boundary.html#boundary.aspect_ratio" title="boundary.aspect_ratio"><code class="xref py py-func docutils literal notranslate"><span class="pre">boundary.aspect_ratio()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="node-distribution">
+<h3>Node distribution<a class="headerlink" href="#node-distribution" title="Permalink to this heading">#</a></h3>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Implementation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Center of mass</p></td>
+<td><p>The average position of all nodes, optionally weighted by supplying a weight vector.</p></td>
+<td></td>
+<td><p><a class="reference internal" href="distribution.html#distribution.center_of_mass" title="distribution.center_of_mass"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution.center_of_mass()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Closest pair of points</p></td>
+<td><p>The closest pair of nodes in the drawing</p></td>
+<td><p><span id="id9">Burch [<a class="reference internal" href="#id29" title="Michael Burch. The aesthetics of diagrams. In Proceedings of the 6th International Conference on Information Visualization Theory and Applications - Volume 1: IVAPP, (VISIGRAPP 2015), 262-267. INSTICC, SciTePress, 2015. doi:10.5220/0005357502620267.">Bur15</a>]</span></p></td>
+<td><p><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution.closet_pair_of_points()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Closest pair of elements</p></td>
+<td><p>The closest pair of graph elements, i.e. points and line segments.</p></td>
+<td><p><span id="id10">Burch [<a class="reference internal" href="#id29" title="Michael Burch. The aesthetics of diagrams. In Proceedings of the 6th International Conference on Information Visualization Theory and Applications - Volume 1: IVAPP, (VISIGRAPP 2015), 262-267. INSTICC, SciTePress, 2015. doi:10.5220/0005357502620267.">Bur15</a>]</span></p></td>
+<td><p><a class="reference internal" href="distribution.html#distribution.closest_pair_of_elements" title="distribution.closest_pair_of_elements"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution.closest_pair_of_elements()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Concentration</p></td>
+<td><p>Indicates how evenly nodes are spread among the bounding box</p></td>
+<td><p><span id="id11">Taylor and Rodgers [<a class="reference internal" href="#id28" title="M. Taylor and P. Rodgers. Applying graphical design techniques to graph visualisation. In Ninth International Conference on Information Visualisation (IV'05), 651–656. IEEE, 2005. doi:10.1109/IV.2005.19.">TR05</a>]</span></p></td>
+<td><p><a class="reference internal" href="distribution.html#distribution.concentration" title="distribution.concentration"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution.concentration()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Homogeneity</p></td>
+<td><p>Measure of how evenly nodes are distributed among the four quadrants between 0 and 1. A value of 0 indicates an even distribution among the four quadrants.</p></td>
+<td><p><span id="id12">Taylor and Rodgers [<a class="reference internal" href="#id28" title="M. Taylor and P. Rodgers. Applying graphical design techniques to graph visualisation. In Ninth International Conference on Information Visualisation (IV'05), 651–656. IEEE, 2005. doi:10.1109/IV.2005.19.">TR05</a>]</span></p></td>
+<td><p><a class="reference internal" href="distribution.html#distribution.homogeneity" title="distribution.homogeneity"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution.homogeneity()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Horizontal balance</p></td>
+<td><p>Returns a value between -1 and 1 indicating the horizontal balance. A value of 0 means a perfectly even balance between the upper and lower half. A value of -1 means that all  nodes lie on the lower half, a value of 1 means that all nodes lie on the upper half.</p></td>
+<td><p><span id="id13">Tamassia <em>et al.</em> [<a class="reference internal" href="#id30" title="R. Tamassia, G. Di Battista, and C. Batini. Automatic graph drawing and readability of diagrams. IEEE Transactions on Systems, Man, and Cybernetics, 18(1):61–79, 1988. doi:10.1109/21.87055.">TDBB88</a>]</span></p></td>
+<td><p><a class="reference internal" href="distribution.html#distribution.horizontal_balance" title="distribution.horizontal_balance"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution.horizontal_balance()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Vertical balance</p></td>
+<td><p>Returns a value between -1 and 1 indicating the vertical balance. A value of 0 means a perfectly even balance between the left and right half. A value of -1 means that all nodes  lie on the left half, a value of 1 means that all nodes lie on the right half.</p></td>
+<td><p><span id="id14">Tamassia <em>et al.</em> [<a class="reference internal" href="#id30" title="R. Tamassia, G. Di Battista, and C. Batini. Automatic graph drawing and readability of diagrams. IEEE Transactions on Systems, Man, and Cybernetics, 18(1):61–79, 1988. doi:10.1109/21.87055.">TDBB88</a>]</span></p></td>
+<td><p><a class="reference internal" href="distribution.html#distribution.vertical_balance" title="distribution.vertical_balance"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution.vertical_balance()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Node orthogonality</p></td>
+<td><p>A measure of how much the nodes align in a grid.</p></td>
+<td><p><span id="id15">Purchase [<a class="reference internal" href="#id31" title="Helen C. Purchase. Metrics for Graph Drawing Aesthetics. Journal of Visual Languages &amp; Computing, 13(5):501–516, October 2002. doi:10.1006/jvlc.2002.0232.">Pur02</a>]</span></p></td>
+<td><p><a class="reference internal" href="distribution.html#distribution.node_orthogonality" title="distribution.node_orthogonality"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution.node_orthogonality()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Gabriel ratio</p></td>
+<td><p>The Gabriel ratio is defined as the percentage of nodes falling within a minimum circle covering an edge for any edge.</p></td>
+<td><p><span id="id16">Mooney <em>et al.</em> [<a class="reference internal" href="#id32" title="Gavin J. Mooney, Helen C. Purchase, Michael Wybrow, and Stephen G. Kobourov. The multi-dimensional landscape of graph drawing metrics. In 17th IEEE Pacific Visualization Symposium. Pacific Visualization 2024, 2024.">MPWK24</a>]</span></p></td>
+<td><p><a class="reference internal" href="distribution.html#distribution.gabriel_ratio" title="distribution.gabriel_ratio"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution.gabriel_ratio()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="edge-directions">
+<h3>Edge directions<a class="headerlink" href="#edge-directions" title="Permalink to this heading">#</a></h3>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Implementation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Angular resolution</p></td>
+<td><p>The angular resolution is defined as the minimum angle between two edges incident to the same vertex.</p></td>
+<td><p><span id="id17">Coleman and Parker [<a class="reference internal" href="#id27" title="Michael K. Coleman and D. Stott Parker. Aesthetics-based Graph Layout for Human Consumption. Software: Practice and Experience, 26(12):1415–1438, December 1996.">CP96</a>]</span></p></td>
+<td><p><a class="reference internal" href="edge_directions.html#edge_directions.angular_resolution" title="edge_directions.angular_resolution"><code class="xref py py-func docutils literal notranslate"><span class="pre">edge_directions.angular_resolution()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Average flow</p></td>
+<td><p>The average edge direction of a directed graph.</p></td>
+<td><p><span id="id18">Bennett <em>et al.</em> [<a class="reference internal" href="#id33" title="Chris Bennett, Jody Ryall, Leo Spalteholz, and Amy Gooch. The aesthetics of graph visualization. Computational Aesthetics in Graphics, 2007. doi:10.2312/COMPAESTH/COMPAESTH07/057-064.">BRSG07</a>]</span></p></td>
+<td><p><a class="reference internal" href="edge_directions.html#edge_directions.average_flow" title="edge_directions.average_flow"><code class="xref py py-func docutils literal notranslate"><span class="pre">edge_directions.average_flow()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Upwards flow</p></td>
+<td><p>This measures the percentage of edges pointing ’upwards’, meaning that the angle between the edge and the upward vector is strictly smaller than 90°. Only defined for directed graphs.</p></td>
+<td><p><span id="id19">Purchase [<a class="reference internal" href="#id31" title="Helen C. Purchase. Metrics for Graph Drawing Aesthetics. Journal of Visual Languages &amp; Computing, 13(5):501–516, October 2002. doi:10.1006/jvlc.2002.0232.">Pur02</a>]</span></p></td>
+<td><p><a class="reference internal" href="edge_directions.html#edge_directions.upwards_flow" title="edge_directions.upwards_flow"><code class="xref py py-func docutils literal notranslate"><span class="pre">edge_directions.upwards_flow()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Coherence to average flow</p></td>
+<td><p>The upwards flow with the average flow as the ’upwards’ direction. Only defined for directed graphs.</p></td>
+<td><p><span id="id20">Purchase [<a class="reference internal" href="#id31" title="Helen C. Purchase. Metrics for Graph Drawing Aesthetics. Journal of Visual Languages &amp; Computing, 13(5):501–516, October 2002. doi:10.1006/jvlc.2002.0232.">Pur02</a>]</span></p></td>
+<td><p><a class="reference internal" href="edge_directions.html#edge_directions.coherence_to_average_flow" title="edge_directions.coherence_to_average_flow"><code class="xref py py-func docutils literal notranslate"><span class="pre">edge_directions.coherence_to_average_flow()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Edge orthogonality</p></td>
+<td><p>A measure of the extend to which the edge are vertically or horizontally aligned.</p></td>
+<td><p><span id="id21">Purchase [<a class="reference internal" href="#id31" title="Helen C. Purchase. Metrics for Graph Drawing Aesthetics. Journal of Visual Languages &amp; Computing, 13(5):501–516, October 2002. doi:10.1006/jvlc.2002.0232.">Pur02</a>]</span></p></td>
+<td><p><a class="reference internal" href="edge_directions.html#edge_directions.edge_orthogonality" title="edge_directions.edge_orthogonality"><code class="xref py py-func docutils literal notranslate"><span class="pre">edge_directions.edge_orthogonality()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="symmetry">
+<h3>Symmetry<a class="headerlink" href="#symmetry" title="Permalink to this heading">#</a></h3>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Implementation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Reflective symmetry</p></td>
+<td><p>This metric tries to estimate reflective symmetry by checking for symmetry axes along each pair of nodes.</p></td>
+<td><p><span id="id22">Purchase [<a class="reference internal" href="#id31" title="Helen C. Purchase. Metrics for Graph Drawing Aesthetics. Journal of Visual Languages &amp; Computing, 13(5):501–516, October 2002. doi:10.1006/jvlc.2002.0232.">Pur02</a>]</span></p></td>
+<td><p><a class="reference internal" href="symmetry.html#symmetry.reflective_symmetry" title="symmetry.reflective_symmetry"><code class="xref py py-func docutils literal notranslate"><span class="pre">symmetry.reflective_symmetry()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Reflective, rotational and translational symmetry</p></td>
+<td><p>A metric for estimating either reflective, rotational or translational symmetry.</p></td>
+<td><p><span id="id23">Klapaukh <em>et al.</em> [<a class="reference internal" href="#id34" title="Roman Klapaukh, Stuart Marshall, and David Pearce. A Symmetry Metric for Graphs and Line Diagrams. In Peter Chapman, Gem Stapleton, Amirouche Moktefi, Sarah Perez-Kriz, and Francesco Bellucci, editors, Diagrammatic Representation and Inference, volume 10871, pages 739–742. Springer International Publishing, Cham, 2018. doi:10.1007/978-3-319-91376-6_71.">KMP18</a>]</span></p></td>
+<td><p><a class="reference internal" href="symmetry.html#symmetry.edge_based_symmetry" title="symmetry.edge_based_symmetry"><code class="xref py py-func docutils literal notranslate"><span class="pre">symmetry.edge_based_symmetry()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Visual symmetry</p></td>
+<td><p>Given the time complexity of the previous symmetry metrics, this metric draws an image of the graph and estimates symmetry in a pixel-based manner.</p></td>
+<td></td>
+<td><p><a class="reference internal" href="symmetry.html#symmetry.visual_symmetry" title="symmetry.visual_symmetry"><code class="xref py py-func docutils literal notranslate"><span class="pre">symmetry.visual_symmetry()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="additional-features">
+<h2>Additional features<a class="headerlink" href="#additional-features" title="Permalink to this heading">#</a></h2>
+<p>The main purpose of this package is to provide an extensive set of graph drawing metrics. In addition, we provide
+some additional functionality that might be useful for someone using the package.</p>
+<section id="importing-datasets">
+<h3>Importing datasets<a class="headerlink" href="#importing-datasets" title="Permalink to this heading">#</a></h3>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Implementation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Load datasets</p></td>
+<td><p>Load a dataset from the <a class="reference external" href="https://visdunneright.github.io/gd_benchmark_sets/">Graph Layout Benchmark Datasets</a> project from the Northeastern University Visualization Lab and parse it for easy usage.</p></td>
+<td><p><a class="reference internal" href="distribution.html#distribution.heatmap" title="distribution.heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution.heatmap()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="embeddings">
+<h3>Embeddings<a class="headerlink" href="#embeddings" title="Permalink to this heading">#</a></h3>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Implementation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Planarization</p></td>
+<td><p>A list of all crossings with new nodes incident to all involved edges.</p></td>
+<td><p><a class="reference internal" href="crossings.html#crossings.planarize" title="crossings.planarize"><code class="xref py py-func docutils literal notranslate"><span class="pre">crossings.planarize()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Normalize position</p></td>
+<td><p>Rescale the graph to fit within a specified bounding box.</p></td>
+<td><p><a class="reference internal" href="boundary.html#boundary.normalize_positions" title="boundary.normalize_positions"><code class="xref py py-func docutils literal notranslate"><span class="pre">boundary.normalize_positions()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Combinatorial embedding</p></td>
+<td><p>Obtains the combinatorial embedding from a given embedded graph, i.e. the clockwise neighborhood for each node.</p></td>
+<td><p><a class="reference internal" href="edge_directions.html#edge_directions.combinatorial_embedding" title="edge_directions.combinatorial_embedding"><code class="xref py py-func docutils literal notranslate"><span class="pre">edge_directions.combinatorial_embedding()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Ordered neighborhood</p></td>
+<td><p>Obtains the clockwise neighborhood of a node.</p></td>
+<td><p><a class="reference internal" href="edge_directions.html#edge_directions.ordered_neighborhood" title="edge_directions.ordered_neighborhood"><code class="xref py py-func docutils literal notranslate"><span class="pre">edge_directions.ordered_neighborhood()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="statistical-evaluation">
+<h3>Statistical evaluation<a class="headerlink" href="#statistical-evaluation" title="Permalink to this heading">#</a></h3>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Implementation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Heatmap</p></td>
+<td><p>Generates a 2D grid of the average value for a given parameter in each grid cell. Useful for creating heatmaps for local metrics or graph features.</p></td>
+<td><p><a class="reference internal" href="distribution.html#distribution.heatmap" title="distribution.heatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">distribution.heatmap()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="bibliography">
+<h2>Bibliography<a class="headerlink" href="#bibliography" title="Permalink to this heading">#</a></h2>
+<div class="docutils container" id="id24">
+<div role="list" class="citation-list">
+<div class="citation" id="id33" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id18">BRSG07</a><span class="fn-bracket">]</span></span>
+<p>Chris Bennett, Jody Ryall, Leo Spalteholz, and Amy Gooch. The aesthetics of graph visualization. <em>Computational Aesthetics in Graphics</em>, 2007. <a class="reference external" href="https://doi.org/10.2312/COMPAESTH/COMPAESTH07/057-064">doi:10.2312/COMPAESTH/COMPAESTH07/057-064</a>.</p>
+</div>
+<div class="citation" id="id29" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Bur15<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id9">1</a>,<a role="doc-backlink" href="#id10">2</a>)</span>
+<p>Michael Burch. The aesthetics of diagrams. In <em>Proceedings of the 6th International Conference on Information Visualization Theory and Applications - Volume 1: IVAPP, (VISIGRAPP 2015)</em>, 262–267. INSTICC, SciTePress, 2015. <a class="reference external" href="https://doi.org/10.5220/0005357502620267">doi:10.5220/0005357502620267</a>.</p>
+</div>
+<div class="citation" id="id27" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>CP96<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id5">2</a>,<a role="doc-backlink" href="#id17">3</a>)</span>
+<p>Michael K. Coleman and D. Stott Parker. Aesthetics-based Graph Layout for Human Consumption. <em>Software: Practice and Experience</em>, 26(12):1415–1438, December 1996.</p>
+</div>
+<div class="citation" id="id34" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id23">KMP18</a><span class="fn-bracket">]</span></span>
+<p>Roman Klapaukh, Stuart Marshall, and David Pearce. A Symmetry Metric for Graphs and Line Diagrams. In Peter Chapman, Gem Stapleton, Amirouche Moktefi, Sarah Perez-Kriz, and Francesco Bellucci, editors, <em>Diagrammatic Representation and Inference</em>, volume 10871, pages 739–742. Springer International Publishing, Cham, 2018. <a class="reference external" href="https://doi.org/10.1007/978-3-319-91376-6_71">doi:10.1007/978-3-319-91376-6_71</a>.</p>
+</div>
+<div class="citation" id="id32" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>MPWK24<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id3">1</a>,<a role="doc-backlink" href="#id16">2</a>)</span>
+<p>Gavin J. Mooney, Helen C. Purchase, Michael Wybrow, and Stephen G. Kobourov. The multi-dimensional landscape of graph drawing metrics. In <em>17th IEEE Pacific Visualization Symposium</em>. Pacific Visualization 2024, 2024.</p>
+</div>
+<div class="citation" id="id31" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Pur02<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id15">1</a>,<a role="doc-backlink" href="#id19">2</a>,<a role="doc-backlink" href="#id20">3</a>,<a role="doc-backlink" href="#id21">4</a>,<a role="doc-backlink" href="#id22">5</a>)</span>
+<p>Helen C. Purchase. Metrics for Graph Drawing Aesthetics. <em>Journal of Visual Languages &amp; Computing</em>, 13(5):501–516, October 2002. <a class="reference external" href="https://doi.org/10.1006/jvlc.2002.0232">doi:10.1006/jvlc.2002.0232</a>.</p>
+</div>
+<div class="citation" id="id26" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>PCJ96<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>)</span>
+<p>Helen C. Purchase, Robert F. Cohen, and Murray James. Validating graph drawing aesthetics. In Franz J. Brandenburg, editor, <em>Graph Drawing</em>, 435–446. Berlin, Heidelberg, 1996. Springer Berlin Heidelberg.</p>
+</div>
+<div class="citation" id="id30" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>TDBB88<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id13">1</a>,<a role="doc-backlink" href="#id14">2</a>)</span>
+<p>R. Tamassia, G. Di Battista, and C. Batini. Automatic graph drawing and readability of diagrams. <em>IEEE Transactions on Systems, Man, and Cybernetics</em>, 18(1):61–79, 1988. <a class="reference external" href="https://doi.org/10.1109/21.87055">doi:10.1109/21.87055</a>.</p>
+</div>
+<div class="citation" id="id28" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>TR05<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id6">1</a>,<a role="doc-backlink" href="#id7">2</a>,<a role="doc-backlink" href="#id8">3</a>,<a role="doc-backlink" href="#id11">4</a>,<a role="doc-backlink" href="#id12">5</a>)</span>
+<p>M. Taylor and P. Rodgers. Applying graphical design techniques to graph visualisation. In <em>Ninth International Conference on Information Visualisation (IV'05)</em>, 651–656. IEEE, 2005. <a class="reference external" href="https://doi.org/10.1109/IV.2005.19">doi:10.1109/IV.2005.19</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metrics">Metrics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#crossings">Crossings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#area-and-boundary">Area and boundary</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#node-distribution">Node distribution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#edge-directions">Edge directions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#symmetry">Symmetry</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-features">Additional features</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#importing-datasets">Importing datasets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#embeddings">Embeddings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#statistical-evaluation">Statistical evaluation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bibliography">Bibliography</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Martin Nöllenburg, Sebastian Röder, Markus Wallinger.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
