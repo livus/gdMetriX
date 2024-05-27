@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d1" for="node" attr.name="y" attr.type="double" />
+  <key id="d0" for="node" attr.name="x" attr.type="double" />
+  <graph edgedefault="undirected">
+    <node id="0">
+      <data key="d0">-69.06704505315591</data>
+      <data key="d1">-38.726206441343415</data>
+    </node>
+    <node id="1">
+      <data key="d0">-94.258652063145</data>
+      <data key="d1">58.78979892927126</data>
+    </node>
+    <node id="2">
+      <data key="d0">-4.0366187289704385</data>
+      <data key="d1">11.56613767472814</data>
+    </node>
+    <node id="3">
+      <data key="d0">-15.465616340580809</data>
+      <data key="d1">6.156466225350329</data>
+    </node>
+    <node id="4">
+      <data key="d0">-26.11950123999027</data>
+      <data key="d1">-25.406060514178378</data>
+    </node>
+    <node id="5">
+      <data key="d0">86.0642937232038</data>
+      <data key="d1">16.109421605860902</data>
+    </node>
+    <node id="6">
+      <data key="d0">75.50414241886634</data>
+      <data key="d1">39.47070651570374</data>
+    </node>
+    <node id="7">
+      <data key="d0">19.514989416651048</data>
+      <data key="d1">-93.91924089382731</data>
+    </node>
+    <node id="8">
+      <data key="d0">10.226461392215299</data>
+      <data key="d1">24.01807427142313</data>
+    </node>
+    <node id="9">
+      <data key="d0">30.84304222122711</data>
+      <data key="d1">82.33791166942649</data>
+    </node>
+    <node id="10">
+      <data key="d0">21.264461538739468</data>
+      <data key="d1">-28.85352497995825</data>
+    </node>
+    <node id="11">
+      <data key="d0">2.0043609002395613</data>
+      <data key="d1">11.869173381042586</data>
+    </node>
+    <node id="12">
+      <data key="d0">-78.76165222071421</data>
+      <data key="d1">59.41507451800419</data>
+    </node>
+  </graph>
+</graphml>

@@ -1,0 +1,90 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="d1" for="node" attr.name="y" attr.type="double" />
+  <key id="d0" for="node" attr.name="x" attr.type="double" />
+  <graph edgedefault="undirected">
+    <node id="0">
+      <data key="d0">-99.72115622219815</data>
+      <data key="d1">-51.133532027055374</data>
+    </node>
+    <node id="1">
+      <data key="d0">84.15055808729846</data>
+      <data key="d1">32.29595266466961</data>
+    </node>
+    <node id="2">
+      <data key="d0">-46.06338105905912</data>
+      <data key="d1">34.33471916345991</data>
+    </node>
+    <node id="3">
+      <data key="d0">-33.58309735765381</data>
+      <data key="d1">93.76825325652297</data>
+    </node>
+    <node id="4">
+      <data key="d0">95.6806074875555</data>
+      <data key="d1">-13.628631285547144</data>
+    </node>
+    <node id="5">
+      <data key="d0">-12.460322354325754</data>
+      <data key="d1">-55.8727280474355</data>
+    </node>
+    <node id="6">
+      <data key="d0">-75.5044316521927</data>
+      <data key="d1">81.5899282037021</data>
+    </node>
+    <node id="7">
+      <data key="d0">81.46687923335847</data>
+      <data key="d1">-33.18046636501637</data>
+    </node>
+    <node id="8">
+      <data key="d0">92.94154307641898</data>
+      <data key="d1">-48.191625736900946</data>
+    </node>
+    <node id="9">
+      <data key="d0">32.27334469986471</data>
+      <data key="d1">41.5592166043962</data>
+    </node>
+    <node id="10">
+      <data key="d0">43.07778263095011</data>
+      <data key="d1">-28.311267005589656</data>
+    </node>
+    <node id="11">
+      <data key="d0">-54.28706900427471</data>
+      <data key="d1">-3.9573340358926004</data>
+    </node>
+    <node id="12">
+      <data key="d0">-4.024294731034033</data>
+      <data key="d1">33.498234014699364</data>
+    </node>
+    <node id="13">
+      <data key="d0">-9.825439778227803</data>
+      <data key="d1">39.694392377733635</data>
+    </node>
+    <node id="14">
+      <data key="d0">9.108245362927263</data>
+      <data key="d1">79.11943078612873</data>
+    </node>
+    <node id="15">
+      <data key="d0">5.642380803976792</data>
+      <data key="d1">75.18680403597898</data>
+    </node>
+    <node id="16">
+      <data key="d0">-58.062599348826424</data>
+      <data key="d1">-65.80668316505964</data>
+    </node>
+    <node id="17">
+      <data key="d0">-63.785577077171894</data>
+      <data key="d1">26.56507184072514</data>
+    </node>
+    <node id="18">
+      <data key="d0">70.68550597768376</data>
+      <data key="d1">-14.122120384150463</data>
+    </node>
+    <node id="19">
+      <data key="d0">90.03692699199524</data>
+      <data key="d1">66.37416866600134</data>
+    </node>
+    <edge source="4" target="13" />
+    <edge source="6" target="18" />
+    <edge source="16" target="19" />
+  </graph>
+</graphml>
