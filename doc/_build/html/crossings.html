@@ -1,0 +1,685 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Crossings &#8212; gdMetriX  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3ba4146"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'crossings';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Symmetry" href="symmetry.html" />
+    <link rel="prev" title="Importing datasets" href="datasets.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.svg" class="logo__image only-light" alt="gdMetriX  documentation - Home"/>
+    <script>document.write(`<img src="_static/logo_dark.svg" class="logo__image only-dark" alt="gdMetriX  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="notebooks/tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="metrics.html">
+                        Features
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="modules.html">
+                        Reference
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="notebooks/tutorial.html">
+                        Tutorial
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="metrics.html">
+                        Features
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="modules.html">
+                        Reference
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Importing datasets</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Crossings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="symmetry.html">Symmetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary.html">Area and boundary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="distribution.html">Node distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge_directions.html">Edge directions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="common.html">Common</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="modules.html" class="nav-link">Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Crossings</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="module-crossings">
+<span id="crossings"></span><h1>Crossings<a class="headerlink" href="#module-crossings" title="Permalink to this heading">#</a></h1>
+<p>This module provides functions for dealing with crossings, including obtaining crossing angles.</p>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">#</a></h2>
+<p>Get a quality metric based on the number of crossings using <a class="reference internal" href="#crossings.crossing_metric" title="crossings.crossing_metric"><code class="xref py py-func docutils literal notranslate"><span class="pre">crossing_metric()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">random_geometric_graph</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">quality</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">crossing_metric</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To obtain a list of all crossings, simply call <a class="reference internal" href="#crossings.get_crossings" title="crossings.get_crossings"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_crossings()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">crossing_list</span> <span class="o">=</span> <span class="n">get_crossings</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To planarize a graph, call <a class="reference internal" href="#crossings.planarize" title="crossings.planarize"><code class="xref py py-func docutils literal notranslate"><span class="pre">planarize()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">planarize</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will replace all crossings with new nodes at the same positions.</p>
+</section>
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this heading">#</a></h2>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="crossings.crossing_angles">
+<span class="sig-prename descclassname"><span class="pre">crossings.</span></span><span class="sig-name descname"><span class="pre">crossing_angles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crossing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Crossing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#crossings.crossing_angles" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns a list of angles in clockwise order formed by the edges at the crossing point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>crossing</strong> (<em>gdMetriX.Crossing</em>) – A crossing point</p></li>
+<li><p><strong>pos</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>dic</em><em>, </em><em>None</em><em>]</em>) – Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+If given as a string, the property under the given name in the networkX graph is used.</p></li>
+<li><p><strong>deg</strong> (<em>bool</em>) – If true, the angles are returned as degrees in the range of (0,360). Otherwise, the angles are returned
+as radians.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of angles at that crossing in clockwise order</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crossings.crossing_angular_resolution">
+<span class="sig-prename descclassname"><span class="pre">crossings.</span></span><span class="sig-name descname"><span class="pre">crossing_angular_resolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_node_crossings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#crossings.crossing_angular_resolution" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns the deviation from the optimal angle between two edges at crossing points similar to
+<a class="reference internal" href="edge_directions.html#edge_directions.angular_resolution" title="edge_directions.angular_resolution"><code class="xref py py-func docutils literal notranslate"><span class="pre">edge_directions.angular_resolution()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>g</strong> (<em>nx.Graph</em>) – A networkX graph</p></li>
+<li><p><strong>pos</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>dic</em><em>, </em><em>None</em><em>]</em>) – Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+If given as a string, the property under the given name in the networkX graph is used.</p></li>
+<li><p><strong>include_node_crossings</strong> (<em>bool</em>) – Indicate whether crossings involving vertices should be returned as well. A
+crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
+Singletons will never be considered, even if the vertex lies exactly on another edge.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The average deviation from the optimal angle between two edges in any of the crossings</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crossings.crossing_metric">
+<span class="sig-prename descclassname"><span class="pre">crossings.</span></span><span class="sig-name descname"><span class="pre">crossing_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_node_crossings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tighter_bound</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-09</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#crossings.crossing_metric" title="Permalink to this definition">#</a></dt>
+<dd><p>Weighs the number of crossings in the embedding against the estimated maximum number of potential crossings.</p>
+<p>The estimated maximum number of potential crossings is is implemented
+as defined by Mooney <em>et al.</em><a class="footnote-reference brackets" href="#footcite-purchase-landscape" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>g</strong> (<em>nx.Graph</em>) – A networkX graph</p></li>
+<li><p><strong>pos</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>dic</em><em>, </em><em>None</em><em>]</em>) – Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+If given as a string, the property under the given name in the networkX graph is used.</p></li>
+<li><p><strong>include_node_crossings</strong> (<em>bool</em>) – Indicate whether crossings involving vertices should be returned as well. A
+crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
+Singletons will never be considered, even if the vertex lies exactly on another edge.</p></li>
+<li><p><strong>tighter_bound</strong> – If set to true, a tighter bound on the maximum number of potential crossings is calculated,
+which might however lie below the actual maximum number of crossings. See Mooney <em>et al.</em><a class="footnote-reference brackets" href="#footcite-purchase-landscape" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> for
+details. If set to false, the original estimate by Purchase<a class="footnote-reference brackets" href="#footcite-purchase-metrics-2002" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> is used.</p></li>
+<li><p><strong>precision</strong> (<em>float</em>) – Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A crossing quality metric between 0 and 1</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crossings.get_crossings">
+<span class="sig-prename descclassname"><span class="pre">crossings.</span></span><span class="sig-name descname"><span class="pre">get_crossings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_node_crossings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-09</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Crossing</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#crossings.get_crossings" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculates all crossings occurring in the graph. This uses the Bentley-Ottmann
+algorithm <a class="footnote-reference brackets" href="#footcite-bentley-algorithms-1979" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> - adapted to handle degenerate cases - and runs in
+<span class="math notranslate nohighlight">\(O((n+k) \log n)\)</span> time and space, where <span class="math notranslate nohighlight">\(k\)</span> is the number of reported crossings.</p>
+<p>The sweepline approach is susceptible to precision errors. Set the precision parameter to a value big enough but
+smaller than the smallest distance expected between two crossings. In case of issues, use
+<a class="reference internal" href="#crossings.get_crossings_quadratic" title="crossings.get_crossings_quadratic"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_crossings_quadratic()</span></code></a> instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>g</strong> (<em>nx.Graph</em>) – A networkX graph</p></li>
+<li><p><strong>pos</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>dic</em><em>, </em><em>None</em><em>]</em>) – Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+If given as a string, the property under the given name in the networkX graph is used.</p></li>
+<li><p><strong>include_node_crossings</strong> (<em>bool</em>) – Indicate whether crossings involving vertices should be returned as well. A
+crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
+Singletons will never be considered, even if the vertex lies exactly on another edge.</p></li>
+<li><p><strong>precision</strong> (<em>float</em>) – Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of crossings, with a list of involved edges per crossing.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Crossing]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crossings.get_crossings_quadratic">
+<span class="sig-prename descclassname"><span class="pre">crossings.</span></span><span class="sig-name descname"><span class="pre">get_crossings_quadratic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_node_crossings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-09</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Crossing</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#crossings.get_crossings_quadratic" title="Permalink to this definition">#</a></dt>
+<dd><p>This alternative crossing detection function is in general slower, but in certain worst-cases might outperform
+the <a class="reference internal" href="#crossings.get_crossings" title="crossings.get_crossings"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_crossings()</span></code></a> method. Use this method if you have problems with precision using the
+<a class="reference internal" href="#crossings.get_crossings" title="crossings.get_crossings"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_crossings()</span></code></a> method.</p>
+<p>The <a class="reference internal" href="#crossings.get_crossings" title="crossings.get_crossings"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_crossings()</span></code></a> method has an asymptotic runtime of <span class="math notranslate nohighlight">\(O((n+k) \text{log} n)\)</span>, where <span class="math notranslate nohighlight">\(k\)</span>
+is the number of crossings. This method runs in <span class="math notranslate nohighlight">\(O(n^2)\)</span> time, which might outperform the optimized
+function slightly when the number of crossing is <span class="math notranslate nohighlight">\(\Theta(n^2)\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>g</strong> (<em>nx.Graph</em>) – A networkX graph</p></li>
+<li><p><strong>pos</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>dic</em><em>, </em><em>None</em><em>]</em>) – Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+If given as a string, the property under the given name in the networkX graph is used.</p></li>
+<li><p><strong>include_node_crossings</strong> (<em>bool</em>) – Indicate whether crossings involving vertices should be returned as well. A
+crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
+Singletons will never be considered, even if the vertex lies exactly on another edge.</p></li>
+<li><p><strong>precision</strong> (<em>float</em>) – Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of crossings, with a list of involved edges per crossing.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Crossing]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crossings.number_of_crossings">
+<span class="sig-prename descclassname"><span class="pre">crossings.</span></span><span class="sig-name descname"><span class="pre">number_of_crossings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_node_crossings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-09</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#crossings.number_of_crossings" title="Permalink to this definition">#</a></dt>
+<dd><p>Counts the total number of crossings in the given embedding.</p>
+<p>Crossings involving more than 2 edges are counted for each pair of involved edges separately. Two edges crossing
+in a line are counted as a single crossing as if they would cross in a point only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>g</strong> (<em>nx.Graph</em>) – A networkX graph</p></li>
+<li><p><strong>pos</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>dic</em><em>, </em><em>None</em><em>]</em>) – Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+If given as a string, the property under the given name in the networkX graph is used.</p></li>
+<li><p><strong>include_node_crossings</strong> (<em>bool</em>) – Indicate whether crossings involving vertices should be returned as well. A
+crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
+Singletons will never be considered, even if the vertex lies exactly on another edge.</p></li>
+<li><p><strong>precision</strong> (<em>float</em>) – Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of crossings</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="crossings.planarize">
+<span class="sig-prename descclassname"><span class="pre">crossings.</span></span><span class="sig-name descname"><span class="pre">planarize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_node_crossings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#crossings.planarize" title="Permalink to this definition">#</a></dt>
+<dd><p>Planarizes the graph by replacing all crossings with nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>g</strong> (<em>nx.Graph</em>) – A networkX graph</p></li>
+<li><p><strong>pos</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>dic</em><em>, </em><em>None</em><em>]</em>) – Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+If given as a string, the property under the given name in the networkX graph is used.</p></li>
+<li><p><strong>include_node_crossings</strong> (<em>bool</em>) – Indicate whether crossings involving vertices should be returned as well. A
+crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
+Singletons will never be considered, even if the vertex lies exactly on another edge.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="bibliography">
+<h2>Bibliography<a class="headerlink" href="#bibliography" title="Permalink to this heading">#</a></h2>
+<div class="docutils container" id="id5">
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="footcite-purchase-landscape" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>)</span>
+<p>Gavin J. Mooney, Helen C. Purchase, Michael Wybrow, and Stephen G. Kobourov. The multi-dimensional landscape of graph drawing metrics. In <em>17th IEEE Pacific Visualization Symposium</em>. Pacific Visualization 2024, 2024.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-purchase-metrics-2002" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
+<p>Helen C. Purchase. Metrics for Graph Drawing Aesthetics. <em>Journal of Visual Languages &amp; Computing</em>, 13(5):501–516, October 2002. <a class="reference external" href="https://doi.org/10.1006/jvlc.2002.0232">doi:10.1006/jvlc.2002.0232</a>.</p>
+</aside>
+<aside class="footnote brackets" id="footcite-bentley-algorithms-1979" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">3</a><span class="fn-bracket">]</span></span>
+<p>Bentley and Ottmann. Algorithms for Reporting and Counting Geometric Intersections. <em>IEEE Transactions on Computers</em>, C-28(9):643–647, September 1979. <a class="reference external" href="https://doi.org/10.1109/TC.1979.1675432">doi:10.1109/TC.1979.1675432</a>.</p>
+</aside>
+</aside>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#methods">Methods</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossings.crossing_angles"><code class="docutils literal notranslate"><span class="pre">crossing_angles()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossings.crossing_angular_resolution"><code class="docutils literal notranslate"><span class="pre">crossing_angular_resolution()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossings.crossing_metric"><code class="docutils literal notranslate"><span class="pre">crossing_metric()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossings.get_crossings"><code class="docutils literal notranslate"><span class="pre">get_crossings()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossings.get_crossings_quadratic"><code class="docutils literal notranslate"><span class="pre">get_crossings_quadratic()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossings.number_of_crossings"><code class="docutils literal notranslate"><span class="pre">number_of_crossings()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossings.planarize"><code class="docutils literal notranslate"><span class="pre">planarize()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bibliography">Bibliography</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Martin Nöllenburg, Sebastian Röder, Markus Wallinger.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
