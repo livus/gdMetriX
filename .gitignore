@@ -69,9 +69,8 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/*
-doc/_build/*
-!doc/_build/html/
+docs/_build/
+doc/_build/
 
 # Build
 out/
