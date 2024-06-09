@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from scipy import ndimage
-from scipy.spatial import ConvexHull, QhullError
+from scipy.spatial import ConvexHull, QhullError, KDTree
 
 from gdMetriX import crossings, common, boundary
 from gdMetriX.common import numeric, Vector
@@ -54,7 +54,7 @@ def _flip_point_around_axis(p: np.array, a: np.array, b: np.array) -> np.array:
     return p + 2 * v_pl
 
 
-def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, threshold: int = 10,
+def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, threshold: int = 2,
                         tolerance: float = 1e-2, fraction: float = 1) -> float:
     r"""
     Computes a metric for axial symmetry between 0 and 1 as defined by :footcite:t:`purchase_metrics_2002`.
@@ -83,31 +83,6 @@ def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, thresho
     :rtype: float
     """
 
-    def _flip_edge(e, a, b):
-        edge_a = np.asarray(pos[e[0]])
-        edge_b = np.asarray(pos[e[1]])
-
-        edge_a_flipped = _flip_point_around_axis(edge_a, a, b)
-        edge_b_flipped = _flip_point_around_axis(edge_b, a, b)
-
-        return edge_a_flipped, edge_b_flipped
-
-    def _points_within_tolerance(point_a, point_b) -> bool:
-        return abs(point_a[0] - point_b[0]) <= tolerance and abs(point_a[1] - point_b[1]) <= tolerance
-
-    def _endpoints_overlap(edge_to_be_flipped, edge_other, a, b):
-        edge_flipped = _flip_edge(edge_to_be_flipped, a, b)
-        other_edge_pos = (pos[edge_other[0]], pos[edge_other[1]])
-
-        if (_points_within_tolerance(edge_flipped[0], other_edge_pos[0])
-                and _points_within_tolerance(edge_flipped[1], other_edge_pos[1])):
-            return (edge_to_be_flipped[0], edge_other[0]), (edge_to_be_flipped[1], edge_other[1])
-        elif (_points_within_tolerance(edge_flipped[0], other_edge_pos[1])
-              and _points_within_tolerance(edge_flipped[1], other_edge_pos[0])):
-            return (edge_to_be_flipped[0], edge_other[1]), (edge_to_be_flipped[1], edge_other[0])
-
-        return None
-
     def _subgraph_area(nodes) -> float:
         try:
             ch = ConvexHull(list([[pos[node][0], pos[node][1]] for node in nodes]))
@@ -134,6 +109,28 @@ def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, thresho
 
         return total / len(edge_pairs)
 
+    def _find_mirrored_nodes(pos_a, pos_b):
+
+        node_positions = np.array([pos[node] for node in node_list])
+        node_positions_mirrored = np.array([_flip_point_around_axis(pos[node], pos_a, pos_b) for node in node_list])
+
+        kdtree = KDTree(node_positions)
+        kdtree_mirrored = KDTree(node_positions_mirrored)
+
+        matching_pairs = list(kdtree.query_ball_tree(kdtree_mirrored, r=tolerance))
+
+        mirrored_nodes = []
+        matching_pairs_dic = {}
+
+        for i in range(len(matching_pairs)):
+
+            if len(matching_pairs[i]) > 0:
+                mirrored_nodes.append(node_list[i])
+
+            matching_pairs_dic[node_list[i]] = matching_pairs[i]
+
+        return mirrored_nodes, matching_pairs_dic
+
     if g.order() <= 1:
         return 1
 
@@ -150,14 +147,11 @@ def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, thresho
     # Planarize by replacing crossings with nodes
     crossings.planarize(g)
     pos = common.get_node_positions(g)
-
-    m = len(g.edges())
     n = len(g.nodes())
 
     total_area = 0.0
     total_symmetry = 0.0
 
-    edge_list = list(g.edges())
     node_list = list(g.nodes())
 
     for i_a, node_a in enumerate(node_list):
@@ -172,33 +166,44 @@ def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, thresho
             pos_a = np.asarray(pos[node_a])
             pos_b = np.asarray(pos[node_b])
 
-            subgraph_edge_pairs = []
-            subgraph_size = 0
+            mirrored_nodes, mirrored_node_pairs = _find_mirrored_nodes(pos_a, pos_b)
 
-            # All edges that are symmetrical along the flip axis get added to the new subgraph
-            for i, edge in enumerate(edge_list):
-                for j in range(i, m):
+            if len(mirrored_nodes) <= math.floor(math.sqrt(threshold)):
+                # In this case there cannot even be enough reflected edges
+                # Abort before we even build the subgraph G_alpha
+                continue
 
-                    other_edge = edge_list[j]
+            # Build a subgraph of symmetric nodes
+            symmetric_subgraph = g.subgraph(mirrored_nodes)
+            subgraph_edges = list(symmetric_subgraph.edges)
 
-                    edge_tuple = _endpoints_overlap(edge, other_edge, pos_a, pos_b)
+            if len(subgraph_edges) <= threshold:
+                continue
 
-                    if edge_tuple is not None:
-                        if edge == other_edge:
-                            subgraph_size += 1
-                        else:
-                            subgraph_size += 2
+            if fraction == 1:
+                sub_sym = 1
+            else:
 
-                        subgraph_edge_pairs.append(edge_tuple)
+                # Obtain all mirrored edges
+                subgraph_edge_pairs = []
 
-            if subgraph_size >= threshold:
+                for i, edge in enumerate(subgraph_edges):
+
+                    a = edge[0]
+                    b = edge[1]
+
+                    for mirror_of_a in mirrored_node_pairs[a]:
+                        mirror_of_a = node_list[mirror_of_a]
+                        for mirror_of_b in mirrored_node_pairs[b]:
+                            mirror_of_b = node_list[mirror_of_b]
+                            if g.has_edge(mirror_of_a, mirror_of_b) or g.has_edge(mirror_of_b, mirror_of_a):
+                                subgraph_edge_pairs.append(((a, b), (mirror_of_a, mirror_of_b)))
+
                 sub_sym = _subgraph_symmetry(subgraph_edge_pairs)
-                contained_nodes = set(
-                    [node for edge_pair in subgraph_edge_pairs for edge in edge_pair for node in edge])
-                sub_area = _subgraph_area(contained_nodes)
 
-                total_symmetry += sub_sym * sub_area
-                total_area += sub_area
+            sub_area = _subgraph_area(symmetric_subgraph.nodes)
+            total_symmetry += sub_sym * sub_area
+            total_area += sub_area
 
     return total_symmetry / max(total_area, convex_hull_area)
 
