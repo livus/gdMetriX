@@ -674,3 +674,59 @@ def visual_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, resolution:
 
     minimum = min(rotational_estimate, reflective_estimate, dihedral_estimate, 1)
     return 1 - math.pow(minimum, 2)
+
+
+def stress(g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: bool = True) -> float:
+    r"""
+    Estimates symmetry by utilizing the stress of the graph embedding as proposed by :footcite:t:`welch_symmetry_2017`.
+
+    The stress is defined as :math:`\sum{i,j \in V} (||p_j - p_j|| - d_[ij})^2`, where :math:`||p_i - p_j||` denotes
+    the Euclidean distance between two vertices and $d_ij$ the length of the shortest path between :math:`i`
+    and :math:`j`.
+
+    :param g: A networkX graph
+    :type g: nx.Graph
+    :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+            If given as a string, the property under the given name in the networkX graph is used.
+    :type pos: Union[str, dic, None]
+    :param scale_minimization: If true, the scale of the drawing is adjusted to minimize the stress. To be precise,
+            a parameter :math:`s` is calculated using a binary search, minimizing the following function:
+            :math:`\sum{i,j \in V} (||p_j - p_j|| - d_[ij})^2`
+    :type scale_minimization:
+    :return: Stress of the graph embedding
+    :rtype: float
+    """
+
+    pos = common.get_node_positions(g, pos)
+    shortest_path_distances = dict(nx.all_pairs_shortest_path_length(g))
+
+    def _get_stress(scale):
+        stress = 0
+
+        for i, p_i in pos.items():
+            for j, p_j in pos.items():
+                if i < j and j in shortest_path_distances[i]:
+                    d_ij = shortest_path_distances[i][j]
+                    euclidean_distance = common.euclidean_distance(p_i, p_j)
+                    stress += (euclidean_distance * scale - d_ij) ** 2 / (d_ij ** 2)
+
+        return stress
+
+    def _binary_search_optimize(s_min, s_max, epsilon=1e-4):
+
+        while s_max - s_min > epsilon:
+            s_mid1 = s_min + (s_max - s_min) / 3
+            s_mid2 = s_max - (s_max - s_min) / 3
+
+            stress_mid1 = _get_stress(s_mid1)
+            stress_mid2 = _get_stress(s_mid2)
+
+            if stress_mid1 < stress_mid2:
+                s_max = s_mid2
+            else:
+                s_min = s_mid1
+
+        return (s_min + s_max) / 2
+
+    optimal_scale = _binary_search_optimize(0.000001, 1000000) if scale_minimization else 1
+    return _get_stress(optimal_scale)
