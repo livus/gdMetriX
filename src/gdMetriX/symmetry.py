@@ -36,6 +36,7 @@ from scipy.spatial import ConvexHull, QhullError, KDTree
 
 from gdMetriX import crossings, common, boundary
 from gdMetriX.common import numeric, Vector
+from gdMetriX.distribution import smallest_enclosing_circle_from_point_set
 
 
 def _flip_point_around_axis(p: np.array, a: np.array, b: np.array) -> np.array:
@@ -678,7 +679,7 @@ def visual_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, resolution:
 
 def stress(g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: bool = True) -> float:
     r"""
-    Estimates symmetry by utilizing the stress of the graph embedding as proposed by :footcite:t:`welch_symmetry_2017`.
+    Estimates symmetry by utilizing the stress of the graph embedding as proposed by :footcite:t:`welch_measuring_2017`.
 
     The stress is defined as :math:`\sum{i,j \in V} (||p_j - p_j|| - d_[ij})^2`, where :math:`||p_i - p_j||` denotes
     the Euclidean distance between two vertices and $d_ij$ the length of the shortest path between :math:`i`
@@ -728,5 +729,39 @@ def stress(g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: 
 
         return (s_min + s_max) / 2
 
-    optimal_scale = _binary_search_optimize(0.000001, 1000000) if scale_minimization else 1
+    optimal_scale = _binary_search_optimize(0.00000025, 4000000) if scale_minimization else 1
     return _get_stress(optimal_scale)
+
+
+def even_neighborhood_distribution(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
+    """
+    Estimates symmetry by calculating how central each node is within its neighborhood as proposed by
+    :footcite:t:`xu_force-directed_2018`.
+
+
+    :param g: A networkX graph
+    :type g: nx.Graph
+    :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+            If given as a string, the property under the given name in the networkX graph is used.
+    :type pos: Union[str, dic, None]
+    :return:
+    :rtype:
+    """
+    pos = common.get_node_positions(g, pos)
+
+    if g.order() <= 2:
+        return 1
+
+    sum = 0
+    for i in g.nodes():
+        W_i = [pos[neighbor] for neighbor in g[i]]
+        W_i.append(pos[i])
+
+        if len(W_i) <= 2:
+            continue
+
+        center, radius = smallest_enclosing_circle_from_point_set(W_i)
+        barycenter = common.barycenter(W_i)
+        sum += center.distance(barycenter) / radius
+
+    return 1 - (sum / g.order())

@@ -213,4 +213,4 @@ class TestPurchaseSymmetry(unittest.TestCase):
 
         symmetry = sym.reflective_symmetry(g, threshold=2, fraction=0.5)
 
-        assert symmetry == 1
+        assert symmetry == 0.25

@@ -27,7 +27,6 @@ import networkx as nx
 import pytest
 # noinspection PyUnresolvedReferences
 import pytest_socket
-from numpy.testing._private.parameterized import parameterized
 
 from gdMetriX import symmetry as sym
 
@@ -179,9 +178,9 @@ def _load_graph_from_file(file):
     return graph
 
 
-class TestEquivalenceToOriginalJavaImplementation_Reflective(unittest.TestCase):
+class TestEquivalenceToOriginalJavaImplementation_Reflective(object):
 
-    @parameterized.expand([
+    @pytest.mark.parametrize("filename, expected_result", [
         ["symmetry-test-0.graphml", 1],
         ["symmetry-test-1.graphml", 1],
         ["symmetry-test-2.graphml", 1],
@@ -258,9 +257,9 @@ class TestEquivalenceToOriginalJavaImplementation_Reflective(unittest.TestCase):
         assert abs(expected_result - symmetry) < 0.002
 
 
-class TestEquivalenceToOriginalJavaImplementation_Translational(unittest.TestCase):
+class TestEquivalenceToOriginalJavaImplementation_Translational(object):
 
-    @parameterized.expand([
+    @pytest.mark.parametrize("filename, expected_result", [
         ["symmetry-test-0.graphml", 1],
         ["symmetry-test-1.graphml", 1],
         ["symmetry-test-2.graphml", 1],
@@ -337,9 +336,9 @@ class TestEquivalenceToOriginalJavaImplementation_Translational(unittest.TestCas
         assert abs(expected_result - symmetry) < 0.002
 
 
-class TestEquivalenceToOriginalJavaImplementation_Rotational(unittest.TestCase):
+class TestEquivalenceToOriginalJavaImplementation_Rotational(object):
 
-    @parameterized.expand([
+    @pytest.mark.parametrize("filename, expected_result", [
         ["symmetry-test-0.graphml", 1],
         ["symmetry-test-1.graphml", 1],
         ["symmetry-test-2.graphml", 1],

@@ -22,7 +22,8 @@ Methods
 """
 
 import math
-from typing import Union, List, Tuple, Optional
+import random
+from typing import Union, List, Tuple, Optional, Iterable
 
 import networkx as nx
 import numpy as np
@@ -556,3 +557,98 @@ def gabriel_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
         return 1
 
     return 1 - (violations / max_estimate)
+
+
+def _smallest_enclosing_circle_recursion(points: List[common.Vector], boundary: List[common.Vector]) -> common.Circle:
+    # TODO iterative approach would be preverable as there is a build in depth limit limiting the maximum number of
+    #  processable points
+    if len(points) == 0 or len(boundary) == 3:
+        if len(boundary) == 0:
+            return common.Vector(0, 0), 0
+        elif len(boundary) == 1:
+            return boundary[0], 0
+        elif len(boundary) == 2:
+            return common.circle_from_two_points(boundary[0], boundary[1])
+        else:
+            return common.circle_from_three_points(boundary[0], boundary[1], boundary[2])
+
+    point = points.pop()
+    center, radius = _smallest_enclosing_circle_recursion(points, boundary)
+
+    # Still valid, just pass it on
+    if point.distance(center) <= radius:
+        points.append(point)
+        return center, radius
+
+    # We need to find a new solution with p on the boundary
+    boundary.append(point)
+    circle = _smallest_enclosing_circle_recursion(points, boundary)
+    boundary.pop()
+    points.append(point)
+    return circle
+
+
+def smallest_enclosing_circle_from_point_set(points: Iterable) -> common.Circle:
+    """
+    Implementation of Welzl's algorithm to find the smallest enclosing circle of a point set.
+
+    :param points: List of points
+    :type p: Iterable
+    :return: The centre and radius of the smallest circle containing all points in the list.
+    :rtype:  gdMetriX.Circle
+    """
+    points = [common.Vector(p[0], p[1]) for p in points]
+
+    if len(points) == 0:
+        return Vector(0,0), 0
+
+    random.shuffle(points)
+
+    # Find extremes to fast-charge the algorithm
+    left_most, left_most_index = None, None
+    right_most, right_most_index = None, None
+    top_most, top_most_index = None, None
+    bottom_most, bottom_most_index = None, None
+    for index, point in enumerate(points):
+        if left_most is None or left_most > point.x:
+            left_most = point.x
+            left_most_index = index
+
+        if right_most is None or right_most < point.x:
+            right_most = point.x
+            right_most_index = index
+
+        if top_most is None or top_most < point.y:
+            top_most = point.y
+            top_most_index = index
+
+        if bottom_most is None or bottom_most > point.y:
+            bottom_most = point.y
+            bottom_most_index = index
+
+    indices = {left_most_index, right_most_index, top_most_index, bottom_most_index}
+    elements = [points[i] for i in indices]
+    indices_sorted = sorted(indices, reverse=True)
+
+    for i in indices_sorted:
+        points.pop(i)
+    for point in elements:
+        points.insert(0, point)
+
+    return _smallest_enclosing_circle_recursion(points, [])
+
+
+def smallest_enclosing_circle(g: nx.Graph, pos: Union[str, dict, None] = None) -> common.Circle:
+    """
+    Implementation of Welzl's algorithm to find the smallest enclosing circle of a graph.
+
+    :param g: A networkX graph
+    :type g: nx.Graph
+    :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+        If given as a string, the property under the given name in the networkX graph is used.
+    :type pos: Union[str, dic, None]
+    :return: The centre and radius of the smallest circle containing all nodes in g.
+    :rtype:  gdMetriX.Circle
+    """
+    pos = common.get_node_positions(g, pos)
+    return smallest_enclosing_circle_from_point_set(pos.values())

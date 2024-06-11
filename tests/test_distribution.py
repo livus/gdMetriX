@@ -29,7 +29,7 @@ import pytest
 import pytest_socket
 
 from gdMetriX import distribution
-from gdMetriX.common import Vector
+from gdMetriX.common import Vector, get_node_positions
 
 
 class TestCenterOfMass(unittest.TestCase):
@@ -945,3 +945,87 @@ class TestNodeOrthogonality(unittest.TestCase):
         orthogonality = distribution.node_orthogonality(g, height=2)
 
         assert orthogonality == 1 / 2
+
+
+class TestSmallestEnclosingCircle(unittest.TestCase):
+
+    def test_empty_graph(self):
+        g = nx.Graph()
+
+        center, radius = distribution.smallest_enclosing_circle(g)
+        assert center == Vector(0, 0)
+        assert radius == 0
+
+    def test_singleton(self):
+        g = nx.Graph()
+        g.add_node(1, pos=(-3, 12))
+
+        center, radius = distribution.smallest_enclosing_circle(g)
+        assert center == Vector(-3, 12)
+        assert radius == 0
+
+    def test_tuple(self):
+
+        for _ in range(0, 10):
+            g = nx.Graph()
+            g.add_node(1, pos=(0, 0))
+            g.add_node(2, pos=(0, 1))
+
+            center, radius = distribution.smallest_enclosing_circle(g)
+            print(center, radius)
+            assert center == Vector(0, 0.5)
+            assert radius == 0.5
+
+    def test_circle(self):
+        random.seed(31294908)
+
+        # Try it a bunch of times as the algorithm is randomized
+        for _ in range(0, 100):
+            g = nx.Graph()
+
+            for i in range(0, 360):
+                g.add_node(i, pos=(math.sin(i), math.cos(i)))
+
+            center, radius = distribution.smallest_enclosing_circle(g)
+            print(center, radius)
+            assert math.isclose(center.x, 0, abs_tol=0.01)
+            assert math.isclose(center.y, 0, abs_tol=0.01)
+            assert math.isclose(radius, 1, abs_tol=0.01)
+
+    def test_rectangle(self):
+        random.seed(5913940234)
+
+        for size in range(4, 128):
+            g = nx.Graph()
+            for i in range(0, size):
+                g.add_node(i, pos=(0, i))
+                g.add_node(size + i, pos=(i, 0))
+                g.add_node(size * 2 + i, pos=(size, i))
+                g.add_node(size * 3 + i, pos=(i, size))
+            g.add_node(size*4, pos=(size,size))
+            print(get_node_positions(g))
+
+            center, radius = distribution.smallest_enclosing_circle(g)
+            print(center, radius)
+            assert center.x == pytest.approx(size / 2)
+            assert center.y == pytest.approx(size / 2)
+            assert radius == pytest.approx(size * math.sqrt(2) / 2)
+
+    def test_random_embedding_all_nodes_contained(self):
+
+        for _ in range(0, 100):
+
+            g = nx.Graph()
+
+            for node in range(0, random.randint(5, 255)):
+                g.add_node(node, pos=(random.uniform(-100,100), random.uniform(-100,100)))
+
+            center, radius = distribution.smallest_enclosing_circle(g)
+            print(center, radius)
+
+            pos = get_node_positions(g)
+
+            for node in g.nodes:
+                print(node)
+                point = Vector(pos[node][0], pos[node][1])
+                assert point.distance(center) <= radius + 1e-06

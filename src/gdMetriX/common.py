@@ -21,7 +21,7 @@
 from __future__ import annotations
 
 import math
-from typing import Union, Tuple
+from typing import Union, Tuple, List
 
 import networkx as nx
 import numpy as np
@@ -291,3 +291,70 @@ def euclidean_distance(point_a: Tuple[numeric, numeric], point_b: Tuple[numeric,
     :rtype: float
     """
     return Vector.from_point(point_a).distance(Vector.from_point(point_b))
+
+
+Circle = Tuple[Vector, float]
+
+
+def circle_from_two_points(a: Vector, b: Vector) -> Circle:
+    """
+    Calculates the smallest circle :math:`C` with a and b on the perimeter of :math:`C`.
+
+    :param a: Point a
+    :type a: gdMetriX.Vector
+    :param b: Point b
+    :type b: gdMetriX.Vector
+    :return: The circle :math:`C`
+    :rtype: gdMetriX.Circle
+    """
+    return a.mid(b), a.distance(b) / 2
+
+
+def circle_from_three_points(a: Vector, b: Vector, c: Vector) -> Circle:
+    """
+    Calculates the unique circle :math:`C` defined by a, b and c with all points on the perimeter of :math:`C`.
+
+    :param a: Point a
+    :type a: gdMetriX.Vector
+    :param b: Point b
+    :type b: gdMetriX.Vector
+    :param c: Point c
+    :type c: gdMetriX.Vector
+    :return: The circle :math:`C`
+    :rtype: gdMetriX.Circle
+    """
+    ax, ay = a.x, a.y
+    bx, by = b.x, b.y
+    cx, cy = c.x, c.y
+    d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
+
+    if d == 0:
+        return None
+
+    def _calculate_center_coordinate(factor_1, factor_2, factor_3):
+        return ((ax ** 2 + ay ** 2) * factor_1 + (bx ** 2 + by ** 2) * factor_2 + (cx ** 2 + cy ** 2) * factor_3) / d
+
+    ux = _calculate_center_coordinate(by - cy, cy - ay, ay - by)
+    uy = _calculate_center_coordinate(cx - bx, ax - cx, bx - ax)
+
+    center = Vector(ux, uy)
+    radius = center.distance(a)
+
+    return Vector(ux, uy), radius
+
+
+def barycenter(points: List) -> Vector:
+    """
+    Calculates the barycenter of the given point set, i.e. the average point.
+    :param points: List of tuples representing the points
+    :type points: List
+    :return: The barycenter
+    :rtype: List
+    """
+    if not points:
+        raise ValueError("Empty point set")
+
+    x_coords = [p[0] for p in points]
+    y_coords = [p[1] for p in points]
+
+    return Vector(sum(x_coords) / len(points), sum(y_coords) / len(points))
