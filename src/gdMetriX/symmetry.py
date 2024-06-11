@@ -704,10 +704,12 @@ def stress(g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: 
     def _get_stress(scale):
         stress = 0
 
-        for i, p_i in pos.items():
-            for j, p_j in pos.items():
-                if i < j and j in shortest_path_distances[i]:
-                    d_ij = shortest_path_distances[i][j]
+        for i, p_i_key in enumerate(pos):
+            p_i = pos[p_i_key]
+            for j, p_j_key in enumerate(pos):
+                p_j = pos[p_j_key]
+                if i < j and p_j_key in shortest_path_distances[p_i_key]:
+                    d_ij = shortest_path_distances[p_i_key][p_j_key]
                     euclidean_distance = common.euclidean_distance(p_i, p_j)
                     stress += (euclidean_distance * scale - d_ij) ** 2 / (d_ij ** 2)
 
