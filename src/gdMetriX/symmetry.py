@@ -681,8 +681,8 @@ def stress(g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: 
     r"""
     Estimates symmetry by utilizing the stress of the graph embedding as proposed by :footcite:t:`welch_measuring_2017`.
 
-    The stress is defined as :math:`\sum{i,j \in V} (||p_j - p_j|| - d_[ij})^2`, where :math:`||p_i - p_j||` denotes
-    the Euclidean distance between two vertices and $d_ij$ the length of the shortest path between :math:`i`
+    The stress of a graph :math:`G=(V,E)` is defined as :math:`\sum{i,j \in V} (||p_j - p_j|| - d_{ij})^2`, where :math:`||p_i - p_j||` denotes
+    the Euclidean distance between two vertices and $d_{ij}$ the length of the shortest path between :math:`i`
     and :math:`j`.
 
     :param g: A networkX graph
@@ -692,7 +692,7 @@ def stress(g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: 
     :type pos: Union[str, dic, None]
     :param scale_minimization: If true, the scale of the drawing is adjusted to minimize the stress. To be precise,
             a parameter :math:`s` is calculated using a binary search, minimizing the following function:
-            :math:`\sum{i,j \in V} (||p_j - p_j|| - d_[ij})^2`
+            :math:`\sum{i,j \in V} (s \cdot ||p_j - p_j|| - d_{ij})^2`
     :type scale_minimization:
     :return: Stress of the graph embedding
     :rtype: float
@@ -736,18 +736,25 @@ def stress(g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: 
 
 
 def even_neighborhood_distribution(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
-    """
+    r"""
     Estimates symmetry by calculating how central each node is within its neighborhood as proposed by
     :footcite:t:`xu_force-directed_2018`.
 
+    Let :math:`N_v` be defined as the neighborhood of a node :math:`v \in V` and :math:`W_v := N_v \cup \{v\}`. Let
+    :math:`C(W_v)` be the smallest enclosing circle of :math:`W_v` and :math:`\text{bary}(W_v)` its barycenter.
+    The symmetry metric :math:`\sigma_v` for a node :math:`v \in V` is defined as the distance between the barycenter
+    :math:`\text{bary}(W_v)` and the center of :math:`\text{center}(C(W_v))`, scaled by the radius of :math:`C(W_v)`,
+    i.e., :math:`\frac{|\text{bary}(W_v) - \text{center}(C(W_v))}{\text{radius}(C(W_v))}`.
+
+    The final metric is defined by the average over all nodes, i.e., :math:`\frac{1}{n} \sum_{v \in V} \sigma_v`.
 
     :param g: A networkX graph
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
             If given as a string, the property under the given name in the networkX graph is used.
     :type pos: Union[str, dic, None]
-    :return:
-    :rtype:
+    :return: The symmetry metric defined by the neighborhood distribution.
+    :rtype: float
     """
     pos = common.get_node_positions(g, pos)
 

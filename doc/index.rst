@@ -14,13 +14,6 @@ Installation
 
 gdMetriX requires Python 3.9 or higher.
 
-Before installing, make sure you have the latest version of ``pip``
-installed:
-
-.. code:: shell
-
-   python -m pip install --upgrade pip
-
 To install the package using ``pip`` use the following command:
 
 .. code:: shell
@@ -142,7 +135,7 @@ If you find this project useful for your work, consider citing it::
    :caption: Contents:
 
    notebooks/tutorial
-   metrics
+   features
    modules
 
 .. Indices and tables
