@@ -97,7 +97,7 @@ def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, thresho
 
     def _subgraph_symmetry(edge_pairs) -> float:
 
-        if fraction == 1:
+        if fraction == 1 or len(edge_pairs) == 0:
             return 1
         else:
             total = 0

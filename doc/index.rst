@@ -123,7 +123,7 @@ If you find this project useful for your work, consider citing it::
         howpublished = {Under submission to Graph Drawing Posters},
         title        = {gdMetriX},
         year         = {2024},
-        url          = {TODO},
+        url          = {https://livus.github.io/gdMetriX/},
     }
 
 
@@ -134,7 +134,7 @@ If you find this project useful for your work, consider citing it::
    :maxdepth: 1
    :caption: Contents:
 
-   notebooks/tutorial
+   tutorial_overview
    features
    modules
 

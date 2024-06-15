@@ -6,7 +6,7 @@ import networkx as nx
 from gdMetriX import boundary
 
 # Random
-for i in range(0, 80):
+for i in range(0, 0):
     print(i)
     for density in range(10, 100, 10):
         try:
@@ -26,11 +26,11 @@ for i in range(0, 80):
 
         nx.write_graphml(random_graph, f"./RandomGraphs/{density}/{i:03}.graphml")
 
-x = 1 / 0
+
 # Spring embedder
 for i in range(0, 255):
     print(i)
-    g = nx.fast_gnp_random_graph(random.randint(5, 12), random.uniform(0, 1), random.randint(1, 10000000))
+    g = nx.fast_gnp_random_graph(random.randint(5, 200), random.uniform(0, 1), random.randint(1, 10000000))
     pos2 = nx.spring_layout(g)
     pos2 = boundary.normalize_positions(g, pos2, (0, 0, 1, 1))
     # nx.set_node_attributes(g, pos2, "pos")

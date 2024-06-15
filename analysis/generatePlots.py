@@ -133,7 +133,7 @@ def _plot(plt, x_values, y_values, label):
         return None
 
 
-def draw_data(data, properties, names, xlim=None, ylim=None):
+def draw_data(data, properties, names, filename, xlim=None, ylim=None):
     property_dic = {property: [] for property in properties}
     property_dic['n'] = []
     property_dic['den'] = []
@@ -187,16 +187,18 @@ def draw_data(data, properties, names, xlim=None, ylim=None):
 
     # Display the plot
     plt.tight_layout()
-    plt.savefig(f"sym_runtime.svg")
+    plt.savefig(filename)
     plt.show()
 
 
 draw_data(timedata, ['pur', 'tra', 'rot', 'ref', 'str', 'for', 'viz'],
           ['Node-based', 'Edge-based - translational', 'Edge-based - rotational', 'Edge-based - reflective', 'Stress',
-           'Even neighborhood distribution', 'Pixel-based']
+           'Even neighborhood distribution', 'Pixel-based'],
+          "sym_runtime_all.svg"
           )
 
 draw_data(timedata, ['str', 'for', 'viz'],
           ['Stress',
            'Even neighborhood distribution', 'Pixel-based'],
+          "sym_runtime.svg"
           )
