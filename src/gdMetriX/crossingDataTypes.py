@@ -612,7 +612,8 @@ class SweepLineEdgeInfo(SortableObject):
         :return:
         :rtype:
         """
-        return __numeric_eq__(self.start_position[1], self.end_position[1])
+        return (__numeric_eq__(self.start_position[1], self.end_position[1])
+                and not __numeric_eq__(self.start_position[0], self.end_position[0]))
 
 
 class SweepLinePoint(SortableObject):

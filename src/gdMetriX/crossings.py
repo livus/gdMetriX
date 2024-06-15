@@ -346,9 +346,15 @@ def get_crossings(g: nx.Graph, pos: Union[str, dict, None] = None, include_node_
         # Start by removing all ends
         for edge_info in current_event_point.end_list:
             sweep_line_status.remove(previous_y, edge_info)
-            if include_node_crossings:
-                for horizontal in current_event_point.horizontal_list:
-                    __append_crossing__(horizontal, edge_info, edges_discovered_at_current_event_point)
+
+        # Check all edges at the current point
+        if include_node_crossings:
+            # TODO horizontal edges?
+            for edge_a in current_event_point.end_list | current_event_point.start_list:
+                for edge_b in current_event_point.start_list | current_event_point.end_list | current_event_point.horizontal_list | current_event_point.interior_list:
+                    print(f"Checking {edge_a} and {edge_b}")
+                    if edge_a != edge_b:
+                        __append_crossing__(edge_a, edge_b, edges_discovered_at_current_event_point)
 
         # reverse the order of interior edges
         for edge in current_event_point.interior_list:
@@ -366,8 +372,9 @@ def get_crossings(g: nx.Graph, pos: Union[str, dict, None] = None, include_node_
         else:
             # We filter out the horizontal edges that might be at the crossing as we do not care for them for obtaining
             # leftmost/rightmost member
-            union = filter(lambda e: not e.is_horizontal(),
-                           current_event_point.start_list | current_event_point.interior_list)
+            # TODO actually we dont even want the horizontals in the interior_list, right?
+            union = set(filter(lambda e: not e.is_horizontal(),
+                           current_event_point.interior_list)) | current_event_point.start_list
             leftmost, rightmost = __get_extreme_edges__(union,
                                                         current_event_point.y - 100 * crossingDataTypes.__precision)
 
@@ -383,7 +390,7 @@ def get_crossings(g: nx.Graph, pos: Union[str, dict, None] = None, include_node_
             # Check for crossing points
             involved_edges = current_event_point.interior_list | edges_at_crossing
 
-            if include_node_crossings:
+            if include_node_crossings: #TODO combine with above?
                 involved_edges |= current_event_point.start_list | current_event_point.end_list
 
             crossing = Crossing(CrossingPoint(current_event_point.x, current_event_point.y),
@@ -391,8 +398,7 @@ def get_crossings(g: nx.Graph, pos: Union[str, dict, None] = None, include_node_
 
             __insert_crossing_into_crossing_list__(crossing)
 
-        # Check for crossing lines
-
+        # Check for crossing lines (now this is the main part of the Bentley-Ottmann algorithm)
         if len(current_event_point.start_list) > 0:
             candidates_sorted = sorted(edges_at_crossing,
                                        key=lambda edge:
@@ -472,7 +478,10 @@ def get_crossings(g: nx.Graph, pos: Union[str, dict, None] = None, include_node_
 
         # Insert start points
         for edge_info in current_event_point.start_list:
-            sweep_line_status.add(current_event_point.y - crossingDataTypes.__precision, edge_info)
+            # In case the edge both starts and ends at the same point, we dont want to have
+            # it in the sweepline further down
+            if not crossingDataTypes.__points_equal__(edge_info.start_position, edge_info.end_position):
+                sweep_line_status.add(current_event_point.y - crossingDataTypes.__precision, edge_info)
 
         # In order to report all crossings in order, we report it only after encountering it on the sweepline
         if current_event_point.is_crossing or len(edges_discovered_at_current_event_point) != 0:
@@ -691,7 +700,7 @@ def number_of_crossings(g: nx.Graph, pos: Union[str, dict, None] = None, include
     :rtype: int
     """
     total = 0
-    for crossing in get_crossings_quadratic(g, pos, include_node_crossings, precision):
+    for crossing in get_crossings(g, pos, include_node_crossings, precision):
         involved_edges = len(crossing.involved_edges)
         total += involved_edges * (involved_edges - 1) // 2
 
