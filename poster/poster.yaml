@@ -1,0 +1,63 @@
+pageSetup:
+  firstTemplate: threeColumns
+  height: null
+  margin-bottom: 37.5pt
+  margin-gutter: 0cm
+  margin-left: 37.5pt
+  margin-right: 37.5pt
+  margin-top: 608pt
+  size: A0
+  spacing-footer: 5mm
+  spacing-header: 5mm
+  width: null
+
+pageTemplates:
+  threeColumns:
+    frames:
+      - - 0cm
+        - 0cm
+        - 32%
+        - 100%
+      - - 34%
+        - 0cm
+        - 32%
+        - 100%
+      - - 68%
+        - 0cm
+        - 32%
+        - 100%
+    showFooter: true
+    showHeader: true
+
+
+styles:
+  normal:
+    fontSize: 200%
+  heading:
+    fontName: fontSansBold
+  code:
+    backColor: '#F3F4F5'
+    borderColor: '#D1D5DA'
+    borderRadius: 5
+    spaceAfter: 18
+    spaceBefore: 18
+    borderPadding: 15
+  table:
+    commands:
+      - - ROWBACKGROUNDS
+        - - 0
+          - 0
+        - - -1
+          - -1
+        - - white
+          - '#F3F4F5'
+    borderWidth: 0
+    borderColor: null
+  table-body:
+    borderWidth: 0
+    borderColor: null
+  table-heading:
+    fontSize: 200%
+    alignment: LEFT
+    borderWidth: 0
+    borderColor: null
