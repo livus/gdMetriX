@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="./" >
 
   <head>
     <meta charset="utf-8" />
@@ -14,35 +14,37 @@
   
   <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
-    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
 
   
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
-  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3ba4146"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Tutorial" href="notebooks/tutorial.html" />
+    <link rel="next" title="Tutorial" href="tutorial_overview.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -52,28 +54,23 @@
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
   
   <div id="pst-scroll-pixel-helper"></div>
-
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>
-    Back to top
-  </button>
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__primary"
-          id="__primary"/>
-  <label class="overlay overlay-primary" for="__primary"></label>
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__secondary"
-          id="__secondary"/>
-  <label class="overlay overlay-secondary" for="__secondary"></label>
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
   
   <div class="search-button__wrapper">
     <div class="search-button__overlay"></div>
@@ -95,18 +92,25 @@
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form></div>
   </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
   
-    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <label class="sidebar-toggle primary-toggle" for="__primary">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
-  </label>
+  </button>
   
   
   <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
 
+  
+    
   
 
 <a class="navbar-brand logo" href="#">
@@ -133,35 +137,29 @@
     <div class="me-auto navbar-header-items__center">
       
         <div class="navbar-item">
-<nav class="navbar-nav">
-  <p class="sidebar-header-items__title"
-     role="heading"
-     aria-level="1"
-     aria-label="Site Navigation">
-    Site Navigation
-  </p>
+<nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="notebooks/tutorial.html">
-                        Tutorial
-                      </a>
-                    </li>
-                
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_overview.html">
+    Tutorial
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="metrics.html">
-                        Features
-                      </a>
-                    </li>
-                
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="modules.html">
-                        Reference
-                      </a>
-                    </li>
-                
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="features.html">
+    Features
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="modules.html">
+    Reference
+  </a>
+</li>
+
   </ul>
 </nav></div>
       
@@ -175,7 +173,7 @@
 
  <script>
  document.write(`
-   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
     <span class="search-button__default-text">Search</span>
     <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
@@ -189,10 +187,10 @@
 
 <script>
 document.write(`
-  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
-    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
-    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
   </button>
 `);
 </script></div>
@@ -206,7 +204,7 @@ document.write(`
 
  <script>
  document.write(`
-   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
     <span class="search-button__default-text">Search</span>
     <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
@@ -217,16 +215,21 @@ document.write(`
   
 
   
-    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
       <span class="fa-solid fa-outdent"></span>
-    </label>
+    </button>
   
 </div>
 
-    </nav>
+    </header>
   
+
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
       
       <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
@@ -237,38 +240,35 @@ document.write(`
     
       <div class="sidebar-header-items__center">
         
-          <div class="navbar-item">
-<nav class="navbar-nav">
-  <p class="sidebar-header-items__title"
-     role="heading"
-     aria-level="1"
-     aria-label="Site Navigation">
-    Site Navigation
-  </p>
+          
+          
+            <div class="navbar-item">
+<nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="notebooks/tutorial.html">
-                        Tutorial
-                      </a>
-                    </li>
-                
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorial_overview.html">
+    Tutorial
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="metrics.html">
-                        Features
-                      </a>
-                    </li>
-                
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="modules.html">
-                        Reference
-                      </a>
-                    </li>
-                
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="features.html">
+    Features
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="modules.html">
+    Reference
+  </a>
+</li>
+
   </ul>
 </nav></div>
+          
         
       </div>
     
@@ -280,10 +280,10 @@ document.write(`
 
 <script>
 document.write(`
-  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
-    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
-    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
   </button>
 `);
 </script></div>
@@ -301,45 +301,40 @@ document.write(`
 
       </div>
       
-      <main id="main-content" class="bd-main">
+      <main id="main-content" class="bd-main" role="main">
         
         
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article"></div>
+              <div class="bd-header-article d-print-none"></div>
               
               
               
                 
 <div id="searchbox"></div>
-                <article class="bd-article" role="main">
+                <article class="bd-article">
                   
   <section id="welcome-to-gdmetrix-s-documentation">
-<h1>Welcome to gdMetriX’s documentation!<a class="headerlink" href="#welcome-to-gdmetrix-s-documentation" title="Permalink to this heading">#</a></h1>
+<h1>Welcome to gdMetriX’s documentation!<a class="headerlink" href="#welcome-to-gdmetrix-s-documentation" title="Link to this heading">#</a></h1>
 <p>gdMetriX is an extension to
 <a class="reference external" href="https://github.com/networkx/networkx">networkX</a> providing commonly
 used quality measures in graph drawing as well as access to
 datasets used previously for evaluating graph embedding algorithms.</p>
-<p>For a complete list of implemented metrics and features, refer to the <a class="reference internal" href="metrics.html#metrics-label"><span class="std std-ref">Features</span></a> page.</p>
+<p>For a complete list of implemented metrics and features, refer to the <a class="reference internal" href="metrics.html#metrics-label"><span class="std std-ref">Metrics</span></a> page.</p>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
 <p>gdMetriX requires Python 3.9 or higher.</p>
-<p>Before installing, make sure you have the latest version of <code class="docutils literal notranslate"><span class="pre">pip</span></code>
-installed:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip
-</pre></div>
-</div>
 <p>To install the package using <code class="docutils literal notranslate"><span class="pre">pip</span></code> use the following command:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>gdMetriX
 </pre></div>
 </div>
 </section>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">#</a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
 <p>For more examples refer to the Tutorial.</p>
 <section id="working-with-networkx">
-<h3>Working with networkX<a class="headerlink" href="#working-with-networkx" title="Permalink to this heading">#</a></h3>
+<h3>Working with networkX<a class="headerlink" href="#working-with-networkx" title="Link to this heading">#</a></h3>
 <p>gdMetriX works with all graph classes of networkX. For more details on
 how to work with networkX, please refer to the
 <a class="reference external" href="https://networkx.org/documentation/stable/">documentation</a> of networkX.</p>
@@ -362,25 +357,25 @@ You can set the attributes using networkX:</p>
 </div>
 </section>
 <section id="calculating-quality-metrics">
-<h3>Calculating quality metrics<a class="headerlink" href="#calculating-quality-metrics" title="Permalink to this heading">#</a></h3>
+<h3>Calculating quality metrics<a class="headerlink" href="#calculating-quality-metrics" title="Link to this heading">#</a></h3>
 <p>For a complete list of implemented metrics, please refer to the
-<a class="reference internal" href="metrics.html#metrics-label"><span class="std std-ref">Features</span></a> page.</p>
+<a class="reference internal" href="metrics.html#metrics-label"><span class="std std-ref">Metrics</span></a> page.</p>
 <p>In order to calculate for example the quality of a drawing in
 regards to crossing, use:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">crossing_quality</span> <span class="o">=</span> <span class="n">gdMetriX</span><span class="o">.</span><span class="n">crossing_metric</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">crossing_quality</span> <span class="o">=</span> <span class="n">gdMetriX</span><span class="o">.</span><span class="n">crossing_density</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">crossing_quality</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The node positions are automatically read from the graph. You can also
 supply them directly:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="n">pos</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nodeA&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span> <span class="s1">&#39;nodeB&#39;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s1">&#39;nodeC&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)}</span>
-<span class="n">crossing_quality</span> <span class="o">=</span> <span class="n">gdMetriX</span><span class="o">.</span><span class="n">crossing_metric</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>
- <span class="nb">print</span><span class="p">(</span><span class="n">crossing_quality</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pos</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nodeA&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span> <span class="s1">&#39;nodeB&#39;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s1">&#39;nodeC&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)}</span>
+<span class="n">crossing_quality</span> <span class="o">=</span> <span class="n">gdMetriX</span><span class="o">.</span><span class="n">crossing_density</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">crossing_quality</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="loading-datasets">
-<h3>Loading datasets<a class="headerlink" href="#loading-datasets" title="Permalink to this heading">#</a></h3>
+<h3>Loading datasets<a class="headerlink" href="#loading-datasets" title="Link to this heading">#</a></h3>
 <p>gdMetriX supports the automatic import of graph drawing datasets. The
 datasets are collected from the <a class="reference external" href="https://visdunneright.github.io/gd_benchmark_sets/">Graph Layout Benchmark
 Datasets</a> project
@@ -392,40 +387,27 @@ the <a class="reference external" href="https://osf.io/j7ucv/">Open Science Foun
 <p>Information about the individual datasets can be found at the <a class="reference external" href="https://visdunneright.github.io/gd_benchmark_sets/%3E">project
 homepage</a>.</p>
 <p>To get a list of all available datasets:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="o">&gt;</span> <span class="n">available_datasets</span> <span class="o">=</span> <span class="n">get_available_datasets</span><span class="p">()</span>
-<span class="o">&gt;&gt;</span> <span class="o">&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">available_datasets</span><span class="p">)</span>
-<span class="p">[</span><span class="s1">&#39;subways&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;rome&#39;</span><span class="p">,</span> <span class="s1">&#39;chess&#39;</span><span class="p">,</span> <span class="s1">&#39;steinlib&#39;</span><span class="p">,</span> <span class="o">...</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">available_datasets</span> <span class="o">=</span> <span class="n">get_available_datasets</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">available_datasets</span><span class="p">)</span>
+<span class="go">[&#39;subways&#39;, &#39;code&#39;, &#39;rome&#39;, &#39;chess&#39;, &#39;steinlib&#39;, ...</span>
 </pre></div>
 </div>
 <p>To iterate over all graphs of a given dataset, simply call
 <code class="xref py py-func docutils literal notranslate"><span class="pre">gdMetriX.get_list_of_graphs()</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="o">&gt;</span> <span class="k">for</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">gdMetriX</span><span class="o">.</span><span class="n">get_list_of_graphs</span><span class="p">(</span><span class="s1">&#39;subways&#39;</span><span class="p">):</span>
-    <span class="o">&gt;&gt;</span> <span class="o">&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">graph</span> <span class="ow">in</span> <span class="n">gdMetriX</span><span class="o">.</span><span class="n">get_list_of_graphs</span><span class="p">(</span><span class="s1">&#39;subways&#39;</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="nb">print</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">())</span>
 </pre></div>
 </div>
 </section>
 </section>
 <section id="license">
-<h2>License<a class="headerlink" href="#license" title="Permalink to this heading">#</a></h2>
+<h2>License<a class="headerlink" href="#license" title="Link to this heading">#</a></h2>
 <p>The project is distributed under the GNU General Public License version 3.</p>
-</section>
-<section id="citing">
-<h2>Citing<a class="headerlink" href="#citing" title="Permalink to this heading">#</a></h2>
-<p>If you find this project useful for your work, consider citing it:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@Misc</span><span class="p">{</span><span class="n">Noellenburg2024gdMetriX</span><span class="p">,</span>
-    <span class="n">author</span>       <span class="o">=</span> <span class="p">{</span><span class="n">Martin</span> <span class="n">Nöllenburg</span><span class="p">,</span> <span class="n">Markus</span> <span class="n">Wallinger</span><span class="p">,</span> <span class="n">Sebastian</span> <span class="n">Röder</span><span class="p">},</span>
-    <span class="n">howpublished</span> <span class="o">=</span> <span class="p">{</span><span class="n">Under</span> <span class="n">submission</span> <span class="n">to</span> <span class="n">Graph</span> <span class="n">Drawing</span> <span class="n">Posters</span><span class="p">},</span>
-    <span class="n">title</span>        <span class="o">=</span> <span class="p">{</span><span class="n">gdMetriX</span><span class="p">},</span>
-    <span class="n">year</span>         <span class="o">=</span> <span class="p">{</span><span class="mi">2024</span><span class="p">},</span>
-    <span class="n">url</span>          <span class="o">=</span> <span class="p">{</span><span class="n">TODO</span><span class="p">},</span>
-<span class="p">}</span>
-</pre></div>
-</div>
 <div class="toctree-wrapper compound">
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metrics.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_overview.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">Reference</a></li>
 </ul>
 </div>
@@ -445,12 +427,14 @@ homepage</a>.</p>
               
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-  <div class="sidebar-secondary-item">
 
-  <div class="page-toc tocsection onthispage">
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> On this page
   </div>
-  <nav class="bd-toc-nav page-toc">
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a><ul class="nav section-nav flex-column">
@@ -460,7 +444,6 @@ homepage</a>.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#license">License</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#citing">Citing</a></li>
 </ul>
   </nav></div>
 
@@ -477,8 +460,8 @@ homepage</a>.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -498,7 +481,7 @@ homepage</a>.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
     <br/>
   </p>
 </div>
@@ -511,7 +494,7 @@ homepage</a>.</p>
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.4.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
 </p></div>
       
     </div>

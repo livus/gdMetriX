@@ -5,3 +5,7 @@ Importing datasets
    :members:
    :undoc-members:
    :show-inheritance:
+
+Bibliography
+---------------------
+.. footbibliography::

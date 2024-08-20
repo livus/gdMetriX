@@ -1,0 +1,700 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Which symmetry metric to choose? &#8212; gdMetriX  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'symmetry_overview';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Features" href="features.html" />
+    <link rel="prev" title="Tutorial" href="notebooks/tutorial.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.svg" class="logo__image only-light" alt="gdMetriX  documentation - Home"/>
+    <script>document.write(`<img src="_static/logo_dark.svg" class="logo__image only-dark" alt="gdMetriX  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="tutorial_overview.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="features.html">
+    Features
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="modules.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="tutorial_overview.html">
+    Tutorial
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="features.html">
+    Features
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="modules.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="notebooks/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Which symmetry metric to choose?</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="tutorial_overview.html" class="nav-link">Tutorial</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Which...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="which-symmetry-metric-to-choose">
+<h1>Which symmetry metric to choose?<a class="headerlink" href="#which-symmetry-metric-to-choose" title="Link to this heading">#</a></h1>
+<p>The proposed symmetry metrics vary fundamentally in their approach.
+This page tries to give an overview of all symmetry metrics for graph drawings previously published in order to ease the decision on what metric might be most suitable for your specific use case.</p>
+<p>In general we distinguish for different types of symmetry - reflective, rotational, translative and dihedral.</p>
+<p>An overview of all identified symmetry metrics can be seen in the table below, most of which are implemented in gdMetriX.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Implementation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Node-based symmetry</p></td>
+<td><p>Tries to identify all potential axes over all vertex pairs and build the sum over all axes over a certain quality threshold.</p></td>
+<td><p><span id="id1">Purchase [<a class="reference internal" href="#id17" title="Helen C. Purchase. Metrics for Graph Drawing Aesthetics. Journal of Visual Languages &amp; Computing, 13(5):501–516, October 2002. doi:10.1006/jvlc.2002.0232.">Pur02</a>]</span></p></td>
+<td><p><a class="reference internal" href="symmetry.html#symmetry.reflective_symmetry" title="symmetry.reflective_symmetry"><code class="xref py py-func docutils literal notranslate"><span class="pre">symmetry.reflective_symmetry()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Edge-based symmetry</p></td>
+<td><p>This metric tries to improve upon the node-based symmetry by also considering edges.</p></td>
+<td><p><span id="id2">Klapaukh <em>et al.</em> [<a class="reference internal" href="#id20" title="Roman Klapaukh, Stuart Marshall, and David Pearce. A Symmetry Metric for Graphs and Line Diagrams. In Peter Chapman, Gem Stapleton, Amirouche Moktefi, Sarah Perez-Kriz, and Francesco Bellucci, editors, Diagrammatic Representation and Inference, volume 10871, pages 739–742. Springer International Publishing, Cham, 2018. doi:10.1007/978-3-319-91376-6_71.">KMP18</a>]</span></p></td>
+<td><p><a class="reference internal" href="symmetry.html#symmetry.edge_based_symmetry" title="symmetry.edge_based_symmetry"><code class="xref py py-func docutils literal notranslate"><span class="pre">symmetry.edge_based_symmetry()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Stress</p></td>
+<td><p>Based on the classic term of <em>stress</em>, i.e. the ratio of the edge lengths, this measure tries to define a measure of energy in a drawing, with lower energy levels claimed to correspond to more symmetric drawings.</p></td>
+<td><p><span id="id3">Welch and Kobourov [<a class="reference internal" href="#id23" title="E. Welch and S. Kobourov. Measuring Symmetry in Drawings of Graphs. Computer Graphics Forum, 36(3):341–351, June 2017. doi:10.1111/cgf.13192.">WK17</a>]</span></p></td>
+<td><p><a class="reference internal" href="symmetry.html#symmetry.stress" title="symmetry.stress"><code class="xref py py-func docutils literal notranslate"><span class="pre">symmetry.stress()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Even neighborhood distribution</p></td>
+<td><p>Determines how evenly the neighbors of each vertex are distributed among each vertex.</p></td>
+<td><p><span id="id4">Xu <em>et al.</em> [<a class="reference internal" href="#id22" title="Taihua Xu, Jie Yang, and Guanglei Gou. A Force-Directed Algorithm for Drawing Directed Graphs Symmetrically. Mathematical Problems in Engineering, 2018:1–24, November 2018. doi:10.1155/2018/6208509.">XYG18</a>]</span></p></td>
+<td><p><a class="reference internal" href="symmetry.html#symmetry.even_neighborhood_distribution" title="symmetry.even_neighborhood_distribution"><code class="xref py py-func docutils literal notranslate"><span class="pre">symmetry.even_neighborhood_distribution()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Automorphism detection</p></td>
+<td><p>Tries to determine the extent to which a drawing displays an automorphism or a group of automorphisms, meaning that this metric takes the structural symmetry of the graph into account.</p></td>
+<td><p><span id="id5">Meidiana <em>et al.</em> [<a class="reference internal" href="#id24" title="A. Meidiana, S.-H. Hong, P. Eades, and D. Keim. Automorphism Faithfulness Metrics for Symmetric Graph Drawings. IEEE Transactions on Visualization and Computer Graphics, pages 1–15, 2022. URL: https://ieeexplore.ieee.org/document/9987696/ (visited on 2023-12-10), doi:10.1109/TVCG.2022.3229354.">MHEK22</a>]</span></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>Pixel-based symmetry</p></td>
+<td><p>A novel approach using the pixel drawing of the graph to estimate symmetry.</p></td>
+<td></td>
+<td><p><a class="reference internal" href="symmetry.html#symmetry.visual_symmetry" title="symmetry.visual_symmetry"><code class="xref py py-func docutils literal notranslate"><span class="pre">symmetry.visual_symmetry()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="comparison">
+<h2>Comparison<a class="headerlink" href="#comparison" title="Link to this heading">#</a></h2>
+<p>A more in-depth comparison between the node-, edge-, and stress-based approaches can be seen in the corresponding study by <span id="id6">Welch and Kobourov [<a class="reference internal" href="#id23" title="E. Welch and S. Kobourov. Measuring Symmetry in Drawings of Graphs. Computer Graphics Forum, 36(3):341–351, June 2017. doi:10.1111/cgf.13192.">WK17</a>]</span>.
+They concluded, that the node-based metric agreed with human perception
+of symmetry slightly more often compared to the edge-based metric. The stress-based metric
+did not outperform either of the other metrics.</p>
+<p>A more basic overview of the properties of all metrics is given in the following table.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Type of symmetry</p></th>
+<th class="head"><p>Runtime</p></th>
+<th class="head"><p>Scope</p></th>
+<th class="head"><p>Robust</p></th>
+<th class="head"><p>Faithful</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Node-based symmetry</p></td>
+<td><p>Reflective</p></td>
+<td><p><span class="math notranslate nohighlight">\(O(n^7)\)</span></p></td>
+<td><p>Both</p></td>
+<td><p>Partially</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p>Edge-based symmetry</p></td>
+<td><p>Reflective, translative, rotational</p></td>
+<td><p><span class="math notranslate nohighlight">\(O(m^2)\)</span></p></td>
+<td><p>Both</p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p>Stress</p></td>
+<td><p>n.a.</p></td>
+<td><p><span class="math notranslate nohighlight">\(O(n^2)\)</span></p></td>
+<td><p>Local</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Even neighborhood distribution</p></td>
+<td><p>n.a.</p></td>
+<td><p><span class="math notranslate nohighlight">\(O(n^2)\)</span></p></td>
+<td><p>Local</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p>Automorphism detection</p></td>
+<td><p>Reflective, translational</p></td>
+<td><p><span class="math notranslate nohighlight">\(O(n \log n)\)</span></p></td>
+<td><p>Local</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Pixel-based symmetry</p></td>
+<td><p>Reflective, rotational, dihedral</p></td>
+<td><p><span class="math notranslate nohighlight">\(O(n + m)\)</span></p></td>
+<td><p>Global</p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Types of symmetry.</strong> Three main types of symmetry are distinguished in literature <span id="id7">[<a class="reference internal" href="#id25" title="Felice De Luca, Stephen Kobourov, and Helen Purchase. Perception of Symmetries in Drawings of Graphs. In Therese Biedl and Andreas Kerren, editors, Graph Drawing and Network Visualization, volume 11282, pages 433–446. Springer International Publishing, Cham, 2018. doi:10.1007/978-3-030-04414-5_31.">DLKP18</a>]</span>.
+If a pattern exhibits <em>reflective</em> symmetry, it is mirrored along
+an axis. If a pattern exhibits <em>rotational</em> symmetry, if it remains
+unchanged after rotating it around a central point for a given
+angle <span class="math notranslate nohighlight">\(α &lt; 360^\circ\)</span>. A pattern exhibits <em>translational</em> symmetry if
+it remains unchanged after applying a shift transformation.</p>
+<p><strong>Scope.</strong> The neural symmetry only considers global symmetry axes. As
+the node- and edge-based approaches integrate a multitude of axes into the final value, some axes might
+represent more local substructures while others reflect global structures. The edge-based symmetry
+has the advantages that the number of considered axes can be customised. With a lower number
+of axes, it is expected that only the strongest, i.e. global, symmetries are considered. More subtle,
+local symmetries might be considered as well. The node-based symmetry metric does not offer such
+trade-offs. All other metrics are based on local substructures. It is, however, unclear to what extend
+global symmetry emerges from a sum of local symmetries.</p>
+<p><strong>Robustness.</strong> A metric is <em>robust</em> if it is not influenced by the scale, rotation or translation of the
+drawing <span id="id8">[<a class="reference internal" href="#id23" title="E. Welch and S. Kobourov. Measuring Symmetry in Drawings of Graphs. Computer Graphics Forum, 36(3):341–351, June 2017. doi:10.1111/cgf.13192.">WK17</a>]</span>. A metric should aim to be robust, as the perceived symmetry does not change with such
+modifications. Unfortunately, the edge-based symmetry and the neural symmetry are not inherently
+robust to rescaling, the node-based metric can be made robust by wisely choosing appropriate
+parameters. All other metrics are inherently robust to rescaling, rotation and translation.</p>
+<p><strong>Faithfulness.</strong> A metric is <em>faithful</em>, if it is able to detect whether the depicted symmetries match the
+inherit symmetries of the graph itself <span id="id9">[<a class="reference internal" href="#id24" title="A. Meidiana, S.-H. Hong, P. Eades, and D. Keim. Automorphism Faithfulness Metrics for Symmetric Graph Drawings. IEEE Transactions on Visualization and Computer Graphics, pages 1–15, 2022. URL: https://ieeexplore.ieee.org/document/9987696/ (visited on 2023-12-10), doi:10.1109/TVCG.2022.3229354.">MHEK22</a>]</span>. The automorphism metric was designed with that exact
+goal in mind. The stress- and force-based approaches consider the structure of the graph as well, the
+extend to which it influences the final metric, however, has to be evaluated separately.</p>
+</section>
+<section id="runtime">
+<h2>Runtime<a class="headerlink" href="#runtime" title="Link to this heading">#</a></h2>
+<p>Especially when used iteratively in an automatic embedder, a symmetry metric has to be quick to obtain.
+However, especially the node- and edge-based metrics - with a runtime of <span class="math notranslate nohighlight">\(O(n^7)\)</span> and <span class="math notranslate nohighlight">\(O(m^2)\)</span> respectively are infeasible to obtain for bigger instances.</p>
+<p>To compare the runtime, we generated random graphs with edge densities from 10% up to 90% (see the figure below).</p>
+<figure class="align-center" id="id27">
+<a class="reference internal image-reference" href="_images/sym_runtime_all.svg"><img alt="Runtime comparison of all metrics" src="_images/sym_runtime_all.svg" style="width: 90%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Runtime comparison of all metrics</span><a class="headerlink" href="#id27" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>When focusing only on the faster metrics, we can see that the stress-based approach takes a bit longer compared to the rest. This is due to the additional binary search that is done to minimize the final metric as discussed above.</p>
+<figure class="align-center" id="id28">
+<a class="reference internal image-reference" href="_images/sym_runtime.svg"><img alt="Runtime comparison of the faster metrics" src="_images/sym_runtime.svg" style="width: 90%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Runtime comparison of the faster metrics</span><a class="headerlink" href="#id28" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="correlation">
+<h2>Correlation<a class="headerlink" href="#correlation" title="Link to this heading">#</a></h2>
+<p>In case all metrics are capable of measuring some sense of symmetry, we expect that they exhibit some extend of correlation.</p>
+<p>The correlation between all symmetry metrics are depicted below.
+The data consists of random graphs embedded using the force-based embedder from networkX.</p>
+<figure class="align-center" id="id29">
+<a class="reference internal image-reference" href="_images/sym_scatter.svg"><img alt="Scatter plot" src="_images/sym_scatter.svg" style="width: 90%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Scatter plot between all implemented symmetry metrics</span><a class="headerlink" href="#id29" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id30">
+<a class="reference internal image-reference" href="_images/sym_corr.svg"><img alt="Correlation matrix" src="_images/sym_corr.svg" style="width: 90%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Correlation matrix between all implemented symmetry metrics</span><a class="headerlink" href="#id30" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="correlation-to-other-metrics">
+<h2>Correlation to other metrics<a class="headerlink" href="#correlation-to-other-metrics" title="Link to this heading">#</a></h2>
+<p>Some symmetry metrics might highly depend on, i.e., the density or size of a graph.</p>
+<p>See the scatter plot below to evaluate of a specific metric is right for you.</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="_images/sym_scatter_2.svg"><img alt="Scatter plot" src="_images/sym_scatter_2.svg" style="width: 90%;" />
+</a>
+</figure>
+<figure class="align-center" id="id31">
+<a class="reference internal image-reference" href="_images/sym_corr_2.svg"><img alt="Correlation matrix" src="_images/sym_corr_2.svg" style="width: 90%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Scatter plot between all implemented symmetry metrics</span><a class="headerlink" href="#id31" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="bibliography">
+<h2>Bibliography<a class="headerlink" href="#bibliography" title="Link to this heading">#</a></h2>
+<div class="docutils container" id="id10">
+<div role="list" class="citation-list">
+<div class="citation" id="id19" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BRSG07<span class="fn-bracket">]</span></span>
+<p>Chris Bennett, Jody Ryall, Leo Spalteholz, and Amy Gooch. The aesthetics of graph visualization. <em>Computational Aesthetics in Graphics</em>, 2007. <a class="reference external" href="https://doi.org/10.2312/COMPAESTH/COMPAESTH07/057-064">doi:10.2312/COMPAESTH/COMPAESTH07/057-064</a>.</p>
+</div>
+<div class="citation" id="id15" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Bur15<span class="fn-bracket">]</span></span>
+<p>Michael Burch. The aesthetics of diagrams. In <em>Proceedings of the 6th International Conference on Information Visualization Theory and Applications - Volume 1: IVAPP, (VISIGRAPP 2015)</em>, 262–267. INSTICC, SciTePress, 2015. <a class="reference external" href="https://doi.org/10.5220/0005357502620267">doi:10.5220/0005357502620267</a>.</p>
+</div>
+<div class="citation" id="id13" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>CP96<span class="fn-bracket">]</span></span>
+<p>Michael K. Coleman and D. Stott Parker. Aesthetics-based Graph Layout for Human Consumption. <em>Software: Practice and Experience</em>, 26(12):1415–1438, December 1996.</p>
+</div>
+<div class="citation" id="id25" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">DLKP18</a><span class="fn-bracket">]</span></span>
+<p>Felice De Luca, Stephen Kobourov, and Helen Purchase. Perception of Symmetries in Drawings of Graphs. In Therese Biedl and Andreas Kerren, editors, <em>Graph Drawing and Network Visualization</em>, volume 11282, pages 433–446. Springer International Publishing, Cham, 2018. <a class="reference external" href="https://doi.org/10.1007/978-3-030-04414-5_31">doi:10.1007/978-3-030-04414-5_31</a>.</p>
+</div>
+<div class="citation" id="id20" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">KMP18</a><span class="fn-bracket">]</span></span>
+<p>Roman Klapaukh, Stuart Marshall, and David Pearce. A Symmetry Metric for Graphs and Line Diagrams. In Peter Chapman, Gem Stapleton, Amirouche Moktefi, Sarah Perez-Kriz, and Francesco Bellucci, editors, <em>Diagrammatic Representation and Inference</em>, volume 10871, pages 739–742. Springer International Publishing, Cham, 2018. <a class="reference external" href="https://doi.org/10.1007/978-3-319-91376-6_71">doi:10.1007/978-3-319-91376-6_71</a>.</p>
+</div>
+<div class="citation" id="id24" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>MHEK22<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id5">1</a>,<a role="doc-backlink" href="#id9">2</a>)</span>
+<p>A. Meidiana, S.-H. Hong, P. Eades, and D. Keim. Automorphism Faithfulness Metrics for Symmetric Graph Drawings. <em>IEEE Transactions on Visualization and Computer Graphics</em>, pages 1–15, 2022. URL: <a class="reference external" href="https://ieeexplore.ieee.org/document/9987696/">https://ieeexplore.ieee.org/document/9987696/</a> (visited on 2023-12-10), <a class="reference external" href="https://doi.org/10.1109/TVCG.2022.3229354">doi:10.1109/TVCG.2022.3229354</a>.</p>
+</div>
+<div class="citation" id="id18" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>MPWK24<span class="fn-bracket">]</span></span>
+<p>Gavin J. Mooney, Helen C. Purchase, Michael Wybrow, and Stephen G. Kobourov. The multi-dimensional landscape of graph drawing metrics. In <em>17th IEEE Pacific Visualization Symposium</em>. Pacific Visualization 2024, 2024.</p>
+</div>
+<div class="citation" id="id17" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Pur02</a><span class="fn-bracket">]</span></span>
+<p>Helen C. Purchase. Metrics for Graph Drawing Aesthetics. <em>Journal of Visual Languages &amp; Computing</em>, 13(5):501–516, October 2002. <a class="reference external" href="https://doi.org/10.1006/jvlc.2002.0232">doi:10.1006/jvlc.2002.0232</a>.</p>
+</div>
+<div class="citation" id="id12" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>PCJ96<span class="fn-bracket">]</span></span>
+<p>Helen C. Purchase, Robert F. Cohen, and Murray James. Validating graph drawing aesthetics. In Franz J. Brandenburg, editor, <em>Graph Drawing</em>, 435–446. Berlin, Heidelberg, 1996. Springer Berlin Heidelberg.</p>
+</div>
+<div class="citation" id="id16" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>TDBB88<span class="fn-bracket">]</span></span>
+<p>R. Tamassia, G. Di Battista, and C. Batini. Automatic graph drawing and readability of diagrams. <em>IEEE Transactions on Systems, Man, and Cybernetics</em>, 18(1):61–79, 1988. <a class="reference external" href="https://doi.org/10.1109/21.87055">doi:10.1109/21.87055</a>.</p>
+</div>
+<div class="citation" id="id14" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>TR05<span class="fn-bracket">]</span></span>
+<p>M. Taylor and P. Rodgers. Applying graphical design techniques to graph visualisation. In <em>Ninth International Conference on Information Visualisation (IV'05)</em>, 651–656. IEEE, 2005. <a class="reference external" href="https://doi.org/10.1109/IV.2005.19">doi:10.1109/IV.2005.19</a>.</p>
+</div>
+<div class="citation" id="id23" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>WK17<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id3">1</a>,<a role="doc-backlink" href="#id6">2</a>,<a role="doc-backlink" href="#id8">3</a>)</span>
+<p>E. Welch and S. Kobourov. Measuring Symmetry in Drawings of Graphs. <em>Computer Graphics Forum</em>, 36(3):341–351, June 2017. <a class="reference external" href="https://doi.org/10.1111/cgf.13192">doi:10.1111/cgf.13192</a>.</p>
+</div>
+<div class="citation" id="id22" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">XYG18</a><span class="fn-bracket">]</span></span>
+<p>Taihua Xu, Jie Yang, and Guanglei Gou. A Force-Directed Algorithm for Drawing Directed Graphs Symmetrically. <em>Mathematical Problems in Engineering</em>, 2018:1–24, November 2018. <a class="reference external" href="https://doi.org/10.1155/2018/6208509">doi:10.1155/2018/6208509</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison">Comparison</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime">Runtime</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#correlation">Correlation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#correlation-to-other-metrics">Correlation to other metrics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bibliography">Bibliography</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Martin Nöllenburg, Sebastian Röder, Markus Wallinger.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
