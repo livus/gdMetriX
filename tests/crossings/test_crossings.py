@@ -22,12 +22,16 @@ import math
 import random
 import unittest
 
+from libpysal import weights
+from libpysal.cg import voronoi_frames
+
 import networkx as nx
 # noinspection PyUnresolvedReferences
 import pytest
 
+
 import crossing_test_helper
-from gdMetriX import crossings
+from gdMetriX import crossings, datasets
 
 
 def __assert_crossing_equality__(g, crossing_list, include_rotation: bool = False,
@@ -672,19 +676,21 @@ class TestComplexCrossingScenarios(unittest.TestCase):
     def test_random_graph(self):
         random.seed(9018098129039)
         for i in range(0, 25):
-            random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 1), random.randint(1, 10000000))
-            random_embedding = {n: [random.randint(-100, 100), random.randint(-100, 100)] for n in range(0, i + 1)}
-            nx.set_node_attributes(random_graph, random_embedding, "pos")
-            __assert_crossing_equality__(random_graph, crossings.get_crossings_quadratic(random_graph),
-                                         include_node_crossings=True)
+            for j in range(0,100):
+                random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 1), random.randint(1, 10000000))
+                random_embedding = {n: [random.randint(-1000, 1000), random.randint(-1000, 1000)] for n in range(0, i + 1)}
+                nx.set_node_attributes(random_graph, random_embedding, "pos")
+                __assert_crossing_equality__(random_graph, crossings.get_crossings_quadratic(random_graph),
+                                             include_node_crossings=True)
 
     def test_random_graph_2(self):
         random.seed(9018098129039)
         for i in range(0, 25):
-            random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 1), random.randint(1, 10000000))
-            random_embedding = {n: [random.randint(-100, 100), random.randint(-100, 100)] for n in range(0, i + 1)}
-            nx.set_node_attributes(random_graph, random_embedding, "pos")
-            __assert_crossing_equality__(random_graph, crossings.get_crossings_quadratic(random_graph))
+            for j in range(0,100):
+                random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 1), random.randint(1, 10000000))
+                random_embedding = {n: [random.randint(-1000, 1000), random.randint(-1000, 1000)] for n in range(0, i + 1)}
+                nx.set_node_attributes(random_graph, random_embedding, "pos")
+                __assert_crossing_equality__(random_graph, crossings.get_crossings_quadratic(random_graph))
 
     def test_edge_with_length_0(self):
         g = nx.Graph()
@@ -795,3 +801,34 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         g.add_edges_from([(1, 3), (2, 4), (5, 6)])
         __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingLine((1, 1), (2, 2)), [(1, 3), (2, 4)])
                                          ])
+
+
+    def test_random_planar_graphs(self):
+
+        for i in range(10, 50):
+            n = i*5
+            coordinates = [(random.uniform(0, 1), random.uniform(0, 1)) for _ in range(0, n)]
+
+            # Generate delaunay
+            cells, generators = voronoi_frames(coordinates, clip="convex hull")
+            delaunay = weights.Rook.from_dataframe(cells)
+            delaunay_graph = delaunay.to_networkx()
+
+            pos = dict(zip(delaunay_graph.nodes, coordinates))
+
+            for node, value in pos.items():
+                delaunay_graph.nodes[node]['pos'] = value
+
+            __assert_crossing_equality__(delaunay_graph, [])
+
+
+class TestDatasetGraphs(object):
+
+    @pytest.mark.parametrize("dataset_name",  [
+        "subways",
+        "scotch",
+    ])
+    def test_dataset(self, dataset_name):
+        for name in datasets.get_available_datasets():
+            for name, graph in datasets.iterate_dataset(dataset_name, adapt_attributes = True):
+                __assert_crossing_equality__(graph, crossings.get_crossings_quadratic(graph))

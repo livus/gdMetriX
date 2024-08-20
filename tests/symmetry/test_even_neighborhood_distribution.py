@@ -65,6 +65,21 @@ class TestEvenNeighborhoodDistribution(unittest.TestCase):
         print(symmetry)
         assert symmetry == 1
 
+    def test_odd_star(self):
+        g = nx.Graph()
+        g.add_node('mid', pos=(0, 0))
+        g.add_node(1, pos=(1, 1))
+        g.add_node(2, pos=(-1, -1))
+        g.add_node(3, pos=(-1, 1))
+        g.add_node(4, pos=(1, -1))
+        g.add_node(5, pos=(0, 1))
+
+        g.add_edges_from([('mid', 1), ('mid', 2), ('mid', 3), ('mid', 4), ('mid', 5)])
+
+        symmetry = sym.even_neighborhood_distribution(g)
+        print(symmetry)
+        assert symmetry == pytest.approx(1 - (1 / 6) / math.sqrt(2))
+
     def test_random_graph_in_range(self):
         random.seed(45345)
         for i in range(0, 100):

@@ -18,7 +18,6 @@
     Unit tests for the stress-based symmetry metric
 """
 
-import math
 import random
 import unittest
 
@@ -58,7 +57,7 @@ class TestStressBasedSymmetry(unittest.TestCase):
         random.seed(32842)
         for i in range(1, 10):
             random_graph = nx.fast_gnp_random_graph(i * 5, random.uniform(0.1, 1), random.randint(1, 10000000))
-            random_embedding = {n: [random.uniform(-100, 100), random.uniform(-100, 100)] for n in range(0, i*5 + 1)}
+            random_embedding = {n: [random.uniform(-100, 100), random.uniform(-100, 100)] for n in range(0, i * 5 + 1)}
             random_embedding = boundary.normalize_positions(random_graph, random_embedding)
 
             symmetry = sym.stress(random_graph, random_embedding)
