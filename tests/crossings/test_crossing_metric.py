@@ -241,14 +241,14 @@ class TestCrossingMetric(unittest.TestCase):
     def test_empty_graph(self):
         g = nx.Graph()
 
-        metric = crossings.crossing_metric(g)
+        metric = crossings.crossing_density(g)
         assert metric == 1
 
     def test_singleton(self):
         g = nx.Graph()
-        g.add_node(1)
+        g.add_node(1, pos=(0, 0))
 
-        metric = crossings.crossing_metric(g)
+        metric = crossings.crossing_density(g)
         assert metric == 1
 
     def test_random_graph(self):
@@ -258,5 +258,5 @@ class TestCrossingMetric(unittest.TestCase):
             random_embedding = {n: [random.randint(-100, 100), random.randint(-100, 100)] for n in range(0, i + 1)}
             nx.set_node_attributes(random_graph, random_embedding, "pos")
 
-            metric = crossings.crossing_metric(random_graph)
+            metric = crossings.crossing_density(random_graph)
             assert 0 <= metric <= 1

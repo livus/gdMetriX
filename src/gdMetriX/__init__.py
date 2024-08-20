@@ -20,7 +20,7 @@
 
 from gdMetriX.boundary import area, area_tight, aspect_ratio, bounding_box, height, normalize_positions, width
 from gdMetriX.common import get_node_positions, Vector, Angle, euclidean_distance
-from gdMetriX.crossings import crossing_angles, crossing_angular_resolution, crossing_metric, get_crossings, \
+from gdMetriX.crossings import crossing_angles, crossing_angular_resolution, crossing_density, get_crossings, \
     get_crossings_quadratic, number_of_crossings, planarize
 from gdMetriX.datasets import clear_cache, get_available_datasets, iterate_dataset
 from gdMetriX.distribution import center_of_mass, closest_pair_of_elements, closest_pair_of_points, concentration, \

@@ -25,7 +25,7 @@
     .. code-block:: python
 
         >>> g = nx.random_geometric_graph(20, 0.5)
-        >>> quality = nx.crossing_metric(g)
+        >>> quality = crossing_density(g)
 
     To obtain a list of all crossings, simply call :func:`get_crossings()`:
 
@@ -352,7 +352,6 @@ def get_crossings(g: nx.Graph, pos: Union[str, dict, None] = None, include_node_
             # TODO horizontal edges?
             for edge_a in current_event_point.end_list | current_event_point.start_list:
                 for edge_b in current_event_point.start_list | current_event_point.end_list | current_event_point.horizontal_list | current_event_point.interior_list:
-                    print(f"Checking {edge_a} and {edge_b}")
                     if edge_a != edge_b:
                         __append_crossing__(edge_a, edge_b, edges_discovered_at_current_event_point)
 
@@ -707,9 +706,9 @@ def number_of_crossings(g: nx.Graph, pos: Union[str, dict, None] = None, include
     return total
 
 
-def crossing_metric(g: nx.Graph, pos: Union[str, dict, None] = None, include_node_crossings: bool = False,
-                    tighter_bound: bool = False,
-                    precision: float = 1e-09) -> float:
+def crossing_density(g: nx.Graph, pos: Union[str, dict, None] = None, include_node_crossings: bool = False,
+                     tighter_bound: bool = False,
+                     precision: float = 1e-09) -> float:
     """
     Weighs the number of crossings in the embedding against the estimated maximum number of potential crossings.
 
