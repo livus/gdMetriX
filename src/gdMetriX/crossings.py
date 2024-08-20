@@ -20,7 +20,7 @@
     Usage
     -----
 
-    Get a quality metric based on the number of crossings using :func:`crossing_metric()`:
+    Get a quality metric based on the number of crossings using :func:`crossing_density()`:
 
     .. code-block:: python
 

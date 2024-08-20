@@ -64,7 +64,7 @@ regards to crossing, use:
 
 .. code:: python
 
-   crossing_quality = gdMetriX.crossing_metric(g)
+   crossing_quality = gdMetriX.crossing_density(g)
    print(crossing_quality)
 
 The node positions are automatically read from the graph. You can also
@@ -73,7 +73,7 @@ supply them directly:
 .. code:: python
 
    pos = {'nodeA': (0, 3.5), 'nodeB': (-3, 3), 'nodeC': (0, 0)}
-  crossing_quality = gdMetriX.crossing_metric(g, pos)
+   crossing_quality = gdMetriX.crossing_density(g, pos)
    print(crossing_quality)
 
 Loading datasets
@@ -96,8 +96,8 @@ To get a list of all available datasets:
 
 .. code:: python
 
-   >> > available_datasets = get_available_datasets()
-   >> > print(available_datasets)
+   >>> available_datasets = get_available_datasets()
+   >>> print(available_datasets)
    ['subways', 'code', 'rome', 'chess', 'steinlib', ...
 
 To iterate over all graphs of a given dataset, simply call
@@ -105,26 +105,27 @@ To iterate over all graphs of a given dataset, simply call
 
 .. code:: python
 
-   >> > for graph in gdMetriX.get_list_of_graphs('subways'):
-       >> > print(graph.nodes())
+   >>> for graph in gdMetriX.get_list_of_graphs('subways'):
+   >>>    print(graph.nodes())
 
 License
 -------
 
 The project is distributed under the GNU General Public License version 3.
 
-Citing
-------
+..
+    Citing
+    ------
 
-If you find this project useful for your work, consider citing it::
+    If you find this project useful for your work, consider citing it::
 
-    @Misc{Noellenburg2024gdMetriX,
-        author       = {Martin Nöllenburg, Markus Wallinger, Sebastian Röder},
-        howpublished = {Under submission to Graph Drawing Posters},
-        title        = {gdMetriX},
-        year         = {2024},
-        url          = {https://livus.github.io/gdMetriX/},
-    }
+        @Misc{Noellenburg2024gdMetriX,
+            author       = {Martin Nöllenburg, Markus Wallinger, Sebastian Röder},
+            howpublished = {Under submission to Graph Drawing Posters},
+            title        = {gdMetriX},
+            year         = {2024},
+            url          = {https://livus.github.io/gdMetriX/},
+        }
 
 
 

@@ -28,6 +28,7 @@ from gdMetriX.distribution import center_of_mass, closest_pair_of_elements, clos
 from gdMetriX.edge_directions import angular_resolution, average_flow, coherence_to_average_flow, \
     combinatorial_embedding, edge_angles, edge_length_deviation, edge_orthogonality, minimum_angle, \
     ordered_neighborhood, upwards_flow
-from gdMetriX.symmetry import SymmetryType, edge_based_symmetry, reflective_symmetry, visual_symmetry
+from gdMetriX.symmetry import SymmetryType, edge_based_symmetry, reflective_symmetry, visual_symmetry, \
+    stress, even_neighborhood_distribution
 
 __version__ = '0.0.1'

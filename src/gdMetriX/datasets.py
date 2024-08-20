@@ -24,9 +24,8 @@
 
     Information about the individual datasets can be found at the
     `project homepage <https://visdunneright.github.io/gd_benchmark_sets/>`_. For more information refer to the
-    corresponding `short paper <https://osf.io/preprints/osf/yftju>`_ [1].
-
-    [1] Di Bartolomeo, Sara, et al. "A collection of benchmark datasets for evaluating graph layout algorithms." (2023).
+    corresponding `short paper <https://osf.io/preprints/osf/yftju>`_
+    :footcite:p:`DiBartolomeo2023CollectionBenchmarkDatasets`.
 
     Usage
     --------
