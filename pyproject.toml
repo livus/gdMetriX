@@ -7,7 +7,7 @@ packages = ["src/gdMetriX"]
 
 [project]
 name = "gdMetriX"
-version = "0.0.1"
+version = "0.0.2"
 license = { file = "LICENSE" }
 keywords = ["graph drawing", "networks", "metrics"]
 authors = [
