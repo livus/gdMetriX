@@ -32,7 +32,7 @@ pageTemplates:
 
 styles:
   normal:
-    fontSize: 200%
+    fontSize: 255%
   heading:
     fontName: fontSansBold
   code:
@@ -51,13 +51,33 @@ styles:
           - -1
         - - white
           - '#F3F4F5'
-    borderWidth: 0
-    borderColor: null
+      - - VALIGN
+        - - 0
+          - 0
+        - - -1
+          - -1
+        - TOP
+    borderColor: '#D1D5DA'
+    borderWidth: 1
+    spaceAfter: 36
+    spaceBefore: 0
+    colWidths: ["6.2cm",null, "4.2cm", "2cm", "4cm"]
   table-body:
     borderWidth: 0
     borderColor: null
   table-heading:
-    fontSize: 200%
+    fontSize: 255%
     alignment: LEFT
     borderWidth: 0
     borderColor: null
+  endnote:
+    spaceBefore: 0
+    fontSize: 45%
+    colWidths:
+      - 1.2cm
+      - null
+
+  qrtable:
+    parent: table
+    spaceAfter: 0
+    colWidths: [ "17cm",null ]
