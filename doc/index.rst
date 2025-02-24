@@ -113,19 +113,19 @@ License
 
 The project is distributed under the GNU General Public License version 3.
 
-..
-    Citing
-    ------
 
-    If you find this project useful for your work, consider citing it::
+Citing
+------
 
-        @Misc{Noellenburg2024gdMetriX,
-            author       = {Martin Nöllenburg, Markus Wallinger, Sebastian Röder},
-            howpublished = {Under submission to Graph Drawing Posters},
-            title        = {gdMetriX},
-            year         = {2024},
-            url          = {https://livus.github.io/gdMetriX/},
-        }
+If you find this project useful for your work, consider citing it::
+
+    @Misc{Noellenburg2024gdMetriX,
+        author       = {Martin Nöllenburg, Markus Wallinger, Sebastian Röder},
+        howpublished = {Proceedings of the 32th International Symposium on Graph Drawing and Network Visualization (GD 2024)},
+        title        = {GdMetriX - A NetworkX Extension for Graph Drawing Metrics},
+        year         = {2024},
+        url          = {https://drops.dagstuhl.de/redirect/index.php?isbn=978-3-95977-343-0},
+    }
 
 
 
