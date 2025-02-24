@@ -307,7 +307,8 @@ def get_crossings(g: nx.Graph, pos: Union[str, dict, None] = None, include_node_
     def __append_crossing__(edge_a: SweepLineEdgeInfo, edge_b: SweepLineEdgeInfo,
                             edges_involved_at_current_event_point: List) -> None:
         cr = __check_lines__(edge_a, edge_b)
-        if cr is not None:
+        if cr is not None and not isinstance(cr, crossingDataTypes.CrossingLine):
+            # print(type(cr))            
             if crossingDataTypes._less_than((current_event_point.x, current_event_point.y),
                                             (cr.x, cr.y)):
                 queue.add_crossing(cr, [edge_a, edge_b])
