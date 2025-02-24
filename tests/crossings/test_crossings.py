@@ -29,7 +29,6 @@ import networkx as nx
 # noinspection PyUnresolvedReferences
 import pytest
 
-
 import crossing_test_helper
 from gdMetriX import crossings, datasets
 
@@ -496,6 +495,45 @@ class TestHorizontalCrossings(unittest.TestCase):
             crossings.Crossing(crossings.CrossingPoint(4, 1), [(1, 2), (9, 10)])
         ])
 
+    def test_overlapping_horizontal_lines(self):
+        g = nx.Graph()
+        g.add_node(1, pos=(0, 2.6))
+        g.add_node(2, pos=(2, 2.6))
+        g.add_node(3, pos=(1, 2.6))
+        g.add_node(4, pos=(4, 2.6))
+        g.add_edges_from([(1, 2), (3, 4)])
+
+        __assert_crossing_equality__(g, crossings.get_crossings_quadratic(g, include_node_crossings=True),
+                                     include_node_crossings=True)
+
+    def test_crossing_over_horizontal_overlap(self):
+        g = nx.Graph()
+        g.add_node(1, pos=(0, 2.6))
+        g.add_node(2, pos=(2, 2.6))
+        g.add_node(3, pos=(1, 2.6))
+        g.add_node(4, pos=(4, 2.6))
+        g.add_node(5, pos=(1.8, 2))
+        g.add_node(6, pos=(1.2, 3))
+        g.add_edges_from([(1, 2), (3, 4), (5, 6)])
+
+        __assert_crossing_equality__(g, crossings.get_crossings_quadratic(g, include_node_crossings=True),
+                                     include_node_crossings=True)
+
+    def test_crossing_over_horizontal_overlap_2(self):
+        g = nx.Graph()
+        g.add_node(1, pos=(0, 2.6))
+        g.add_node(2, pos=(2, 2.6))
+        g.add_node(3, pos=(1, 2.6))
+        g.add_node(4, pos=(4, 2.6))
+        g.add_node(5, pos=(1.8, 2))
+        g.add_node(6, pos=(1.2, 3))
+        g.add_node(7, pos=(-1, 2.6))
+        g.add_node(8, pos=(5, 2.6))
+        g.add_edges_from([(1, 2), (3, 4), (5, 6), (7, 8)])
+
+        __assert_crossing_equality__(g, crossings.get_crossings_quadratic(g, include_node_crossings=True),
+                                     include_node_crossings=True)
+
 
 class TestOverlappingCrossings(unittest.TestCase):
 
@@ -802,11 +840,10 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingLine((1, 1), (2, 2)), [(1, 3), (2, 4)])
                                          ])
 
-
     def test_random_planar_graphs(self):
 
         for i in range(10, 50):
-            n = i*5
+            n = i * 5
             coordinates = [(random.uniform(0, 1), random.uniform(0, 1)) for _ in range(0, n)]
 
             # Generate delaunay
@@ -824,11 +861,11 @@ class TestComplexCrossingScenarios(unittest.TestCase):
 
 class TestDatasetGraphs(object):
 
-    @pytest.mark.parametrize("dataset_name",  [
+    @pytest.mark.parametrize("dataset_name", [
         "subways",
         "scotch",
     ])
     def test_dataset(self, dataset_name):
         for name in datasets.get_available_datasets():
-            for name, graph in datasets.iterate_dataset(dataset_name, adapt_attributes = True):
+            for name, graph in datasets.iterate_dataset(dataset_name, adapt_attributes=True):
                 __assert_crossing_equality__(graph, crossings.get_crossings_quadratic(graph))

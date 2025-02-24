@@ -308,7 +308,9 @@ def get_crossings(g: nx.Graph, pos: Union[str, dict, None] = None, include_node_
                             edges_involved_at_current_event_point: List) -> None:
         cr = __check_lines__(edge_a, edge_b)
         if cr is not None and not isinstance(cr, crossingDataTypes.CrossingLine):
-            # print(type(cr))            
+            # Crossing lines (i.e. overlapping edges) are checked separately,
+            # which is why we skip them here
+
             if crossingDataTypes._less_than((current_event_point.x, current_event_point.y),
                                             (cr.x, cr.y)):
                 queue.add_crossing(cr, [edge_a, edge_b])

@@ -739,7 +739,7 @@ def __get_x_at_y__(edge_info: SweepLineEdgeInfo, y: numeric):
         return x1
     if y2 - y1 == 0:
         return min(x1,x2)
-        # raise ValueError("Horizontal line, TODO")
+
     m = (y2 - y1) / (x2 - x1)
     b = y1 - m * x1
     x = (y - b) / m
