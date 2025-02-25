@@ -95,4 +95,4 @@ To iterate over all graphs of a given dataset, simply call :func:`get_list_of_gr
 
 ## License
 
-The project is distributed under the MIT license.
+The project is distributed under the GNU General Public License Version 3.
