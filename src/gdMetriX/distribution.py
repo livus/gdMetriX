@@ -23,6 +23,7 @@ Methods
 
 import math
 import random
+from enum import Enum
 from typing import Union, List, Tuple, Optional, Iterable
 
 import networkx as nx
@@ -559,33 +560,55 @@ def gabriel_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     return 1 - (violations / max_estimate)
 
 
-def _smallest_enclosing_circle_recursion(points: List[common.Vector], boundary: List[common.Vector]) -> common.Circle:
-    # TODO iterative approach would be preverable as there is a build in depth limit limiting the maximum number of
-    #  processable points
-    if len(points) == 0 or len(boundary) == 3:
-        if len(boundary) == 0:
-            return common.Vector(0, 0), 0
-        elif len(boundary) == 1:
-            return boundary[0], 0
-        elif len(boundary) == 2:
-            return common.circle_from_two_points(boundary[0], boundary[1])
-        else:
-            return common.circle_from_three_points(boundary[0], boundary[1], boundary[2])
+def _smallest_enclosing_circle_iteratively(points: List[common.Vector]) -> common.Circle:
+    class _SecStages(Enum):
+        """ Stages between all recursive calls """
+        FIRST_CALL = 0
+        SECOND_CALL = 1
+        TRAIL = 2
 
-    point = points.pop()
-    center, radius = _smallest_enclosing_circle_recursion(points, boundary)
+    stack = [(_SecStages.FIRST_CALL, None)]
+    results = []
+    point_boundary = []
 
-    # Still valid, just pass it on
-    if point.distance(center) <= radius:
-        points.append(point)
-        return center, radius
+    while len(stack) > 0:
+        stage, point = stack.pop()
 
-    # We need to find a new solution with p on the boundary
-    boundary.append(point)
-    circle = _smallest_enclosing_circle_recursion(points, boundary)
-    boundary.pop()
-    points.append(point)
-    return circle
+        if stage == _SecStages.FIRST_CALL:
+            if len(points) == 0 or len(point_boundary) == 3:
+                # Trivial cases
+                if len(point_boundary) == 0:
+                    circle = common.Vector(0, 0), 0
+                elif len(point_boundary) == 1:
+                    circle = point_boundary[0], 0
+                elif len(point_boundary) == 2:
+                    circle = common.circle_from_two_points(point_boundary[0], point_boundary[1])
+                elif len(point_boundary) == 3:
+                    circle = common.circle_from_three_points(point_boundary[0], point_boundary[1], point_boundary[2])
+                else:
+                    raise ValueError()
+                results.append(circle)
+            else:
+                point = points.pop()
+                stack.append((_SecStages.SECOND_CALL, point))
+                stack.append((_SecStages.FIRST_CALL, None))
+        elif stage == _SecStages.SECOND_CALL:
+            center, radius = results.pop()
+
+            if point.distance(center) <= radius:
+                points.append(point)
+                results.append((center, radius))
+            else:
+                point_boundary.append(point)
+                stack.append((_SecStages.TRAIL, point))
+                stack.append((_SecStages.FIRST_CALL, None))
+        elif stage == _SecStages.TRAIL:
+            result = results.pop()
+            point_boundary.pop()
+            points.append(point)
+            results.append(result)
+
+    return results.pop()
 
 
 def smallest_enclosing_circle_from_point_set(points: Iterable) -> common.Circle:
@@ -593,14 +616,14 @@ def smallest_enclosing_circle_from_point_set(points: Iterable) -> common.Circle:
     Implementation of Welzl's algorithm to find the smallest enclosing circle of a point set.
 
     :param points: List of points
-    :type p: Iterable
+    :type points: Iterable
     :return: The centre and radius of the smallest circle containing all points in the list.
     :rtype:  gdMetriX.Circle
     """
     points = [common.Vector(p[0], p[1]) for p in points]
 
     if len(points) == 0:
-        return Vector(0,0), 0
+        return Vector(0, 0), 0
 
     random.shuffle(points)
 
@@ -635,7 +658,7 @@ def smallest_enclosing_circle_from_point_set(points: Iterable) -> common.Circle:
     for point in elements:
         points.insert(0, point)
 
-    return _smallest_enclosing_circle_recursion(points, [])
+    return _smallest_enclosing_circle_iteratively(points)
 
 
 def smallest_enclosing_circle(g: nx.Graph, pos: Union[str, dict, None] = None) -> common.Circle:

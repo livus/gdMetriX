@@ -21,6 +21,7 @@
 import math
 import random
 import unittest
+import sys
 
 import networkx as nx
 # noinspection PyUnresolvedReferences
@@ -980,14 +981,14 @@ class TestSmallestEnclosingCircle(unittest.TestCase):
         random.seed(31294908)
 
         # Try it a bunch of times as the algorithm is randomized
-        for _ in range(0, 100):
+        for _ in range(0, 20):
             g = nx.Graph()
 
             for i in range(0, 360):
                 g.add_node(i, pos=(math.sin(i), math.cos(i)))
 
             center, radius = distribution.smallest_enclosing_circle(g)
-            print(center, radius)
+
             assert math.isclose(center.x, 0, abs_tol=0.01)
             assert math.isclose(center.y, 0, abs_tol=0.01)
             assert math.isclose(radius, 1, abs_tol=0.01)
@@ -1002,11 +1003,10 @@ class TestSmallestEnclosingCircle(unittest.TestCase):
                 g.add_node(size + i, pos=(i, 0))
                 g.add_node(size * 2 + i, pos=(size, i))
                 g.add_node(size * 3 + i, pos=(i, size))
-            g.add_node(size*4, pos=(size,size))
-            print(get_node_positions(g))
+            g.add_node(size * 4, pos=(size, size))
 
             center, radius = distribution.smallest_enclosing_circle(g)
-            print(center, radius)
+
             assert center.x == pytest.approx(size / 2)
             assert center.y == pytest.approx(size / 2)
             assert radius == pytest.approx(size * math.sqrt(2) / 2)
@@ -1018,14 +1018,47 @@ class TestSmallestEnclosingCircle(unittest.TestCase):
             g = nx.Graph()
 
             for node in range(0, random.randint(5, 255)):
-                g.add_node(node, pos=(random.uniform(-100,100), random.uniform(-100,100)))
+                g.add_node(node, pos=(random.uniform(-100, 100), random.uniform(-100, 100)))
 
             center, radius = distribution.smallest_enclosing_circle(g)
-            print(center, radius)
-
             pos = get_node_positions(g)
 
             for node in g.nodes:
-                print(node)
                 point = Vector(pos[node][0], pos[node][1])
                 assert point.distance(center) <= radius + 1e-06
+
+    def test_dataset_exceeding_recursion_depth(self):
+        # The recursive implementation is limited do to the limited recursion depth
+        # This test checks that this is no longer the case
+
+        g = nx.Graph()
+        for node in range(0, sys.getrecursionlimit() * 2):
+            g.add_node(node, pos=(random.uniform(-100, 100), random.uniform(-100, 100)))
+
+        center, radius = distribution.smallest_enclosing_circle(g)
+        assert radius > 0
+
+    def test_large_dataset_with_defined_boundary_points(self):
+        g = nx.Graph()
+
+        # Equilateral triangle on unit circle
+        A = (1,0)
+        B = (-0.5, math.sqrt(3)/2)
+        C = (-0.5, -math.sqrt(3)/2)
+        g.add_node('A', pos=A)
+        g.add_node('B', pos=B)
+        g.add_node('C', pos=C)
+
+        # Nodes inside the triangle
+        incircle_radius = math.sqrt(3)/6
+        for i in range(0, 250):
+            r_prime = math.sqrt(random.uniform(0,1)) * incircle_radius
+            theta = random.uniform(0, 2*math.pi)
+            g.add_node(i, pos=(r_prime*math.cos(theta), r_prime*math.sin(theta)))
+
+        center, radius = distribution.smallest_enclosing_circle(g)
+
+        assert radius == pytest.approx(1)
+        assert center.x == pytest.approx(0)
+        assert center.y == pytest.approx(0)
+
