@@ -822,7 +822,7 @@ class TestBalance(unittest.TestCase):
         assert balance == - 1 / 4
 
 
-class TestGabrielRatio(unittest.TestCase):
+class TestGabrielRatio(object):
 
     def test_empty_graph(self):
         g = nx.Graph()
@@ -870,7 +870,7 @@ class TestGabrielRatio(unittest.TestCase):
         g = nx.Graph()
         g.add_node(1, pos=(0, 0))
         g.add_node(2, pos=(1, 0))
-        g.add_node(3, pos=(0.5, 0.9))
+        g.add_node(3, pos=(0.5, 0.45))
         g.add_edge(1, 2)
 
         ratio = distribution.gabriel_ratio(g)
@@ -880,7 +880,7 @@ class TestGabrielRatio(unittest.TestCase):
         g = nx.Graph()
         g.add_node(1, pos=(0, 0))
         g.add_node(2, pos=(1, 0))
-        g.add_node(3, pos=(0.5, 0.9))
+        g.add_node(3, pos=(0.5, 0.45))
         g.add_node(4, pos=(-0.5, 0.5))
         g.add_edge(1, 2)
 
@@ -891,7 +891,7 @@ class TestGabrielRatio(unittest.TestCase):
         g = nx.Graph()
         g.add_node(1, pos=(0, 0))
         g.add_node(2, pos=(1, 0))
-        g.add_node(3, pos=(0.5, 0.9))
+        g.add_node(3, pos=(0.5, 0.45))
         g.add_node(4, pos=(-0.5, 0.5))
         g.add_node(5, pos=(-1000, -1000))
         g.add_node(6, pos=(-800, -700))
@@ -900,6 +900,28 @@ class TestGabrielRatio(unittest.TestCase):
 
         ratio = distribution.gabriel_ratio(g)
         assert ratio == 7 / 8
+
+    @pytest.mark.parametrize("graph_size", [
+        10,
+        50,
+        100,
+        150
+    ])
+    def test_large_graph(self, graph_size):
+        random.seed(9348092123)
+
+        g = nx.Graph()
+
+        for i in range(0, graph_size):
+            g.add_node(i, pos=(random.uniform(0, 1000), random.uniform(0, 1000)))
+
+            for j in range(0, i):
+                if random.random() > 0.5:
+                    g.add_edge(j, i)
+
+        ratio = distribution.gabriel_ratio(g)
+
+        assert 0 <= ratio <= 1
 
 
 class TestNodeOrthogonality(unittest.TestCase):
@@ -1042,23 +1064,22 @@ class TestSmallestEnclosingCircle(unittest.TestCase):
         g = nx.Graph()
 
         # Equilateral triangle on unit circle
-        A = (1,0)
-        B = (-0.5, math.sqrt(3)/2)
-        C = (-0.5, -math.sqrt(3)/2)
+        A = (1, 0)
+        B = (-0.5, math.sqrt(3) / 2)
+        C = (-0.5, -math.sqrt(3) / 2)
         g.add_node('A', pos=A)
         g.add_node('B', pos=B)
         g.add_node('C', pos=C)
 
         # Nodes inside the triangle
-        incircle_radius = math.sqrt(3)/6
+        incircle_radius = math.sqrt(3) / 6
         for i in range(0, 250):
-            r_prime = math.sqrt(random.uniform(0,1)) * incircle_radius
-            theta = random.uniform(0, 2*math.pi)
-            g.add_node(i, pos=(r_prime*math.cos(theta), r_prime*math.sin(theta)))
+            r_prime = math.sqrt(random.uniform(0, 1)) * incircle_radius
+            theta = random.uniform(0, 2 * math.pi)
+            g.add_node(i, pos=(r_prime * math.cos(theta), r_prime * math.sin(theta)))
 
         center, radius = distribution.smallest_enclosing_circle(g)
 
         assert radius == pytest.approx(1)
         assert center.x == pytest.approx(0)
         assert center.y == pytest.approx(0)
-

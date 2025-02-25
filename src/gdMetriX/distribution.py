@@ -465,6 +465,8 @@ def closest_pair_of_elements(g: nx.Graph, pos: Union[str, dict, None] = None, co
             first_crossing = crossing_list[0]
             return first_crossing.involved_edges[0], first_crossing.involved_edges[1], 0.0
 
+    # TODO implement more efficient sweep line approach
+
     for edge in g.edges():
         for node in g.nodes():
             if edge[0] == node or edge[1] == node:
@@ -523,16 +525,16 @@ def gabriel_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     :rtype: float
     """
 
-    def _distance(point_a, point_b):
-        return np.linalg.norm(point_a - point_b)
-
     def _within_circle(v, e):
-        a_pos, b_pos = np.asarray(pos[e[0]]), np.asarray(pos[e[1]])
-        n_pos = np.asarray(pos[v])
+        a_pos, b_pos = Vector.from_point(pos[e[0]]), Vector.from_point(pos[e[1]])
+        n_pos = Vector.from_point(pos[v])
 
-        mid_point = a_pos + 0.5 * (b_pos - a_pos)
+        mid_point = a_pos.mid(b_pos)
 
-        return _distance(mid_point, n_pos) < _distance(a_pos, b_pos)
+        edge_radius = mid_point.distance(a_pos)
+        mid_distance = mid_point.distance(n_pos)
+
+        return mid_distance < edge_radius
 
     pos = common.get_node_positions(g, pos)
 
