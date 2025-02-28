@@ -224,9 +224,9 @@ def normalize_positions(
     if pos is None or len(pos) == 0:
         return {}
 
-    (minX, minY, maxX, maxY) = bounding_box(g, pos)
-    h = maxY - minY
-    w = maxX - minX
+    (min_x, min_y, max_x, max_y) = bounding_box(g, pos)
+    h = max_y - min_y
+    w = max_x - min_x
 
     box_height = max(box[1], box[3]) - min(box[1], box[3])
     box_width = max(box[0], box[2]) - min(box[0], box[2])
@@ -255,8 +255,8 @@ def normalize_positions(
     for key, value in pos.items():
         x, y = value
 
-        percentage_x = 0.5 if w == 0 else (x - minX) / w
-        percentage_y = 0.5 if h == 0 else (y - minY) / h
+        percentage_x = 0.5 if w == 0 else (x - min_x) / w
+        percentage_y = 0.5 if h == 0 else (y - min_y) / h
 
         pos[key] = (
             start_x + percentage_x * target_width,

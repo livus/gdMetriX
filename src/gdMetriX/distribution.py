@@ -175,7 +175,7 @@ def _balance(
     upper_count = 0
     lower_count = 0
 
-    for node, point in pos.items():
+    for _, point in pos.items():
         if point[index_offset] > cutoff:
             upper_count += 1
         elif point[index_offset] < cutoff:
@@ -352,7 +352,7 @@ class __EmbeddedPoint:
         self.vec = vec
 
     def __str__(self):
-        return "[{}, {}]".format(self.key, self.vec)
+        return f"[{self.key}, {self.vec}]"
 
 
 def closest_pair_of_points(g: nx.Graph, pos: Union[str, dict, None] = None):
@@ -448,7 +448,7 @@ def _closest_pair_recursion(x_sorted, y_sorted):
         min_pair = (p_left, q_left)
     else:
         min_total = min_left
-        min_pair = (p_left, q_left)
+        min_pair = (p_right, q_right)
 
     (p_split, q_split, min_split) = _closest_split_pair(
         x_sorted, y_sorted, min_total, min_pair
@@ -456,8 +456,7 @@ def _closest_pair_recursion(x_sorted, y_sorted):
 
     if min_total <= min_split:
         return min_pair[0], min_pair[1], min_total
-    else:
-        return p_split, q_split, min_split
+    return p_split, q_split, min_split
 
 
 def _edge_node_distance(edge: Tuple[object, object], node: object, pos) -> float:
@@ -601,7 +600,7 @@ def gabriel_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
 
     for node in g.nodes():
         for edge in g.edges():
-            if node == edge[0] or node == edge[1]:
+            if node in edge:
                 continue
 
             if _within_circle(node, edge):

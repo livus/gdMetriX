@@ -103,22 +103,22 @@ def reflective_symmetry(
 
         if fraction == 1 or len(edge_pairs) == 0:
             return 1
-        else:
-            total = 0
 
-            for pair_1, pair_2 in edge_pairs:
-                factor_1 = (
-                    fraction
-                    if _is_crossing_node(pair_1[0]) != _is_crossing_node(pair_1[1])
-                    else 1
-                )
-                factor_2 = (
-                    fraction
-                    if _is_crossing_node(pair_2[0]) != _is_crossing_node(pair_2[1])
-                    else 1
-                )
+        total = 0
 
-                total += factor_1 * factor_2
+        for pair_1, pair_2 in edge_pairs:
+            factor_1 = (
+                fraction
+                if _is_crossing_node(pair_1[0]) != _is_crossing_node(pair_1[1])
+                else 1
+            )
+            factor_2 = (
+                fraction
+                if _is_crossing_node(pair_2[0]) != _is_crossing_node(pair_2[1])
+                else 1
+            )
+
+            total += factor_1 * factor_2
 
         return total / len(edge_pairs)
 
@@ -138,7 +138,6 @@ def reflective_symmetry(
         matching_pairs_dic = {}
 
         for i in range(len(matching_pairs)):
-
             if len(matching_pairs[i]) > 0:
                 mirrored_nodes.append(node_list[i])
 
@@ -204,8 +203,7 @@ def reflective_symmetry(
                 # Obtain all mirrored edges
                 subgraph_edge_pairs = []
 
-                for i, edge in enumerate(subgraph_edges):
-
+                for edge in subgraph_edges:
                     a = edge[0]
                     b = edge[1]
 
@@ -280,8 +278,7 @@ class _SIFTFeature:
         """Rotation similarity"""
         if theta is None:
             return abs(math.cos(self.angle - other.angle))
-        else:
-            return abs(math.cos(self.angle + other.angle - 2 * theta))
+        return abs(math.cos(self.angle + other.angle - 2 * theta))
 
 
 class _Axis:
@@ -324,7 +321,6 @@ class _AxesSystem:
     def add_rotational_vote(self, feature):
         """Add rotational axis to voting"""
         self.votes.append(_Axis(feature.mid, feature.edge, feature.edge, 1))
-        pass
 
     def add_rotational_vote_from_two(self, feature_a, feature_b):
         """Add rotational axis to voting created from two edges"""
@@ -604,12 +600,8 @@ def edge_based_symmetry(
     )
     sift_features = [_SIFTFeature(e, (pos[e[0]], pos[e[1]]), 1) for e in g.edges()]
 
-    for a in range(len(sift_features)):
-        feature_a = sift_features[a]
-
-        for b in range(a + 1, len(sift_features)):
-            feature_b = sift_features[b]
-
+    for a, feature_a in enumerate(sift_features):
+        for _, feature_b in enumerate(sift_features[a+1:], start=a + 1):
             if symmetry_type == SymmetryType.REFLECTIVE:
                 votes.add_reflective_vote_from_two(feature_a, feature_b)
             elif symmetry_type == SymmetryType.ROTATIONAL:
@@ -857,14 +849,14 @@ def even_neighborhood_distribution(
 
     total_distance = 0
     for i in g.nodes():
-        W_i = [pos[neighbor] for neighbor in g[i]]
-        W_i.append(pos[i])
+        w_i = [pos[neighbor] for neighbor in g[i]]
+        w_i.append(pos[i])
 
-        if len(W_i) <= 2:
+        if len(w_i) <= 2:
             continue
 
-        center, radius = smallest_enclosing_circle_from_point_set(W_i)
-        barycenter = common.barycenter(W_i)
+        center, radius = smallest_enclosing_circle_from_point_set(w_i)
+        barycenter = common.barycenter(w_i)
         total_distance += center.distance(barycenter) / radius
 
     return 1 - (total_distance / g.order())

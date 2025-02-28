@@ -295,9 +295,9 @@ def angular_resolution(
         node_count += 1
 
         optimal_angle = Angle(2 * math.pi) / neighbours
-        minimum_angle = Angle(min(edge_angles(g, node, pos, deg)))
+        min_angle = Angle(min(edge_angles(g, node, pos, deg)))
 
-        deviation_sum += abs(((optimal_angle - minimum_angle) / optimal_angle))
+        deviation_sum += abs(((optimal_angle - min_angle) / optimal_angle))
 
     return deviation_sum / node_count if node_count > 0 else 0
 

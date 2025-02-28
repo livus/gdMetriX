@@ -237,8 +237,8 @@ def __ensure_dataset_downloaded__(name: str) -> None:
     # If the sub_folder already exists, we assume that everything is already downloaded
     if sub_folder.exists() and len(os.listdir(sub_folder)) > 0:
         return
-    else:
-        sub_folder.mkdir(parents=True, exist_ok=True)
+
+    sub_folder.mkdir(parents=True, exist_ok=True)
 
     # Download the zipped directory
     arguments = __get_default_arguments()

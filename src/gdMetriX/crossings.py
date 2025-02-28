@@ -88,7 +88,7 @@ def __check_lines__(
                     (crossing_point.coords[0][0], crossing_point.coords[0][1]),
                     (crossing_point.coords[1][0], crossing_point.coords[1][1]),
                 )
-            elif not __share_endpoint__(line_a, line_b):
+            if not __share_endpoint__(line_a, line_b):
                 return CrossingPoint(crossing_point.x, crossing_point.y)
         else:
             # Check if an endpoint lies on another edge
