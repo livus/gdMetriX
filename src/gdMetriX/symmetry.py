@@ -28,6 +28,7 @@ import math
 from enum import Enum
 from typing import Union, Tuple
 
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -664,13 +665,11 @@ def visual_symmetry(
         ax.set_ylim(-0.8, 0.8)
         ax.set_facecolor((0, 0, 0))
         fig.patch.set_facecolor((0, 0, 0))
-        canvas = fig.canvas
+        canvas = FigureCanvasAgg(fig)
         return canvas, fig, ax
 
-    def _draw_to_array(canvas):
-        return np.frombuffer(canvas.tostring_rgb(), dtype="uint8").reshape(
-            *reversed(canvas.get_width_height()), 3
-        )
+    def _draw_to_array(canvas: FigureCanvasAgg):
+        return np.array(canvas.buffer_rgba())[:, :, :3]
 
     def _get_edge_image():
         canvas, fig, ax = _build_canvas()
