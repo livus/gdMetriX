@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unit tests for the Force-based symmetry metric
+Unit tests for the Force-based symmetry metric
 """
 
 import math
@@ -23,6 +23,7 @@ import random
 import unittest
 
 import networkx as nx
+
 # noinspection PyUnresolvedReferences
 import pytest
 
@@ -55,11 +56,11 @@ class TestEvenNeighborhoodDistribution(unittest.TestCase):
 
     def test_star(self):
         g = nx.Graph()
-        g.add_node('mid', pos=(0, 0))
+        g.add_node("mid", pos=(0, 0))
 
         for i in range(0, 360):
             g.add_node(i, pos=(math.sin(math.radians(i)), math.cos(math.radians(i))))
-            g.add_edge(i, 'mid')
+            g.add_edge(i, "mid")
 
         symmetry = sym.even_neighborhood_distribution(g)
         print(symmetry)
@@ -67,14 +68,14 @@ class TestEvenNeighborhoodDistribution(unittest.TestCase):
 
     def test_odd_star(self):
         g = nx.Graph()
-        g.add_node('mid', pos=(0, 0))
+        g.add_node("mid", pos=(0, 0))
         g.add_node(1, pos=(1, 1))
         g.add_node(2, pos=(-1, -1))
         g.add_node(3, pos=(-1, 1))
         g.add_node(4, pos=(1, -1))
         g.add_node(5, pos=(0, 1))
 
-        g.add_edges_from([('mid', 1), ('mid', 2), ('mid', 3), ('mid', 4), ('mid', 5)])
+        g.add_edges_from([("mid", 1), ("mid", 2), ("mid", 3), ("mid", 4), ("mid", 5)])
 
         symmetry = sym.even_neighborhood_distribution(g)
         print(symmetry)
@@ -83,10 +84,17 @@ class TestEvenNeighborhoodDistribution(unittest.TestCase):
     def test_random_graph_in_range(self):
         random.seed(45345)
         for i in range(0, 100):
-            random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 1), random.randint(1, 10000000))
-            random_embedding = {n: [random.uniform(-100, 100), random.uniform(-100, 100)] for n in range(0, i + 1)}
+            random_graph = nx.fast_gnp_random_graph(
+                i, random.uniform(0.1, 1), random.randint(1, 10000000)
+            )
+            random_embedding = {
+                n: [random.uniform(-100, 100), random.uniform(-100, 100)]
+                for n in range(0, i + 1)
+            }
 
-            symmetry = sym.even_neighborhood_distribution(random_graph, random_embedding)
+            symmetry = sym.even_neighborhood_distribution(
+                random_graph, random_embedding
+            )
             print(i, symmetry)
 
             assert 0 <= symmetry <= 1

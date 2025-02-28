@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unittests for datasets.py
+Unittests for datasets.py
 """
 
 import os
@@ -23,6 +23,7 @@ import unittest
 
 # noinspection PyUnresolvedReferences
 import pytest
+
 # noinspection PyUnresolvedReferences
 import pytest_socket
 
@@ -110,8 +111,10 @@ class TestBenchmarkDataset(unittest.TestCase):
 
         datasets.clear_cache()
 
-        assert (not datasets.__get_data_dir__().exists()
-                or len(os.listdir(datasets.__get_data_dir__())) == 0)
+        assert (
+            not datasets.__get_data_dir__().exists()
+            or len(os.listdir(datasets.__get_data_dir__())) == 0
+        )
 
     @pytest.mark.xdist_group("benchmark_group")
     def test_get_list_of_graph_fresh_download(self):

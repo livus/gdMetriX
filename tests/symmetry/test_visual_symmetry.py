@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unittests for visual symmetry
+Unittests for visual symmetry
 """
 
 import math
@@ -23,8 +23,10 @@ import random
 import unittest
 
 import networkx as nx
+
 # noinspection PyUnresolvedReferences
 import pytest
+
 # noinspection PyUnresolvedReferences
 import pytest_socket
 
@@ -100,8 +102,10 @@ class TestInHouseSymmetry(unittest.TestCase):
         graph_size = 100
         random.seed(2308590348590)
         g = nx.fast_gnp_random_graph(graph_size, 0.5, 30219490182903)
-        random_embedding = {n: [random.randint(-10000, 10000), random.randint(-10000, 10000)] for n in
-                            range(0, graph_size + 1)}
+        random_embedding = {
+            n: [random.randint(-10000, 10000), random.randint(-10000, 10000)]
+            for n in range(0, graph_size + 1)
+        }
         symmetry_a = sym.visual_symmetry(g, random_embedding)
         symmetry_b = sym.visual_symmetry(g, random_embedding)
         print(symmetry_a)
@@ -113,8 +117,10 @@ class TestInHouseSymmetry(unittest.TestCase):
         graph_size = 25
         random.seed(9132809123)
         g = nx.fast_gnp_random_graph(graph_size, 0.5, 2348923409890890123, True)
-        random_embedding = {n: [random.randint(-10000, 10000), random.randint(-10000, 10000)] for n in
-                            range(0, graph_size + 1)}
+        random_embedding = {
+            n: [random.randint(-10000, 10000), random.randint(-10000, 10000)]
+            for n in range(0, graph_size + 1)
+        }
 
         symmetry_a = sym.visual_symmetry(g, random_embedding)
         symmetry_b = sym.visual_symmetry(g, random_embedding)
@@ -132,8 +138,10 @@ class TestInHouseSymmetry(unittest.TestCase):
             print(i)
             print(graph_size)
             g = nx.fast_gnp_random_graph(graph_size, 0.5, 2348923409890890123, True)
-            random_embedding = {n: [random.randint(-10000, 10000), random.randint(-10000, 10000)] for n in
-                                range(0, graph_size + 1)}
+            random_embedding = {
+                n: [random.randint(-10000, 10000), random.randint(-10000, 10000)]
+                for n in range(0, graph_size + 1)
+            }
 
             symmetry = sym.visual_symmetry(g, random_embedding)
 

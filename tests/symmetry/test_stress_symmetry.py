@@ -15,13 +15,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unit tests for the stress-based symmetry metric
+Unit tests for the stress-based symmetry metric
 """
 
 import random
 import unittest
 
 import networkx as nx
+
 # noinspection PyUnresolvedReferences
 import pytest
 
@@ -56,9 +57,16 @@ class TestStressBasedSymmetry(unittest.TestCase):
     def test_scale_independence(self):
         random.seed(32842)
         for i in range(1, 10):
-            random_graph = nx.fast_gnp_random_graph(i * 5, random.uniform(0.1, 1), random.randint(1, 10000000))
-            random_embedding = {n: [random.uniform(-100, 100), random.uniform(-100, 100)] for n in range(0, i * 5 + 1)}
-            random_embedding = boundary.normalize_positions(random_graph, random_embedding)
+            random_graph = nx.fast_gnp_random_graph(
+                i * 5, random.uniform(0.1, 1), random.randint(1, 10000000)
+            )
+            random_embedding = {
+                n: [random.uniform(-100, 100), random.uniform(-100, 100)]
+                for n in range(0, i * 5 + 1)
+            }
+            random_embedding = boundary.normalize_positions(
+                random_graph, random_embedding
+            )
 
             symmetry = sym.stress(random_graph, random_embedding)
             print("Symmetry:", symmetry)
@@ -67,8 +75,10 @@ class TestStressBasedSymmetry(unittest.TestCase):
                 scale_factor = random.uniform(0.0001, 1000)
                 print("Scale factor", scale_factor)
 
-                scaled_embedding = {key: (p[0] * scale_factor, p[1] * scale_factor) for key, p in
-                                    random_embedding.items()}
+                scaled_embedding = {
+                    key: (p[0] * scale_factor, p[1] * scale_factor)
+                    for key, p in random_embedding.items()
+                }
                 scaled_symmetry = sym.stress(random_graph, scaled_embedding)
 
                 print("Scaled symmetry", scaled_symmetry)

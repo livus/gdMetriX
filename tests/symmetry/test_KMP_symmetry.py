@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unit tests for the edge-based symmetry by Klapaukh, Marshalh and Pearce
+Unit tests for the edge-based symmetry by Klapaukh, Marshalh and Pearce
 """
 
 import os
@@ -23,8 +23,10 @@ import random
 import unittest
 
 import networkx as nx
+
 # noinspection PyUnresolvedReferences
 import pytest
+
 # noinspection PyUnresolvedReferences
 import pytest_socket
 
@@ -116,11 +118,18 @@ class TestKlapaukhMarshallPearceSymmetry(unittest.TestCase):
     def test_random_graph_stress_test_translational(self):
         random.seed(942589273489)
         for i in range(0, 50):
-            random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 0.3), random.randint(1, 10000000))
-            random_embedding = {n: [random.randint(-100, 100), random.randint(-100, 100)] for n in range(0, i + 1)}
+            random_graph = nx.fast_gnp_random_graph(
+                i, random.uniform(0.1, 0.3), random.randint(1, 10000000)
+            )
+            random_embedding = {
+                n: [random.randint(-100, 100), random.randint(-100, 100)]
+                for n in range(0, i + 1)
+            }
             nx.set_node_attributes(random_graph, random_embedding, "pos")
 
-            symmetry = sym.edge_based_symmetry(random_graph, sym.SymmetryType.TRANSLATIONAL)
+            symmetry = sym.edge_based_symmetry(
+                random_graph, sym.SymmetryType.TRANSLATIONAL
+            )
             print(symmetry)
 
             assert 0 <= symmetry <= 1
@@ -128,11 +137,18 @@ class TestKlapaukhMarshallPearceSymmetry(unittest.TestCase):
     def test_random_graph_stress_test_rotational(self):
         random.seed(942589273489)
         for i in range(0, 50):
-            random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 0.3), random.randint(1, 10000000))
-            random_embedding = {n: [random.randint(-100, 100), random.randint(-100, 100)] for n in range(0, i + 1)}
+            random_graph = nx.fast_gnp_random_graph(
+                i, random.uniform(0.1, 0.3), random.randint(1, 10000000)
+            )
+            random_embedding = {
+                n: [random.randint(-100, 100), random.randint(-100, 100)]
+                for n in range(0, i + 1)
+            }
             nx.set_node_attributes(random_graph, random_embedding, "pos")
 
-            symmetry = sym.edge_based_symmetry(random_graph, sym.SymmetryType.ROTATIONAL)
+            symmetry = sym.edge_based_symmetry(
+                random_graph, sym.SymmetryType.ROTATIONAL
+            )
             print(symmetry)
 
             assert 0 <= symmetry <= 1
@@ -140,11 +156,18 @@ class TestKlapaukhMarshallPearceSymmetry(unittest.TestCase):
     def test_random_graph_stress_test_reflective(self):
         random.seed(942589273489)
         for i in range(0, 50):
-            random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 0.3), random.randint(1, 10000000))
-            random_embedding = {n: [random.randint(-100, 100), random.randint(-100, 100)] for n in range(0, i + 1)}
+            random_graph = nx.fast_gnp_random_graph(
+                i, random.uniform(0.1, 0.3), random.randint(1, 10000000)
+            )
+            random_embedding = {
+                n: [random.randint(-100, 100), random.randint(-100, 100)]
+                for n in range(0, i + 1)
+            }
             nx.set_node_attributes(random_graph, random_embedding, "pos")
 
-            symmetry = sym.edge_based_symmetry(random_graph, sym.SymmetryType.REFLECTIVE)
+            symmetry = sym.edge_based_symmetry(
+                random_graph, sym.SymmetryType.REFLECTIVE
+            )
             print(symmetry)
 
             assert 0 <= symmetry <= 1
@@ -180,73 +203,76 @@ def _load_graph_from_file(file):
 
 class TestEquivalenceToOriginalJavaImplementation_Reflective(object):
 
-    @pytest.mark.parametrize("filename, expected_result", [
-        ["symmetry-test-0.graphml", 1],
-        ["symmetry-test-1.graphml", 1],
-        ["symmetry-test-2.graphml", 1],
-        ["symmetry-test-3.graphml", 1],
-        ["symmetry-test-4.graphml", 1],
-        ["symmetry-test-5.graphml", 1],
-        ["symmetry-test-6.graphml", 0.5],
-        ["symmetry-test-7.graphml", 1],
-        ["symmetry-test-8.graphml", 1],
-        ["symmetry-test-9.graphml", 0.333],
-        ["symmetry-test-10.graphml", 1],
-        # ["symmetry-test-11.graphml", 0.5],
-        ["symmetry-test-12.graphml", 0.429],
-        ["symmetry-test-13.graphml", 1],
-        # ["symmetry-test-14.graphml", 0.167],
-        # ["symmetry-test-15.graphml", 0.3],
-        ["symmetry-test-16.graphml", 0.667],
-        ["symmetry-test-17.graphml", 0.333],
-        ["symmetry-test-18.graphml", 0.348],
-        ["symmetry-test-19.graphml", 0.12],
-        ["symmetry-test-20.graphml", 0.667],
-        ["symmetry-test-21.graphml", 0.444],
-        ["symmetry-test-22.graphml", 0.25],
-        # ["symmetry-test-23.graphml", 0.222],
-        ["symmetry-test-24.graphml", 0.583],
-        # ["symmetry-test-25.graphml", 0.4],
-        ["symmetry-test-26.graphml", 0.25],
-        ["symmetry-test-27.graphml", 0.25],
-        ["symmetry-test-28.graphml", 0.5],
-        ["symmetry-test-29.graphml", 0.64],
-        # ["symmetry-test-30.graphml", 0.571],
-        ["symmetry-test-31.graphml", 0.396],
-        ["symmetry-test-32.graphml", 0.686],
-        # ["symmetry-test-33.graphml", 0.553],
-        ["symmetry-test-34.graphml", 0.5],
-        # ["symmetry-test-35.graphml", 0.621],
-        ["symmetry-test-36.graphml", 0.467],
-        # ["symmetry-test-37.graphml", 0.125],
-        ["symmetry-test-38.graphml", 0.536],
-        ["symmetry-test-39.graphml", 0.922],
-        ["symmetry-test-40.graphml", 0.926],
-        # ["symmetry-test-41.graphml", 0.846],
-        ["symmetry-test-42.graphml", 0.382],
-        # ["symmetry-test-43.graphml", 0.538],
-        # ["symmetry-test-44.graphml", 0.858],
-        ["symmetry-test-45.graphml", 0.895],
-        ["symmetry-test-46.graphml", 0.913],
-        ["symmetry-test-47.graphml", 0.771],
-        ["symmetry-test-48.graphml", 0.5],
-        ["symmetry-test-49.graphml", 0.967],
-        ["symmetry-test-50.graphml", 0.834],
-        ["symmetry-test-51.graphml", 0.968],
-        # ["symmetry-test-52.graphml", 0.273],
-        ["symmetry-test-53.graphml", 0.59],
-        ["symmetry-test-54.graphml", 0.383],
-        ["symmetry-test-55.graphml", 0.925],
-        # ["symmetry-test-56.graphml", 0.188],
-        ["symmetry-test-57.graphml", 0.913],
-        # ["symmetry-test-58.graphml", 0.771],
-        # ["symmetry-test-59.graphml", 0.975],
-        ["symmetry-test-60.graphml", 0.902],
-        ["symmetry-test-61.graphml", 0.85],
-        ["symmetry-test-62.graphml", 0.798],
-        # ["symmetry-test-63.graphml", 0.86],
-        # ["symmetry-test-64.graphml", 0.897],
-    ])
+    @pytest.mark.parametrize(
+        "filename, expected_result",
+        [
+            ["symmetry-test-0.graphml", 1],
+            ["symmetry-test-1.graphml", 1],
+            ["symmetry-test-2.graphml", 1],
+            ["symmetry-test-3.graphml", 1],
+            ["symmetry-test-4.graphml", 1],
+            ["symmetry-test-5.graphml", 1],
+            ["symmetry-test-6.graphml", 0.5],
+            ["symmetry-test-7.graphml", 1],
+            ["symmetry-test-8.graphml", 1],
+            ["symmetry-test-9.graphml", 0.333],
+            ["symmetry-test-10.graphml", 1],
+            # ["symmetry-test-11.graphml", 0.5],
+            ["symmetry-test-12.graphml", 0.429],
+            ["symmetry-test-13.graphml", 1],
+            # ["symmetry-test-14.graphml", 0.167],
+            # ["symmetry-test-15.graphml", 0.3],
+            ["symmetry-test-16.graphml", 0.667],
+            ["symmetry-test-17.graphml", 0.333],
+            ["symmetry-test-18.graphml", 0.348],
+            ["symmetry-test-19.graphml", 0.12],
+            ["symmetry-test-20.graphml", 0.667],
+            ["symmetry-test-21.graphml", 0.444],
+            ["symmetry-test-22.graphml", 0.25],
+            # ["symmetry-test-23.graphml", 0.222],
+            ["symmetry-test-24.graphml", 0.583],
+            # ["symmetry-test-25.graphml", 0.4],
+            ["symmetry-test-26.graphml", 0.25],
+            ["symmetry-test-27.graphml", 0.25],
+            ["symmetry-test-28.graphml", 0.5],
+            ["symmetry-test-29.graphml", 0.64],
+            # ["symmetry-test-30.graphml", 0.571],
+            ["symmetry-test-31.graphml", 0.396],
+            ["symmetry-test-32.graphml", 0.686],
+            # ["symmetry-test-33.graphml", 0.553],
+            ["symmetry-test-34.graphml", 0.5],
+            # ["symmetry-test-35.graphml", 0.621],
+            ["symmetry-test-36.graphml", 0.467],
+            # ["symmetry-test-37.graphml", 0.125],
+            ["symmetry-test-38.graphml", 0.536],
+            ["symmetry-test-39.graphml", 0.922],
+            ["symmetry-test-40.graphml", 0.926],
+            # ["symmetry-test-41.graphml", 0.846],
+            ["symmetry-test-42.graphml", 0.382],
+            # ["symmetry-test-43.graphml", 0.538],
+            # ["symmetry-test-44.graphml", 0.858],
+            ["symmetry-test-45.graphml", 0.895],
+            ["symmetry-test-46.graphml", 0.913],
+            ["symmetry-test-47.graphml", 0.771],
+            ["symmetry-test-48.graphml", 0.5],
+            ["symmetry-test-49.graphml", 0.967],
+            ["symmetry-test-50.graphml", 0.834],
+            ["symmetry-test-51.graphml", 0.968],
+            # ["symmetry-test-52.graphml", 0.273],
+            ["symmetry-test-53.graphml", 0.59],
+            ["symmetry-test-54.graphml", 0.383],
+            ["symmetry-test-55.graphml", 0.925],
+            # ["symmetry-test-56.graphml", 0.188],
+            ["symmetry-test-57.graphml", 0.913],
+            # ["symmetry-test-58.graphml", 0.771],
+            # ["symmetry-test-59.graphml", 0.975],
+            ["symmetry-test-60.graphml", 0.902],
+            ["symmetry-test-61.graphml", 0.85],
+            ["symmetry-test-62.graphml", 0.798],
+            # ["symmetry-test-63.graphml", 0.86],
+            # ["symmetry-test-64.graphml", 0.897],
+        ],
+    )
     def test_reflective_symmetry_default_parameters(self, filename, expected_result):
         graph = _load_graph_from_file(filename)
         symmetry = sym.edge_based_symmetry(graph, sym.SymmetryType.REFLECTIVE)
@@ -259,73 +285,76 @@ class TestEquivalenceToOriginalJavaImplementation_Reflective(object):
 
 class TestEquivalenceToOriginalJavaImplementation_Translational(object):
 
-    @pytest.mark.parametrize("filename, expected_result", [
-        ["symmetry-test-0.graphml", 1],
-        ["symmetry-test-1.graphml", 1],
-        ["symmetry-test-2.graphml", 1],
-        ["symmetry-test-3.graphml", 1],
-        # ["symmetry-test-4.graphml", 1],
-        ["symmetry-test-5.graphml", 1],
-        ["symmetry-test-6.graphml", 1],
-        ["symmetry-test-7.graphml", 1],
-        ["symmetry-test-8.graphml", 1],
-        ["symmetry-test-9.graphml", 0.667],
-        ["symmetry-test-10.graphml", 1],
-        ["symmetry-test-12.graphml", 0.429],
-        ["symmetry-test-11.graphml", 0.667],
-        ["symmetry-test-13.graphml", 1],
-        ["symmetry-test-14.graphml", 0.333],
-        ["symmetry-test-15.graphml", 0.7],
-        ["symmetry-test-16.graphml", 0.5],
-        ["symmetry-test-18.graphml", 0.261],
-        ["symmetry-test-17.graphml", 0.667],
-        ["symmetry-test-19.graphml", 0.6],
-        ["symmetry-test-20.graphml", 0.667],
-        ["symmetry-test-21.graphml", 0.481],
-        ["symmetry-test-22.graphml", 0.125],
-        ["symmetry-test-23.graphml", 0.778],
-        ["symmetry-test-24.graphml", 0.417],
-        ["symmetry-test-25.graphml", 0.267],
-        ["symmetry-test-26.graphml", 0.75],
-        ["symmetry-test-27.graphml", 0.5],
-        ["symmetry-test-28.graphml", 1],
-        ["symmetry-test-29.graphml", 0.32],
-        ["symmetry-test-30.graphml", 0.805],
-        ["symmetry-test-31.graphml", 0.792],
-        ["symmetry-test-32.graphml", 0.725],
-        ["symmetry-test-33.graphml", 0.638],
-        ["symmetry-test-34.graphml", 1],
-        ["symmetry-test-35.graphml", 0.727],
-        ["symmetry-test-36.graphml", 0.578],
-        ["symmetry-test-37.graphml", 0.375],
-        ["symmetry-test-38.graphml", 0.429],
-        ["symmetry-test-39.graphml", 0.883],
-        ["symmetry-test-40.graphml", 0.91],
-        ["symmetry-test-41.graphml", 0.846],
-        ["symmetry-test-42.graphml", 0.471],
-        ["symmetry-test-43.graphml", 0.154],
-        ["symmetry-test-44.graphml", 0.92],
-        ["symmetry-test-45.graphml", 0.816],
-        ["symmetry-test-46.graphml", 0.855],
-        ["symmetry-test-47.graphml", 0.905],
-        ["symmetry-test-48.graphml", 0.417],
-        ["symmetry-test-49.graphml", 0.905],
-        ["symmetry-test-50.graphml", 0.905],
-        ["symmetry-test-51.graphml", 0.956],
-        ["symmetry-test-52.graphml", 0.182],
-        ["symmetry-test-53.graphml", 0.795],
-        ["symmetry-test-54.graphml", 0.723],
-        ["symmetry-test-55.graphml", 0.916],
-        ["symmetry-test-56.graphml", 0.5],
-        ["symmetry-test-57.graphml", 0.959],
-        ["symmetry-test-58.graphml", 0.934],
-        ["symmetry-test-59.graphml", 0.947],
-        ["symmetry-test-60.graphml", 0.922],
-        ["symmetry-test-61.graphml", 0.875],
-        ["symmetry-test-62.graphml", 0.974],
-        ["symmetry-test-63.graphml", 0.754],
-        ["symmetry-test-64.graphml", 0.921],
-    ])
+    @pytest.mark.parametrize(
+        "filename, expected_result",
+        [
+            ["symmetry-test-0.graphml", 1],
+            ["symmetry-test-1.graphml", 1],
+            ["symmetry-test-2.graphml", 1],
+            ["symmetry-test-3.graphml", 1],
+            # ["symmetry-test-4.graphml", 1],
+            ["symmetry-test-5.graphml", 1],
+            ["symmetry-test-6.graphml", 1],
+            ["symmetry-test-7.graphml", 1],
+            ["symmetry-test-8.graphml", 1],
+            ["symmetry-test-9.graphml", 0.667],
+            ["symmetry-test-10.graphml", 1],
+            ["symmetry-test-12.graphml", 0.429],
+            ["symmetry-test-11.graphml", 0.667],
+            ["symmetry-test-13.graphml", 1],
+            ["symmetry-test-14.graphml", 0.333],
+            ["symmetry-test-15.graphml", 0.7],
+            ["symmetry-test-16.graphml", 0.5],
+            ["symmetry-test-18.graphml", 0.261],
+            ["symmetry-test-17.graphml", 0.667],
+            ["symmetry-test-19.graphml", 0.6],
+            ["symmetry-test-20.graphml", 0.667],
+            ["symmetry-test-21.graphml", 0.481],
+            ["symmetry-test-22.graphml", 0.125],
+            ["symmetry-test-23.graphml", 0.778],
+            ["symmetry-test-24.graphml", 0.417],
+            ["symmetry-test-25.graphml", 0.267],
+            ["symmetry-test-26.graphml", 0.75],
+            ["symmetry-test-27.graphml", 0.5],
+            ["symmetry-test-28.graphml", 1],
+            ["symmetry-test-29.graphml", 0.32],
+            ["symmetry-test-30.graphml", 0.805],
+            ["symmetry-test-31.graphml", 0.792],
+            ["symmetry-test-32.graphml", 0.725],
+            ["symmetry-test-33.graphml", 0.638],
+            ["symmetry-test-34.graphml", 1],
+            ["symmetry-test-35.graphml", 0.727],
+            ["symmetry-test-36.graphml", 0.578],
+            ["symmetry-test-37.graphml", 0.375],
+            ["symmetry-test-38.graphml", 0.429],
+            ["symmetry-test-39.graphml", 0.883],
+            ["symmetry-test-40.graphml", 0.91],
+            ["symmetry-test-41.graphml", 0.846],
+            ["symmetry-test-42.graphml", 0.471],
+            ["symmetry-test-43.graphml", 0.154],
+            ["symmetry-test-44.graphml", 0.92],
+            ["symmetry-test-45.graphml", 0.816],
+            ["symmetry-test-46.graphml", 0.855],
+            ["symmetry-test-47.graphml", 0.905],
+            ["symmetry-test-48.graphml", 0.417],
+            ["symmetry-test-49.graphml", 0.905],
+            ["symmetry-test-50.graphml", 0.905],
+            ["symmetry-test-51.graphml", 0.956],
+            ["symmetry-test-52.graphml", 0.182],
+            ["symmetry-test-53.graphml", 0.795],
+            ["symmetry-test-54.graphml", 0.723],
+            ["symmetry-test-55.graphml", 0.916],
+            ["symmetry-test-56.graphml", 0.5],
+            ["symmetry-test-57.graphml", 0.959],
+            ["symmetry-test-58.graphml", 0.934],
+            ["symmetry-test-59.graphml", 0.947],
+            ["symmetry-test-60.graphml", 0.922],
+            ["symmetry-test-61.graphml", 0.875],
+            ["symmetry-test-62.graphml", 0.974],
+            ["symmetry-test-63.graphml", 0.754],
+            ["symmetry-test-64.graphml", 0.921],
+        ],
+    )
     def test_translational_symmetry_default_parameters(self, filename, expected_result):
         graph = _load_graph_from_file(filename)
         symmetry = sym.edge_based_symmetry(graph, sym.SymmetryType.TRANSLATIONAL)
@@ -338,73 +367,76 @@ class TestEquivalenceToOriginalJavaImplementation_Translational(object):
 
 class TestEquivalenceToOriginalJavaImplementation_Rotational(object):
 
-    @pytest.mark.parametrize("filename, expected_result", [
-        ["symmetry-test-0.graphml", 1],
-        ["symmetry-test-1.graphml", 1],
-        ["symmetry-test-2.graphml", 1],
-        ["symmetry-test-3.graphml", 1],
-        ["symmetry-test-4.graphml", 1],
-        ["symmetry-test-5.graphml", 1],
-        ["symmetry-test-6.graphml", 0.5],
-        ["symmetry-test-7.graphml", 1],
-        ["symmetry-test-8.graphml", 1],
-        ["symmetry-test-9.graphml", 0.333],
-        ["symmetry-test-10.graphml", 1],
-        ["symmetry-test-11.graphml", 0.667],
-        ["symmetry-test-12.graphml", 0.429],
-        ["symmetry-test-13.graphml", 1],
-        ["symmetry-test-14.graphml", 0.167],
-        ["symmetry-test-15.graphml", 0.2],
-        ["symmetry-test-16.graphml", 0.278],
-        ["symmetry-test-17.graphml", 0.667],
-        ["symmetry-test-18.graphml", 0.348],
-        ["symmetry-test-19.graphml", 0.6],
-        ["symmetry-test-20.graphml", 0.333],
-        ["symmetry-test-21.graphml", 0.556],
-        ["symmetry-test-22.graphml", 0.375],
-        ["symmetry-test-23.graphml", 0.194],
-        ["symmetry-test-24.graphml", 0.667],
-        ["symmetry-test-25.graphml", 0.467],
-        ["symmetry-test-26.graphml", 0.5],
-        # ["symmetry-test-27.graphml", 0.25],
-        ["symmetry-test-28.graphml", 0.5],
-        ["symmetry-test-29.graphml", 0.76],
-        ["symmetry-test-30.graphml", 0.857],
-        ["symmetry-test-31.graphml", 0.896],
-        ["symmetry-test-32.graphml", 0.902],
-        ["symmetry-test-33.graphml", 0.766],
-        ["symmetry-test-34.graphml", 0.5],
-        ["symmetry-test-35.graphml", 0.97],
-        ["symmetry-test-36.graphml", 0.911],
-        # ["symmetry-test-37.graphml", 0.125],
-        ["symmetry-test-38.graphml", 0.429],
-        ["symmetry-test-39.graphml", 0.981],
-        ["symmetry-test-40.graphml", 0.992],
-        ["symmetry-test-41.graphml", 0.985],
-        ["symmetry-test-42.graphml", 0.647],
-        ["symmetry-test-43.graphml", 0.308],
-        ["symmetry-test-44.graphml", 0.994],
-        ["symmetry-test-45.graphml", 0.965],
-        ["symmetry-test-46.graphml", 0.988],
-        ["symmetry-test-47.graphml", 0.995],
-        ["symmetry-test-48.graphml", 0.639],
-        ["symmetry-test-49.graphml", 0.972],
-        ["symmetry-test-50.graphml", 0.976],
-        ["symmetry-test-51.graphml", 0.984],
-        ["symmetry-test-52.graphml", 0.455],
-        ["symmetry-test-53.graphml", 0.928],
-        ["symmetry-test-54.graphml", 0.915],
-        ["symmetry-test-55.graphml", 0.991],
-        ["symmetry-test-56.graphml", 0.75],
-        ["symmetry-test-57.graphml", 0.968],
-        ["symmetry-test-58.graphml", 0.964],
-        ["symmetry-test-59.graphml", 1],
-        ["symmetry-test-60.graphml", 0.963],
-        ["symmetry-test-61.graphml", 0.8],
-        ["symmetry-test-62.graphml", 0.984],
-        ["symmetry-test-63.graphml", 0.912],
-        ["symmetry-test-64.graphml", 0.976]
-    ])
+    @pytest.mark.parametrize(
+        "filename, expected_result",
+        [
+            ["symmetry-test-0.graphml", 1],
+            ["symmetry-test-1.graphml", 1],
+            ["symmetry-test-2.graphml", 1],
+            ["symmetry-test-3.graphml", 1],
+            ["symmetry-test-4.graphml", 1],
+            ["symmetry-test-5.graphml", 1],
+            ["symmetry-test-6.graphml", 0.5],
+            ["symmetry-test-7.graphml", 1],
+            ["symmetry-test-8.graphml", 1],
+            ["symmetry-test-9.graphml", 0.333],
+            ["symmetry-test-10.graphml", 1],
+            ["symmetry-test-11.graphml", 0.667],
+            ["symmetry-test-12.graphml", 0.429],
+            ["symmetry-test-13.graphml", 1],
+            ["symmetry-test-14.graphml", 0.167],
+            ["symmetry-test-15.graphml", 0.2],
+            ["symmetry-test-16.graphml", 0.278],
+            ["symmetry-test-17.graphml", 0.667],
+            ["symmetry-test-18.graphml", 0.348],
+            ["symmetry-test-19.graphml", 0.6],
+            ["symmetry-test-20.graphml", 0.333],
+            ["symmetry-test-21.graphml", 0.556],
+            ["symmetry-test-22.graphml", 0.375],
+            ["symmetry-test-23.graphml", 0.194],
+            ["symmetry-test-24.graphml", 0.667],
+            ["symmetry-test-25.graphml", 0.467],
+            ["symmetry-test-26.graphml", 0.5],
+            # ["symmetry-test-27.graphml", 0.25],
+            ["symmetry-test-28.graphml", 0.5],
+            ["symmetry-test-29.graphml", 0.76],
+            ["symmetry-test-30.graphml", 0.857],
+            ["symmetry-test-31.graphml", 0.896],
+            ["symmetry-test-32.graphml", 0.902],
+            ["symmetry-test-33.graphml", 0.766],
+            ["symmetry-test-34.graphml", 0.5],
+            ["symmetry-test-35.graphml", 0.97],
+            ["symmetry-test-36.graphml", 0.911],
+            # ["symmetry-test-37.graphml", 0.125],
+            ["symmetry-test-38.graphml", 0.429],
+            ["symmetry-test-39.graphml", 0.981],
+            ["symmetry-test-40.graphml", 0.992],
+            ["symmetry-test-41.graphml", 0.985],
+            ["symmetry-test-42.graphml", 0.647],
+            ["symmetry-test-43.graphml", 0.308],
+            ["symmetry-test-44.graphml", 0.994],
+            ["symmetry-test-45.graphml", 0.965],
+            ["symmetry-test-46.graphml", 0.988],
+            ["symmetry-test-47.graphml", 0.995],
+            ["symmetry-test-48.graphml", 0.639],
+            ["symmetry-test-49.graphml", 0.972],
+            ["symmetry-test-50.graphml", 0.976],
+            ["symmetry-test-51.graphml", 0.984],
+            ["symmetry-test-52.graphml", 0.455],
+            ["symmetry-test-53.graphml", 0.928],
+            ["symmetry-test-54.graphml", 0.915],
+            ["symmetry-test-55.graphml", 0.991],
+            ["symmetry-test-56.graphml", 0.75],
+            ["symmetry-test-57.graphml", 0.968],
+            ["symmetry-test-58.graphml", 0.964],
+            ["symmetry-test-59.graphml", 1],
+            ["symmetry-test-60.graphml", 0.963],
+            ["symmetry-test-61.graphml", 0.8],
+            ["symmetry-test-62.graphml", 0.984],
+            ["symmetry-test-63.graphml", 0.912],
+            ["symmetry-test-64.graphml", 0.976],
+        ],
+    )
     def test_rotational_symmetry_default_parameters(self, filename, expected_result):
         graph = _load_graph_from_file(filename)
         symmetry = sym.edge_based_symmetry(graph, sym.SymmetryType.ROTATIONAL)

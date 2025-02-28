@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unit tests for the node-based symmetry proposed by Purchase
+Unit tests for the node-based symmetry proposed by Purchase
 """
 
 import math
@@ -24,8 +24,10 @@ import unittest
 
 import networkx as nx
 import numpy as np
+
 # noinspection PyUnresolvedReferences
 import pytest
+
 # noinspection PyUnresolvedReferences
 import pytest_socket
 
@@ -149,7 +151,9 @@ class TestPurchaseSymmetry(unittest.TestCase):
         g = nx.Graph()
 
         for i in range(0, 10):
-            g.add_node(i, pos=(math.sin(math.radians(i * 36)), math.cos(math.radians(i * 36))))
+            g.add_node(
+                i, pos=(math.sin(math.radians(i * 36)), math.cos(math.radians(i * 36)))
+            )
             g.add_edge(i, (i + 1) % 10)
 
         symmetry = sym.reflective_symmetry(g)
@@ -183,8 +187,13 @@ class TestPurchaseSymmetry(unittest.TestCase):
     def test_random_graph_in_range(self):
         random.seed(45345)
         for i in range(0, 16):
-            random_graph = nx.fast_gnp_random_graph(int(i / 2), random.uniform(0.1, 1), random.randint(1, 10000000))
-            random_embedding = {n: [random.randint(-100, 100), random.randint(-100, 100)] for n in range(0, i + 1)}
+            random_graph = nx.fast_gnp_random_graph(
+                int(i / 2), random.uniform(0.1, 1), random.randint(1, 10000000)
+            )
+            random_embedding = {
+                n: [random.randint(-100, 100), random.randint(-100, 100)]
+                for n in range(0, i + 1)
+            }
 
             symmetry = sym.reflective_symmetry(random_graph, random_embedding)
             print(i, symmetry)

@@ -15,12 +15,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unit tests for the crossing angular resolution.
+Unit tests for the crossing angular resolution.
 """
 
 import unittest
 
 import networkx as nx
+
 # noinspection PyUnresolvedReferences
 import pytest
 
@@ -43,7 +44,9 @@ class TestCrossingAngles(unittest.TestCase):
 
         assert len(all_crossings) == 1
 
-        crossing_angles = crossings.crossing_angles(all_crossings[0], nx.get_node_attributes(g, 'pos'), True)
+        crossing_angles = crossings.crossing_angles(
+            all_crossings[0], nx.get_node_attributes(g, "pos"), True
+        )
         print(crossing_angles)
 
         assert len(crossing_angles) == 4
@@ -64,7 +67,9 @@ class TestCrossingAngles(unittest.TestCase):
 
         assert len(all_crossings) == 1
 
-        crossing_angles = crossings.crossing_angles(all_crossings[0], nx.get_node_attributes(g, 'pos'), True)
+        crossing_angles = crossings.crossing_angles(
+            all_crossings[0], nx.get_node_attributes(g, "pos"), True
+        )
         print(crossing_angles)
 
         assert len(crossing_angles) == 3
@@ -80,7 +85,9 @@ class TestCrossingAngles(unittest.TestCase):
         g.add_node(4, pos=(3, 0))
         g.add_edges_from([(1, 2), (3, 4)])
 
-        crossing_angular_resolution = crossings.crossing_angular_resolution(g, include_node_crossings=True)
+        crossing_angular_resolution = crossings.crossing_angular_resolution(
+            g, include_node_crossings=True
+        )
         assert crossing_angular_resolution == 1
 
     def test_crossing_angular_resolution_2(self):
@@ -92,7 +99,9 @@ class TestCrossingAngles(unittest.TestCase):
 
         g.add_edges_from([(1, 2), (3, 4)])
 
-        crossing_angular_resolution = crossings.crossing_angular_resolution(g, include_node_crossings=True)
+        crossing_angular_resolution = crossings.crossing_angular_resolution(
+            g, include_node_crossings=True
+        )
         assert crossing_angular_resolution == 1
 
     def test_crossing_angular_resolution_3(self):
@@ -103,7 +112,9 @@ class TestCrossingAngles(unittest.TestCase):
         g.add_node(4, pos=(1, 1))
         g.add_edges_from([(1, 2), (3, 4)])
 
-        crossing_angular_resolution = crossings.crossing_angular_resolution(g, include_node_crossings=True)
+        crossing_angular_resolution = crossings.crossing_angular_resolution(
+            g, include_node_crossings=True
+        )
         assert crossing_angular_resolution == 0.5
 
     def test_crossing_angular_resolution_3(self):
@@ -118,5 +129,7 @@ class TestCrossingAngles(unittest.TestCase):
         g.add_node(8, pos=(6, 5))
         g.add_edges_from([(1, 2), (3, 4), (5, 6), (7, 8)])
 
-        crossing_angular_resolution = crossings.crossing_angular_resolution(g, include_node_crossings=True)
+        crossing_angular_resolution = crossings.crossing_angular_resolution(
+            g, include_node_crossings=True
+        )
         assert crossing_angular_resolution == 0.75

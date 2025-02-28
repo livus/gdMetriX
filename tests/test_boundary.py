@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unittests for boundary.py
+Unittests for boundary.py
 """
 
 import math
@@ -23,8 +23,10 @@ import random
 import unittest
 
 import networkx as nx
+
 # noinspection PyUnresolvedReferences
 import pytest
+
 # noinspection PyUnresolvedReferences
 import pytest_socket
 
@@ -350,14 +352,14 @@ class TestNormalizePosition(unittest.TestCase):
 
             pos = boundary.normalize_positions(g)
 
-            assert (math.isclose(pos[1][0], -0.5))
-            assert (math.isclose(pos[1][1], -0.5))
-            assert (math.isclose(pos[2][0], 0.5))
-            assert (math.isclose(pos[2][1], -0.5))
-            assert (math.isclose(pos[3][0], 0.5))
-            assert (math.isclose(pos[3][1], 0.5))
-            assert (math.isclose(pos[4][0], -0.5))
-            assert (math.isclose(pos[4][1], 0.5))
+            assert math.isclose(pos[1][0], -0.5)
+            assert math.isclose(pos[1][1], -0.5)
+            assert math.isclose(pos[2][0], 0.5)
+            assert math.isclose(pos[2][1], -0.5)
+            assert math.isclose(pos[3][0], 0.5)
+            assert math.isclose(pos[3][1], 0.5)
+            assert math.isclose(pos[4][0], -0.5)
+            assert math.isclose(pos[4][1], 0.5)
 
     def test_line(self):
         g = nx.Graph()
@@ -430,7 +432,12 @@ class TestNormalizePosition(unittest.TestCase):
 
             pos = boundary.normalize_positions(g, preserve_aspect_ratio=False)
 
-            assert pos == {1: (-0.5, -0.5), 2: (-0.5, 0.5), 3: (0.5, -0.5), 4: (0.5, 0.5)}
+            assert pos == {
+                1: (-0.5, -0.5),
+                2: (-0.5, 0.5),
+                3: (0.5, -0.5),
+                4: (0.5, 0.5),
+            }
 
     def test_horizontal_graph_in_horizontal_box_1(self):
         g = nx.Graph()

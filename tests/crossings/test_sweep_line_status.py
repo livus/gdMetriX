@@ -15,14 +15,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unit tests for the sweep line data structure used in the crossing detection algorithm.
+Unit tests for the sweep line data structure used in the crossing detection algorithm.
 """
 
 import random
 import unittest
 
 from gdMetriX import crossingDataTypes
-from gdMetriX.crossingDataTypes import SweepLineStatus, SweepLineEdgeInfo, SweepLinePoint
+from gdMetriX.crossingDataTypes import (
+    SweepLineStatus,
+    SweepLineEdgeInfo,
+    SweepLinePoint,
+)
 
 
 class TestSweepLineStatus(unittest.TestCase):
@@ -367,8 +371,9 @@ class TestSweepLineStatus(unittest.TestCase):
             edge = SweepLineEdgeInfo((i * 2, (i * 2) + 1), (x, -1), (x, 1))
             s.add(0, edge)
 
-            if (not crossingDataTypes.__greater_than__(range_query[0], x) and
-                    not crossingDataTypes.__greater_than__(x, range_query[1])):
+            if not crossingDataTypes.__greater_than__(
+                range_query[0], x
+            ) and not crossingDataTypes.__greater_than__(x, range_query[1]):
                 count += 1
 
         result = list(s.get_range(0, range_query[0], range_query[1]))
@@ -389,8 +394,9 @@ class TestSweepLineStatus(unittest.TestCase):
             edge = SweepLineEdgeInfo((i * 2, (i * 2) + 1), (x, -1), (x, 1))
             s.add(0, edge)
 
-            if (not crossingDataTypes.__greater_than__(range_query[0], x) and
-                    not crossingDataTypes.__greater_than__(x, range_query[1])):
+            if not crossingDataTypes.__greater_than__(
+                range_query[0], x
+            ) and not crossingDataTypes.__greater_than__(x, range_query[1]):
                 count += 1
 
         result = list(s.get_range(0, range_query[0], range_query[1]))
@@ -453,8 +459,13 @@ class TestSweepLineStatus(unittest.TestCase):
         edges = [edge1, edge2, edge3, edge4]
 
         junk_edges = [
-            SweepLineEdgeInfo(((i * 2) + 8, (i + 2) + 9), (random.uniform(-100, 100), random.uniform(-100, 100)),
-                              (random.uniform(-100, 100), random.uniform(-100, 100))) for i in range(0, 100)]
+            SweepLineEdgeInfo(
+                ((i * 2) + 8, (i + 2) + 9),
+                (random.uniform(-100, 100), random.uniform(-100, 100)),
+                (random.uniform(-100, 100), random.uniform(-100, 100)),
+            )
+            for i in range(0, 100)
+        ]
 
         both = junk_edges + edges
 
@@ -487,8 +498,13 @@ class TestSweepLineStatus(unittest.TestCase):
         edges = [edge1, edge2, edge3, edge4]
 
         junk_edges = [
-            SweepLineEdgeInfo(((i * 2) + 8, (i + 2) + 9), (random.uniform(-100, 100), random.uniform(-100, 100)),
-                              (random.uniform(-100, 100), random.uniform(-100, 100))) for i in range(0, 100)]
+            SweepLineEdgeInfo(
+                ((i * 2) + 8, (i + 2) + 9),
+                (random.uniform(-100, 100), random.uniform(-100, 100)),
+                (random.uniform(-100, 100), random.uniform(-100, 100)),
+            )
+            for i in range(0, 100)
+        ]
 
         both = junk_edges + edges
 

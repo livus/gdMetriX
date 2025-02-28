@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unit tests for crossing detection.
+Unit tests for crossing detection.
 """
 
 import math
@@ -26,6 +26,7 @@ from libpysal import weights
 from libpysal.cg import voronoi_frames
 
 import networkx as nx
+
 # noinspection PyUnresolvedReferences
 import pytest
 
@@ -33,10 +34,19 @@ import crossing_test_helper
 from gdMetriX import crossings, datasets
 
 
-def __assert_crossing_equality__(g, crossing_list, include_rotation: bool = False,
-                                 include_node_crossings: bool = False):
-    crossing_test_helper.assert_crossing_equality(g, crossing_list, crossings.get_crossings, include_rotation,
-                                                  include_node_crossings)
+def __assert_crossing_equality__(
+    g,
+    crossing_list,
+    include_rotation: bool = False,
+    include_node_crossings: bool = False,
+):
+    crossing_test_helper.assert_crossing_equality(
+        g,
+        crossing_list,
+        crossings.get_crossings,
+        include_rotation,
+        include_node_crossings,
+    )
 
 
 class TestSimpleCrossings(unittest.TestCase):
@@ -72,9 +82,20 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(18, pos=(5, 1))
         g.add_node(19, pos=(6, 1))
         g.add_node(20, pos=(2, 0))
-        g.add_edges_from([
-            (1, 5), (1, 7), (2, 9), (4, 8), (6, 13), (10, 16), (11, 18), (12, 17), (14, 20), (15, 19)
-        ])
+        g.add_edges_from(
+            [
+                (1, 5),
+                (1, 7),
+                (2, 9),
+                (4, 8),
+                (6, 13),
+                (10, 16),
+                (11, 18),
+                (12, 17),
+                (14, 20),
+                (15, 19),
+            ]
+        )
         __assert_crossing_equality__(g, [])
 
     def test_non_crossing_graph_1(self):
@@ -89,7 +110,9 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(8, pos=(4, 2))
         g.add_node(9, pos=(6, 5))
         g.add_node(10, pos=(8, 5))
-        g.add_edges_from([(1, 2), (2, 3), (2, 5), (2, 7), (4, 5), (5, 7), (6, 7), (9, 10)])
+        g.add_edges_from(
+            [(1, 2), (2, 3), (2, 5), (2, 7), (4, 5), (5, 7), (6, 7), (9, 10)]
+        )
         __assert_crossing_equality__(g, [], True)
 
     def test_non_crossing_graph_2(self):
@@ -103,10 +126,24 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(7, pos=(5, 3))
         g.add_node(8, pos=(5, 2))
         g.add_node(9, pos=(5, 1))
-        g.add_edges_from([
-            (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9),
-            (2, 3), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8), (2, 9)
-        ])
+        g.add_edges_from(
+            [
+                (1, 3),
+                (1, 4),
+                (1, 5),
+                (1, 6),
+                (1, 7),
+                (1, 8),
+                (1, 9),
+                (2, 3),
+                (2, 4),
+                (2, 5),
+                (2, 6),
+                (2, 7),
+                (2, 8),
+                (2, 9),
+            ]
+        )
         __assert_crossing_equality__(g, [], True)
 
     def test_simple_crossing_0(self):
@@ -115,10 +152,10 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(2, pos=(1, 0))
         g.add_node(3, pos=(1, 1))
         g.add_node(4, pos=(0, 1))
-        g.add_edges_from([
-            (1, 3), (2, 4)
-        ])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(0.5, 0.5), [(1, 3), (2, 4)])])
+        g.add_edges_from([(1, 3), (2, 4)])
+        __assert_crossing_equality__(
+            g, [crossings.Crossing(crossings.CrossingPoint(0.5, 0.5), [(1, 3), (2, 4)])]
+        )
 
     def test_simple_crossing_1(self):
         g = nx.Graph()
@@ -126,10 +163,10 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(2, pos=(1, 0))
         g.add_node(3, pos=(1, 1))
         g.add_node(4, pos=(0, 1))
-        g.add_edges_from([
-            (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)
-        ])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(0.5, 0.5), [(1, 3), (2, 4)])])
+        g.add_edges_from([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)])
+        __assert_crossing_equality__(
+            g, [crossings.Crossing(crossings.CrossingPoint(0.5, 0.5), [(1, 3), (2, 4)])]
+        )
 
     def test_simple_crossing_2(self):
         g = nx.Graph()
@@ -143,16 +180,16 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(8, pos=(4, 7))
         g.add_node(9, pos=(3, 7))
         g.add_node(10, pos=(3, 1))
-        g.add_edges_from([
-            (1, 2), (3, 4), (5, 6), (7, 8), (9, 10)
-        ])
-        __assert_crossing_equality__(g, [
-            crossings.Crossing(crossings.CrossingPoint(3, 3), [(1, 2), (9, 10)]),
-            crossings.Crossing(crossings.CrossingPoint(3, 4), [(3, 4), (9, 10)]),
-            crossings.Crossing(crossings.CrossingPoint(3, 5), [(5, 6), (9, 10)]),
-            crossings.Crossing(crossings.CrossingPoint(3, 6), [(7, 8), (9, 10)]),
-
-        ])
+        g.add_edges_from([(1, 2), (3, 4), (5, 6), (7, 8), (9, 10)])
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(crossings.CrossingPoint(3, 3), [(1, 2), (9, 10)]),
+                crossings.Crossing(crossings.CrossingPoint(3, 4), [(3, 4), (9, 10)]),
+                crossings.Crossing(crossings.CrossingPoint(3, 5), [(5, 6), (9, 10)]),
+                crossings.Crossing(crossings.CrossingPoint(3, 6), [(7, 8), (9, 10)]),
+            ],
+        )
 
     def test_end_point_crossing(self):
         g = nx.Graph()
@@ -163,12 +200,10 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(5, pos=(2, 3))
         g.add_node(6, pos=(0, 0))
         g.add_node(7, pos=(4, 0))
-        g.add_edges_from([
-            (1, 5), (2, 5), (3, 7), (4, 6)
-        ])
-        __assert_crossing_equality__(g, [
-            crossings.Crossing(crossings.CrossingPoint(2, 2), [(3, 7), (4, 6)])
-        ])
+        g.add_edges_from([(1, 5), (2, 5), (3, 7), (4, 6)])
+        __assert_crossing_equality__(
+            g, [crossings.Crossing(crossings.CrossingPoint(2, 2), [(3, 7), (4, 6)])]
+        )
 
     def test_non_crossing_graph_directed(self):
         g = nx.DiGraph()
@@ -182,7 +217,9 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(8, pos=(4, 2))
         g.add_node(9, pos=(6, 5))
         g.add_node(10, pos=(8, 5))
-        g.add_edges_from([(1, 2), (2, 3), (2, 5), (2, 7), (4, 5), (5, 7), (6, 7), (9, 10)])
+        g.add_edges_from(
+            [(1, 2), (2, 3), (2, 5), (2, 7), (4, 5), (5, 7), (6, 7), (9, 10)]
+        )
         __assert_crossing_equality__(g, [], True)
 
     def test_crossing_graph_directed(self):
@@ -191,10 +228,10 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(2, pos=(1, 0))
         g.add_node(3, pos=(1, 1))
         g.add_node(4, pos=(0, 1))
-        g.add_edges_from([
-            (1, 3), (2, 4)
-        ])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(0.5, 0.5), [(1, 3), (2, 4)])])
+        g.add_edges_from([(1, 3), (2, 4)])
+        __assert_crossing_equality__(
+            g, [crossings.Crossing(crossings.CrossingPoint(0.5, 0.5), [(1, 3), (2, 4)])]
+        )
 
     def test_self_loop(self):
         g = nx.DiGraph()
@@ -221,9 +258,12 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_edge(1, 1)
         g.add_edge(2, 3)
 
-        __assert_crossing_equality__(g, [
-            crossings.Crossing(crossings.CrossingPoint(0, 0), [(2, 3), (1, 1)])
-        ], True, True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(0, 0), [(2, 3), (1, 1)])],
+            True,
+            True,
+        )
 
     def test_self_loop_in_crossing(self):
         g = nx.DiGraph()
@@ -234,9 +274,11 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(5, pos=(1, -1))
         g.add_edges_from([(1, 1), (2, 3), (4, 5)])
 
-        __assert_crossing_equality__(g, [
-            crossings.Crossing(crossings.CrossingPoint(0, 0), [(2, 3), (4, 5)])
-        ], True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(0, 0), [(2, 3), (4, 5)])],
+            True,
+        )
 
     def test_self_loop_in_crossing_2(self):
         g = nx.DiGraph()
@@ -247,9 +289,16 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(5, pos=(1, -1))
         g.add_edges_from([(1, 1), (2, 3), (4, 5)])
 
-        __assert_crossing_equality__(g, [
-            crossings.Crossing(crossings.CrossingPoint(0, 0), [(1, 1), (2, 3), (4, 5)])
-        ], True, True)
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingPoint(0, 0), [(1, 1), (2, 3), (4, 5)]
+                )
+            ],
+            True,
+            True,
+        )
 
 
 class TestCrossingsInvolvingVertices(unittest.TestCase):
@@ -261,8 +310,11 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_node(3, pos=(0, 1))
         g.add_node(4, pos=(1, 2))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(0, 1), [(1, 2), (3, 4)])],
-                                     include_node_crossings=True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(0, 1), [(1, 2), (3, 4)])],
+            include_node_crossings=True,
+        )
 
     def test_vertex_at_edge_2(self):
         g = nx.Graph()
@@ -271,8 +323,11 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_node(3, pos=(0, 1))
         g.add_node(4, pos=(1, 1))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(0, 1), [(1, 2), (3, 4)])],
-                                     include_node_crossings=True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(0, 1), [(1, 2), (3, 4)])],
+            include_node_crossings=True,
+        )
 
     def test_vertex_at_edge_3(self):
         g = nx.Graph()
@@ -281,8 +336,11 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_node(3, pos=(0, 1))
         g.add_node(4, pos=(1, 0))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(0, 1), [(1, 2), (3, 4)])],
-                                     include_node_crossings=True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(0, 1), [(1, 2), (3, 4)])],
+            include_node_crossings=True,
+        )
 
     def test_vertex_at_edge_4(self):
         g = nx.Graph()
@@ -292,8 +350,11 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_node(4, pos=(1, 0))
 
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
-                                     include_node_crossings=True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
+            include_node_crossings=True,
+        )
 
     def test_vertex_at_edge_5(self):
         g = nx.Graph()
@@ -302,8 +363,11 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_node(3, pos=(1, 1))
         g.add_node(4, pos=(0, 0))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
-                                     include_node_crossings=True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
+            include_node_crossings=True,
+        )
 
     def test_vertex_at_edge_6(self):
         g = nx.Graph()
@@ -312,8 +376,11 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_node(3, pos=(1, 1))
         g.add_node(4, pos=(2, 0))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
-                                     include_node_crossings=True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
+            include_node_crossings=True,
+        )
 
     def test_vertex_at_edge_7(self):
         g = nx.Graph()
@@ -323,8 +390,12 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_node(4, pos=(1, 0))
 
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])], True,
-                                     True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
+            True,
+            True,
+        )
 
     def test_vertex_at_edge_8(self):
         g = nx.Graph()
@@ -333,8 +404,12 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_node(3, pos=(1, 1))
         g.add_node(4, pos=(0, 0))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])], True,
-                                     True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
+            True,
+            True,
+        )
 
     def test_vertex_at_edge_9(self):
         g = nx.Graph()
@@ -343,8 +418,12 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_node(3, pos=(1, 1))
         g.add_node(4, pos=(2, 0))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])], True,
-                                     True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
+            True,
+            True,
+        )
 
     def test_vertex_at_edge_1_disabled(self):
         g = nx.Graph()
@@ -436,9 +515,12 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_node(3, pos=(-1, 1))
         g.add_node(4, pos=(0, 0))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [
-            crossings.Crossing(crossings.CrossingPoint(0, 0), [(1, 2), (3, 4)])
-        ], True, True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(0, 0), [(1, 2), (3, 4)])],
+            True,
+            True,
+        )
 
     def test_vertex_at_vertex_2(self):
         g = nx.Graph()
@@ -459,7 +541,9 @@ class TestHorizontalCrossings(unittest.TestCase):
         g.add_node(3, pos=(1, 0))
         g.add_node(4, pos=(1, 2))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])])
+        __assert_crossing_equality__(
+            g, [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])]
+        )
 
     def test_horizontal_line_with_vertex_crossing(self):
         g = nx.Graph()
@@ -471,8 +555,11 @@ class TestHorizontalCrossings(unittest.TestCase):
         g.add_node(6, pos=(3, 2))
 
         g.add_edges_from([(1, 4), (2, 5), (3, 6)])
-        __assert_crossing_equality__(g, crossings.get_crossings_quadratic(g, include_node_crossings=True),
-                                     include_node_crossings=True)
+        __assert_crossing_equality__(
+            g,
+            crossings.get_crossings_quadratic(g, include_node_crossings=True),
+            include_node_crossings=True,
+        )
 
     def test_horizontal_multiple_crossing_lines(self):
         g = nx.Graph()
@@ -488,12 +575,15 @@ class TestHorizontalCrossings(unittest.TestCase):
         g.add_node(10, pos=(4, 2))
         g.add_edges_from([(1, 2), (3, 4), (5, 6), (7, 8), (9, 10)])
 
-        __assert_crossing_equality__(g, [
-            crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)]),
-            crossings.Crossing(crossings.CrossingPoint(2, 1), [(1, 2), (5, 6)]),
-            crossings.Crossing(crossings.CrossingPoint(3, 1), [(1, 2), (7, 8)]),
-            crossings.Crossing(crossings.CrossingPoint(4, 1), [(1, 2), (9, 10)])
-        ])
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)]),
+                crossings.Crossing(crossings.CrossingPoint(2, 1), [(1, 2), (5, 6)]),
+                crossings.Crossing(crossings.CrossingPoint(3, 1), [(1, 2), (7, 8)]),
+                crossings.Crossing(crossings.CrossingPoint(4, 1), [(1, 2), (9, 10)]),
+            ],
+        )
 
     def test_overlapping_horizontal_lines(self):
         g = nx.Graph()
@@ -503,8 +593,11 @@ class TestHorizontalCrossings(unittest.TestCase):
         g.add_node(4, pos=(4, 2.6))
         g.add_edges_from([(1, 2), (3, 4)])
 
-        __assert_crossing_equality__(g, crossings.get_crossings_quadratic(g, include_node_crossings=True),
-                                     include_node_crossings=True)
+        __assert_crossing_equality__(
+            g,
+            crossings.get_crossings_quadratic(g, include_node_crossings=True),
+            include_node_crossings=True,
+        )
 
     def test_crossing_over_horizontal_overlap(self):
         g = nx.Graph()
@@ -516,8 +609,11 @@ class TestHorizontalCrossings(unittest.TestCase):
         g.add_node(6, pos=(1.2, 3))
         g.add_edges_from([(1, 2), (3, 4), (5, 6)])
 
-        __assert_crossing_equality__(g, crossings.get_crossings_quadratic(g, include_node_crossings=True),
-                                     include_node_crossings=True)
+        __assert_crossing_equality__(
+            g,
+            crossings.get_crossings_quadratic(g, include_node_crossings=True),
+            include_node_crossings=True,
+        )
 
     def test_crossing_over_horizontal_overlap_2(self):
         g = nx.Graph()
@@ -531,8 +627,11 @@ class TestHorizontalCrossings(unittest.TestCase):
         g.add_node(8, pos=(5, 2.6))
         g.add_edges_from([(1, 2), (3, 4), (5, 6), (7, 8)])
 
-        __assert_crossing_equality__(g, crossings.get_crossings_quadratic(g, include_node_crossings=True),
-                                     include_node_crossings=True)
+        __assert_crossing_equality__(
+            g,
+            crossings.get_crossings_quadratic(g, include_node_crossings=True),
+            include_node_crossings=True,
+        )
 
 
 class TestOverlappingCrossings(unittest.TestCase):
@@ -544,7 +643,14 @@ class TestOverlappingCrossings(unittest.TestCase):
         g.add_node(3, pos=(3, 0))
         g.add_node(4, pos=(7, 0))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingLine((3, 0), (7, 0)), [(1, 2), (3, 4)])])
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingLine((3, 0), (7, 0)), [(1, 2), (3, 4)]
+                )
+            ],
+        )
 
     def test_overlapping_crossing_2(self):
         g = nx.Graph()
@@ -553,7 +659,14 @@ class TestOverlappingCrossings(unittest.TestCase):
         g.add_node(3, pos=(3, 0))
         g.add_node(4, pos=(10, 0))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingLine((3, 0), (7, 0)), [(1, 2), (3, 4)])])
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingLine((3, 0), (7, 0)), [(1, 2), (3, 4)]
+                )
+            ],
+        )
 
     def test_overlapping_crossing_3(self):
         g = nx.Graph()
@@ -562,7 +675,14 @@ class TestOverlappingCrossings(unittest.TestCase):
         g.add_node(3, pos=(0, 3))
         g.add_node(4, pos=(0, 7))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingLine((0, 3), (0, 7)), [(1, 2), (3, 4)])])
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingLine((0, 3), (0, 7)), [(1, 2), (3, 4)]
+                )
+            ],
+        )
 
     def test_overlapping_crossing_4(self):
         g = nx.Graph()
@@ -571,7 +691,14 @@ class TestOverlappingCrossings(unittest.TestCase):
         g.add_node(3, pos=(0, 3))
         g.add_node(4, pos=(0, 10))
         g.add_edges_from([(1, 2), (3, 4)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingLine((0, 3), (0, 7)), [(1, 2), (3, 4)])])
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingLine((0, 3), (0, 7)), [(1, 2), (3, 4)]
+                )
+            ],
+        )
 
     def test_overlapping_edges_crossing_another(self):
         g = nx.Graph()
@@ -582,9 +709,17 @@ class TestOverlappingCrossings(unittest.TestCase):
         g.add_node(5, pos=(0, 1.5))
         g.add_node(6, pos=(3, 1.5))
         g.add_edges_from([(1, 4), (2, 3), (5, 6)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingLine((1, 1), (2, 2)), [(1, 4), (2, 3)]),
-                                         crossings.Crossing(crossings.CrossingPoint(1.5, 1.5), [(1, 4), (2, 3), (5, 6)])
-                                         ])
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingLine((1, 1), (2, 2)), [(1, 4), (2, 3)]
+                ),
+                crossings.Crossing(
+                    crossings.CrossingPoint(1.5, 1.5), [(1, 4), (2, 3), (5, 6)]
+                ),
+            ],
+        )
 
     def test_overlapping_edges_crossing_another_2(self):
         g = nx.Graph()
@@ -595,9 +730,17 @@ class TestOverlappingCrossings(unittest.TestCase):
         g.add_node(5, pos=(0, 1.5))
         g.add_node(6, pos=(3, 1.5))
         g.add_edges_from([(1, 3), (2, 4), (5, 6)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingLine((1, 1), (2, 2)), [(1, 3), (2, 4)]),
-                                         crossings.Crossing(crossings.CrossingPoint(1.5, 1.5), [(1, 3), (2, 4), (5, 6)])
-                                         ])
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingLine((1, 1), (2, 2)), [(1, 3), (2, 4)]
+                ),
+                crossings.Crossing(
+                    crossings.CrossingPoint(1.5, 1.5), [(1, 3), (2, 4), (5, 6)]
+                ),
+            ],
+        )
 
     def test_overlapping_edges_common_endpoint(self):
         g = nx.Graph()
@@ -607,8 +750,15 @@ class TestOverlappingCrossings(unittest.TestCase):
 
         g.add_edges_from([(1, 2), (1, 3)])
 
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingLine((0, 0), (3, -2)), [(1, 2), (1, 3)])],
-                                     True)
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingLine((0, 0), (3, -2)), [(1, 2), (1, 3)]
+                )
+            ],
+            True,
+        )
 
 
 class TestCommonEndpointCrossings(unittest.TestCase):
@@ -623,9 +773,13 @@ class TestCommonEndpointCrossings(unittest.TestCase):
         g.add_node(5, pos=(1, 2))
 
         g.add_edges_from([(1, 4), (2, 3), (3, 5)])
-        __assert_crossing_equality__(g, [
-            crossings.Crossing(crossings.CrossingPoint(1.0, 1.5), [(3, 5), (1, 4)]),
-            crossings.Crossing(crossings.CrossingPoint(2.0, 1.0), [(2, 3), (1, 4)])])
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(crossings.CrossingPoint(1.0, 1.5), [(3, 5), (1, 4)]),
+                crossings.Crossing(crossings.CrossingPoint(2.0, 1.0), [(2, 3), (1, 4)]),
+            ],
+        )
 
     def test_crossings_with_common_vertex_2(self):
         g = nx.Graph()
@@ -656,7 +810,9 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         g.add_node(8, pos=(1, -1))
         edges = [(1, 8), (2, 7), (3, 6), (4, 5)]
         g.add_edges_from(edges)
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingPoint(0, 0), edges)])
+        __assert_crossing_equality__(
+            g, [crossings.Crossing(crossings.CrossingPoint(0, 0), edges)]
+        )
 
     def test_no_crossing_with_shared_endpoint(self):
         g = nx.Graph()
@@ -682,15 +838,43 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         g.add_node(12, pos=(1, -4))
         g.add_node(13, pos=(2, -4))
         g.add_node(14, pos=(-2, -6))
-        g.add_edges_from([(1, 13), (2, 11), (3, 14), (4, 8), (5, 8), (6, 8), (7, 12), (8, 9), (8, 10)])
-        __assert_crossing_equality__(g, [
-            crossings.Crossing(crossings.CrossingPoint(0, 0),
-                               [(3, 14), (5, 8), (6, 8), (8, 10), (1, 13), (8, 9), (4, 8)]),
-            crossings.Crossing(crossings.CrossingPoint(1.44444444444444444444, -2.88888888888888888),
-                               [(1, 13), (7, 12)]),
-            crossings.Crossing(crossings.CrossingPoint(-1.1538461538461537, -3.4615384615384617), [(3, 14), (2, 11)]),
-            crossings.Crossing(crossings.CrossingPoint(-1.5517241379310345, -2.0689655172413794), [(8, 10), (2, 11)])
-        ], include_node_crossings=True)
+        g.add_edges_from(
+            [
+                (1, 13),
+                (2, 11),
+                (3, 14),
+                (4, 8),
+                (5, 8),
+                (6, 8),
+                (7, 12),
+                (8, 9),
+                (8, 10),
+            ]
+        )
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingPoint(0, 0),
+                    [(3, 14), (5, 8), (6, 8), (8, 10), (1, 13), (8, 9), (4, 8)],
+                ),
+                crossings.Crossing(
+                    crossings.CrossingPoint(
+                        1.44444444444444444444, -2.88888888888888888
+                    ),
+                    [(1, 13), (7, 12)],
+                ),
+                crossings.Crossing(
+                    crossings.CrossingPoint(-1.1538461538461537, -3.4615384615384617),
+                    [(3, 14), (2, 11)],
+                ),
+                crossings.Crossing(
+                    crossings.CrossingPoint(-1.5517241379310345, -2.0689655172413794),
+                    [(8, 10), (2, 11)],
+                ),
+            ],
+            include_node_crossings=True,
+        )
 
     def test_low_precision_group_crossing(self):
         g = nx.Graph()
@@ -714,21 +898,36 @@ class TestComplexCrossingScenarios(unittest.TestCase):
     def test_random_graph(self):
         random.seed(9018098129039)
         for i in range(0, 25):
-            for j in range(0,100):
-                random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 1), random.randint(1, 10000000))
-                random_embedding = {n: [random.randint(-1000, 1000), random.randint(-1000, 1000)] for n in range(0, i + 1)}
+            for j in range(0, 100):
+                random_graph = nx.fast_gnp_random_graph(
+                    i, random.uniform(0.1, 1), random.randint(1, 10000000)
+                )
+                random_embedding = {
+                    n: [random.randint(-1000, 1000), random.randint(-1000, 1000)]
+                    for n in range(0, i + 1)
+                }
                 nx.set_node_attributes(random_graph, random_embedding, "pos")
-                __assert_crossing_equality__(random_graph, crossings.get_crossings_quadratic(random_graph),
-                                             include_node_crossings=True)
+                __assert_crossing_equality__(
+                    random_graph,
+                    crossings.get_crossings_quadratic(random_graph),
+                    include_node_crossings=True,
+                )
 
     def test_random_graph_2(self):
         random.seed(9018098129039)
         for i in range(0, 25):
-            for j in range(0,100):
-                random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 1), random.randint(1, 10000000))
-                random_embedding = {n: [random.randint(-1000, 1000), random.randint(-1000, 1000)] for n in range(0, i + 1)}
+            for j in range(0, 100):
+                random_graph = nx.fast_gnp_random_graph(
+                    i, random.uniform(0.1, 1), random.randint(1, 10000000)
+                )
+                random_embedding = {
+                    n: [random.randint(-1000, 1000), random.randint(-1000, 1000)]
+                    for n in range(0, i + 1)
+                }
                 nx.set_node_attributes(random_graph, random_embedding, "pos")
-                __assert_crossing_equality__(random_graph, crossings.get_crossings_quadratic(random_graph))
+                __assert_crossing_equality__(
+                    random_graph, crossings.get_crossings_quadratic(random_graph)
+                )
 
     def test_edge_with_length_0(self):
         g = nx.Graph()
@@ -749,9 +948,12 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         g.add_node(3, pos=(1, 0))
         g.add_edges_from([(0, 1), (2, 3)])
 
-        __assert_crossing_equality__(g, [
-            crossings.Crossing(crossings.CrossingPoint(0, 0), [(0, 1), (2, 3)])
-        ], True, True)
+        __assert_crossing_equality__(
+            g,
+            [crossings.Crossing(crossings.CrossingPoint(0, 0), [(0, 1), (2, 3)])],
+            True,
+            True,
+        )
 
     def test_edge_with_length_0_in_crossing(self):
         g = nx.Graph()
@@ -764,9 +966,16 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         g.add_node(5, pos=(-1, 1))
         g.add_edges_from([(0, 1), (2, 3), (4, 5)])
 
-        __assert_crossing_equality__(g, [
-            crossings.Crossing(crossings.CrossingPoint(0, 0), [(0, 1), (2, 3), (4, 5)])
-        ], True, True)
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingPoint(0, 0), [(0, 1), (2, 3), (4, 5)]
+                )
+            ],
+            True,
+            True,
+        )
 
     def test_edge_with_length_0_in_crossing_2(self):
         g = nx.Graph()
@@ -779,9 +988,16 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         g.add_node(5, pos=(-1, 1))
         g.add_edges_from([(0, 1), (2, 3), (4, 5)])
 
-        __assert_crossing_equality__(g, [
-            crossings.Crossing(crossings.CrossingPoint(0, 0), [(0, 1), (2, 3), (4, 5)])
-        ], True, True)
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingPoint(0, 0), [(0, 1), (2, 3), (4, 5)]
+                )
+            ],
+            True,
+            True,
+        )
 
     def test_random_graph_small_grid(self):
         """
@@ -793,12 +1009,21 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         random.seed(19031023901923)
 
         for i in range(0, 25):
-            random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 1), random.randint(1, 1000000))
-            random_embedding = {n: [random.randint(-1, 1), random.randint(-1, 1)] for n in range(0, i + 1)}
+            random_graph = nx.fast_gnp_random_graph(
+                i, random.uniform(0.1, 1), random.randint(1, 1000000)
+            )
+            random_embedding = {
+                n: [random.randint(-1, 1), random.randint(-1, 1)]
+                for n in range(0, i + 1)
+            }
             nx.set_node_attributes(random_graph, random_embedding, "pos")
-            __assert_crossing_equality__(random_graph,
-                                         crossings.get_crossings_quadratic(random_graph, include_node_crossings=True),
-                                         include_node_crossings=True)
+            __assert_crossing_equality__(
+                random_graph,
+                crossings.get_crossings_quadratic(
+                    random_graph, include_node_crossings=True
+                ),
+                include_node_crossings=True,
+            )
 
     def test_random_graph_small_grid_2(self):
         """
@@ -810,10 +1035,17 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         random.seed(19031023901923)
 
         for i in range(0, 25):
-            random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 1), random.randint(1, 1000000))
-            random_embedding = {n: [random.randint(-1, 1), random.randint(-1, 1)] for n in range(0, i + 1)}
+            random_graph = nx.fast_gnp_random_graph(
+                i, random.uniform(0.1, 1), random.randint(1, 1000000)
+            )
+            random_embedding = {
+                n: [random.randint(-1, 1), random.randint(-1, 1)]
+                for n in range(0, i + 1)
+            }
             nx.set_node_attributes(random_graph, random_embedding, "pos")
-            __assert_crossing_equality__(random_graph, crossings.get_crossings_quadratic(random_graph))
+            __assert_crossing_equality__(
+                random_graph, crossings.get_crossings_quadratic(random_graph)
+            )
 
     def test_overlapping_edges_crossing_another_at_vertex(self):
         g = nx.Graph()
@@ -824,9 +1056,18 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         g.add_node(5, pos=(1.5, 1.5))
         g.add_node(6, pos=(3, 1.5))
         g.add_edges_from([(1, 3), (2, 4), (5, 6)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingLine((1, 1), (2, 2)), [(1, 3), (2, 4)]),
-                                         crossings.Crossing(crossings.CrossingPoint(1.5, 1.5), [(1, 3), (2, 4), (5, 6)])
-                                         ], include_node_crossings=True)
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingLine((1, 1), (2, 2)), [(1, 3), (2, 4)]
+                ),
+                crossings.Crossing(
+                    crossings.CrossingPoint(1.5, 1.5), [(1, 3), (2, 4), (5, 6)]
+                ),
+            ],
+            include_node_crossings=True,
+        )
 
     def test_overlapping_edges_crossing_another_at_vertex_2(self):
         g = nx.Graph()
@@ -837,14 +1078,22 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         g.add_node(5, pos=(1.5, 1.5))
         g.add_node(6, pos=(3, 1.5))
         g.add_edges_from([(1, 3), (2, 4), (5, 6)])
-        __assert_crossing_equality__(g, [crossings.Crossing(crossings.CrossingLine((1, 1), (2, 2)), [(1, 3), (2, 4)])
-                                         ])
+        __assert_crossing_equality__(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingLine((1, 1), (2, 2)), [(1, 3), (2, 4)]
+                )
+            ],
+        )
 
     def test_random_planar_graphs(self):
 
         for i in range(10, 50):
             n = i * 5
-            coordinates = [(random.uniform(0, 1), random.uniform(0, 1)) for _ in range(0, n)]
+            coordinates = [
+                (random.uniform(0, 1), random.uniform(0, 1)) for _ in range(0, n)
+            ]
 
             # Generate delaunay
             cells, generators = voronoi_frames(coordinates, clip="convex hull")
@@ -854,18 +1103,25 @@ class TestComplexCrossingScenarios(unittest.TestCase):
             pos = dict(zip(delaunay_graph.nodes, coordinates))
 
             for node, value in pos.items():
-                delaunay_graph.nodes[node]['pos'] = value
+                delaunay_graph.nodes[node]["pos"] = value
 
             __assert_crossing_equality__(delaunay_graph, [])
 
 
 class TestDatasetGraphs(object):
 
-    @pytest.mark.parametrize("dataset_name", [
-        "subways",
-        "scotch",
-    ])
+    @pytest.mark.parametrize(
+        "dataset_name",
+        [
+            "subways",
+            "scotch",
+        ],
+    )
     def test_dataset(self, dataset_name):
         for name in datasets.get_available_datasets():
-            for name, graph in datasets.iterate_dataset(dataset_name, adapt_attributes=True):
-                __assert_crossing_equality__(graph, crossings.get_crossings_quadratic(graph))
+            for name, graph in datasets.iterate_dataset(
+                dataset_name, adapt_attributes=True
+            ):
+                __assert_crossing_equality__(
+                    graph, crossings.get_crossings_quadratic(graph)
+                )

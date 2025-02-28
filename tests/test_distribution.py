@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unittests for distribution.py
+Unittests for distribution.py
 """
 
 import math
@@ -24,8 +24,10 @@ import unittest
 import sys
 
 import networkx as nx
+
 # noinspection PyUnresolvedReferences
 import pytest
+
 # noinspection PyUnresolvedReferences
 import pytest_socket
 
@@ -80,7 +82,7 @@ class TestCenterOfMass(unittest.TestCase):
         g.add_node(4, pos=(1, 1), weight=2)
         g.add_edges_from([(1, 2), (2, 3), (3, 4), (4, 1)])
 
-        center = distribution.center_of_mass(g, weight='weight')
+        center = distribution.center_of_mass(g, weight="weight")
         assert center == Vector(0.2, 0.2)
 
     def test_circle(self):
@@ -132,9 +134,9 @@ class TestClosestPairOfPoints(unittest.TestCase):
         closest_pair = distribution.closest_pair_of_points(g)
 
         assert closest_pair[0] == 0 or closest_pair[1] == 0
-        assert closest_pair[1] == grid_size ** 2 or closest_pair[1] == grid_size ** 2
+        assert closest_pair[1] == grid_size**2 or closest_pair[1] == grid_size**2
         assert closest_pair[0] != closest_pair[1]
-        assert math.isclose(closest_pair[2], math.sqrt((0.4 ** 2) * 2))
+        assert math.isclose(closest_pair[2], math.sqrt((0.4**2) * 2))
 
     def test_node_pair(self):
         g = nx.Graph()
@@ -331,7 +333,9 @@ class TestConcentration(unittest.TestCase):
         concentration = distribution.concentration(g)
         print(concentration)
 
-        assert math.isclose(concentration, 2 / 3)  # 2/3 = sum(max-1) / (n-1) = (1+1) / 3
+        assert math.isclose(
+            concentration, 2 / 3
+        )  # 2/3 = sum(max-1) / (n-1) = (1+1) / 3
 
     def test_tuple_in_cell_2(self):
         g = nx.Graph()
@@ -358,7 +362,9 @@ class TestConcentration(unittest.TestCase):
         concentration = distribution.concentration(g)
         print(concentration)
 
-        assert math.isclose(concentration, 2 / 5)  # 2/3 = sum(max-1) / (n-1) = (1+1) / 5
+        assert math.isclose(
+            concentration, 2 / 5
+        )  # 2/3 = sum(max-1) / (n-1) = (1+1) / 5
 
     def test_big_grid(self):
         g = nx.Graph()
@@ -383,7 +389,7 @@ class TestConcentration(unittest.TestCase):
             for j in range(0, grid_size):
                 g.add_node(i * grid_size + j, pos=(i, j))
 
-        g.add_node('special', pos=(0, 0))
+        g.add_node("special", pos=(0, 0))
 
         concentration = distribution.concentration(g)
         print(concentration)
@@ -477,7 +483,7 @@ class TestHomogeneity(unittest.TestCase):
     def test_rectangle_2(self):
         g = nx.Graph()
         g.add_node(1, pos=(-1, -0.74))
-        g.add_node(2, pos=(-0.5, .11))
+        g.add_node(2, pos=(-0.5, 0.11))
         g.add_node(3, pos=(0.1, -1))
         g.add_node(4, pos=(1, 1))
 
@@ -512,10 +518,10 @@ class TestHomogeneity(unittest.TestCase):
         random.seed(19459843452)
 
         g = nx.Graph()
-        g.add_node('bound1', pos=(-1, -1))
-        g.add_node('bound2', pos=(-1, 1))
-        g.add_node('bound3', pos=(1, -1))
-        g.add_node('bound4', pos=(1, 1))
+        g.add_node("bound1", pos=(-1, -1))
+        g.add_node("bound2", pos=(-1, 1))
+        g.add_node("bound3", pos=(1, -1))
+        g.add_node("bound4", pos=(1, 1))
 
         for i in range(2500):
             g.add_node(i * 4, pos=(random.uniform(-1, 0), random.uniform(-1, 0)))
@@ -533,10 +539,10 @@ class TestHomogeneity(unittest.TestCase):
 
         for n_quad in range(10, 256):
             g = nx.Graph()
-            g.add_node('bound1', pos=(-1, -1))
-            g.add_node('bound2', pos=(-1, 1))
-            g.add_node('bound3', pos=(1, -1))
-            g.add_node('bound4', pos=(1, 1))
+            g.add_node("bound1", pos=(-1, -1))
+            g.add_node("bound2", pos=(-1, 1))
+            g.add_node("bound3", pos=(1, -1))
+            g.add_node("bound4", pos=(1, 1))
 
             for i in range(n_quad - 1):
                 g.add_node(i * 4, pos=(random.uniform(-1, 0), random.uniform(-1, 0)))
@@ -544,7 +550,7 @@ class TestHomogeneity(unittest.TestCase):
                 g.add_node(i * 4 + 2, pos=(random.uniform(-1, 0), random.uniform(0, 1)))
                 g.add_node(i * 4 + 3, pos=(random.uniform(0, 1), random.uniform(0, 1)))
 
-            g.add_node('odd_one', pos=(0.5, 0.5))
+            g.add_node("odd_one", pos=(0.5, 0.5))
             homogeneity = distribution.homogeneity(g)
             print(homogeneity)
 
@@ -555,10 +561,10 @@ class TestHomogeneity(unittest.TestCase):
         random.seed(932498219)
 
         g = nx.Graph()
-        g.add_node('bound1', pos=(-1, -1))
-        g.add_node('bound2', pos=(-1, 1))
-        g.add_node('bound3', pos=(1, -1))
-        g.add_node('bound4', pos=(1, 1))
+        g.add_node("bound1", pos=(-1, -1))
+        g.add_node("bound2", pos=(-1, 1))
+        g.add_node("bound3", pos=(1, -1))
+        g.add_node("bound4", pos=(1, 1))
 
         for i in range(96):
             g.add_node(i, pos=(random.uniform(0, 1), random.uniform(0, 1)))
@@ -683,7 +689,7 @@ class TestBalance(unittest.TestCase):
 
         balance = distribution.horizontal_balance(g)
 
-        assert balance == - 1 / 3
+        assert balance == -1 / 3
 
     def test_horizontal_balance_unbalanced_with_center_vertex_2(self):
         g = nx.Graph()
@@ -694,7 +700,7 @@ class TestBalance(unittest.TestCase):
 
         balance = distribution.horizontal_balance(g)
 
-        assert balance == - 1 / 4
+        assert balance == -1 / 4
 
     def test_vertical_balance_empty_graph(self):
         g = nx.Graph()
@@ -808,7 +814,7 @@ class TestBalance(unittest.TestCase):
 
         balance = distribution.vertical_balance(g)
 
-        assert balance == - 1 / 3
+        assert balance == -1 / 3
 
     def test_vertical_balance_unbalanced_with_center_vertex_2(self):
         g = nx.Graph()
@@ -819,7 +825,7 @@ class TestBalance(unittest.TestCase):
 
         balance = distribution.vertical_balance(g)
 
-        assert balance == - 1 / 4
+        assert balance == -1 / 4
 
 
 class TestGabrielRatio(object):
@@ -901,12 +907,7 @@ class TestGabrielRatio(object):
         ratio = distribution.gabriel_ratio(g)
         assert ratio == 7 / 8
 
-    @pytest.mark.parametrize("graph_size", [
-        10,
-        50,
-        100,
-        150
-    ])
+    @pytest.mark.parametrize("graph_size", [10, 50, 100, 150])
     def test_large_graph(self, graph_size):
         random.seed(9348092123)
 
@@ -1040,7 +1041,9 @@ class TestSmallestEnclosingCircle(unittest.TestCase):
             g = nx.Graph()
 
             for node in range(0, random.randint(5, 255)):
-                g.add_node(node, pos=(random.uniform(-100, 100), random.uniform(-100, 100)))
+                g.add_node(
+                    node, pos=(random.uniform(-100, 100), random.uniform(-100, 100))
+                )
 
             center, radius = distribution.smallest_enclosing_circle(g)
             pos = get_node_positions(g)
@@ -1067,9 +1070,9 @@ class TestSmallestEnclosingCircle(unittest.TestCase):
         A = (1, 0)
         B = (-0.5, math.sqrt(3) / 2)
         C = (-0.5, -math.sqrt(3) / 2)
-        g.add_node('A', pos=A)
-        g.add_node('B', pos=B)
-        g.add_node('C', pos=C)
+        g.add_node("A", pos=A)
+        g.add_node("B", pos=B)
+        g.add_node("C", pos=C)
 
         # Nodes inside the triangle
         incircle_radius = math.sqrt(3) / 6

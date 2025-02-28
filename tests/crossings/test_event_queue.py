@@ -15,14 +15,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unit tests for the event queue data structure used in the crossing detection algorithm.
+Unit tests for the event queue data structure used in the crossing detection algorithm.
 """
 
 import random
 import unittest
 
 from gdMetriX import crossingDataTypes
-from gdMetriX.crossingDataTypes import EventQueue, SweepLineEdgeInfo, SweepLinePoint, CrossingPoint
+from gdMetriX.crossingDataTypes import (
+    EventQueue,
+    SweepLineEdgeInfo,
+    SweepLinePoint,
+    CrossingPoint,
+)
 
 
 class TestEventQueue(unittest.TestCase):
@@ -137,7 +142,7 @@ class TestEventQueue(unittest.TestCase):
             [
                 SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
                 SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
-            ]
+            ],
         )
 
     def test_add_multiple_crossings_without_duplicate_points(self):
@@ -147,7 +152,7 @@ class TestEventQueue(unittest.TestCase):
             [
                 SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
                 SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
-            ]
+            ],
         )
         queue.add_crossing(
             CrossingPoint(13, 5),
@@ -209,7 +214,7 @@ class TestEventQueue(unittest.TestCase):
             [
                 SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
                 SweepLineEdgeInfo((3, 4), (0, 0), (1, 1)),
-            ]
+            ],
         )
         queue.add_crossing(
             CrossingPoint(3, 5),
@@ -239,7 +244,9 @@ class TestEventQueue(unittest.TestCase):
         queue.add_crossing(CrossingPoint(1, 1), edge_list)
         queue.add_crossing(CrossingPoint(5, 0), edge_list)
 
-        assert list(range(6).__reversed__()) == [queue.pop().y for _ in range(len(queue))]
+        assert list(range(6).__reversed__()) == [
+            queue.pop().y for _ in range(len(queue))
+        ]
 
     def test_crossings_inserted_in_correct_x_order(self):
         """

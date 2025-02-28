@@ -15,13 +15,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unittests for combinatorial embeddings
+Unittests for combinatorial embeddings
 """
 
 import math
 import unittest
 
 import networkx as nx
+
 # noinspection PyUnresolvedReferences
 import pytest
 
@@ -32,18 +33,20 @@ class TestCombinatorialEmbedding(unittest.TestCase):
 
     def test_star(self):
         g = nx.Graph()
-        g.add_node('center', pos=(0, 0))
+        g.add_node("center", pos=(0, 0))
 
         for i in range(1, 36):
-            g.add_node(i, pos=(math.sin(math.radians(i * 10)), math.cos(math.radians(i * 10))))
-            g.add_edge('center', i)
+            g.add_node(
+                i, pos=(math.sin(math.radians(i * 10)), math.cos(math.radians(i * 10)))
+            )
+            g.add_edge("center", i)
 
         embedding = edge_directions.combinatorial_embedding(g)
         print(embedding)
 
         assert len(embedding) == 36
-        assert len(embedding['center']) == 35
-        assert embedding['center'] == sorted(range(1, 36))
+        assert len(embedding["center"]) == 35
+        assert embedding["center"] == sorted(range(1, 36))
 
     def test_multigraph(self):
         g = nx.MultiGraph()
@@ -77,13 +80,15 @@ class TestEdgeAngles(unittest.TestCase):
 
     def test_star(self):
         g = nx.Graph()
-        g.add_node('center', pos=(0, 0))
+        g.add_node("center", pos=(0, 0))
 
         for i in range(0, 36):
-            g.add_node(i, pos=(math.cos(math.radians(i * 10)), math.sin(math.radians(i * 10))))
-            g.add_edge('center', i)
+            g.add_node(
+                i, pos=(math.cos(math.radians(i * 10)), math.sin(math.radians(i * 10)))
+            )
+            g.add_edge("center", i)
 
-        angles = edge_directions.edge_angles(g, 'center', deg=True)
+        angles = edge_directions.edge_angles(g, "center", deg=True)
         print(angles)
         assert len(angles) == 36
 

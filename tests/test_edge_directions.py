@@ -15,15 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unittests for edge_directions.py
+Unittests for edge_directions.py
 """
 
 import math
 import unittest
 
 import networkx as nx
+
 # noinspection PyUnresolvedReferences
 import pytest
+
 # noinspection PyUnresolvedReferences
 import pytest_socket
 
@@ -475,10 +477,10 @@ class TestEdgeLengthDeviation(unittest.TestCase):
 
     def test_multiple_equal_edges(self):
         g = nx.Graph()
-        g.add_node('start', pos=(0, 0))
+        g.add_node("start", pos=(0, 0))
         for i in range(0, 360):
             g.add_node(i, pos=(math.cos(math.radians(i)), math.sin(math.radians(i))))
-            g.add_edge('start', i)
+            g.add_edge("start", i)
 
         len_der = edge_directions.edge_length_deviation(g)
         print(len_der)

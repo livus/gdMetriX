@@ -15,13 +15,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unit tests for the crossing metric.
+Unit tests for the crossing metric.
 """
 
 import random
 import unittest
 
 import networkx as nx
+
 # noinspection PyUnresolvedReferences
 import pytest
 
@@ -254,8 +255,13 @@ class TestCrossingMetric(unittest.TestCase):
     def test_random_graph(self):
         random.seed(943123)
         for i in range(0, 16):
-            random_graph = nx.fast_gnp_random_graph(i, random.uniform(0.1, 1), random.randint(1, 10000000))
-            random_embedding = {n: [random.randint(-100, 100), random.randint(-100, 100)] for n in range(0, i + 1)}
+            random_graph = nx.fast_gnp_random_graph(
+                i, random.uniform(0.1, 1), random.randint(1, 10000000)
+            )
+            random_embedding = {
+                n: [random.randint(-100, 100), random.randint(-100, 100)]
+                for n in range(0, i + 1)
+            }
             nx.set_node_attributes(random_graph, random_embedding, "pos")
 
             metric = crossings.crossing_density(random_graph)

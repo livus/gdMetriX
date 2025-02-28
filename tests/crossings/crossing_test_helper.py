@@ -16,7 +16,7 @@
 
 
 """
-    Contains a couple of helper function for testing the crossing detection
+Contains a couple of helper function for testing the crossing detection
 """
 
 import inspect
@@ -31,14 +31,20 @@ from gdMetriX import crossings
 
 def __rotate_point__(point, angle):
     if isinstance(point, crossings.CrossingLine):
-        return crossings.CrossingLine(__rotate_point__(point.point_a, angle),
-                                      __rotate_point__(point.point_b, angle))
+        return crossings.CrossingLine(
+            __rotate_point__(point.point_a, angle),
+            __rotate_point__(point.point_b, angle),
+        )
     if isinstance(point, crossings.CrossingPoint):
-        return crossings.CrossingPoint(__rotate_point__((point[0], point[1]), angle)[0],
-                                       __rotate_point__((point[0], point[1]), angle)[1])
+        return crossings.CrossingPoint(
+            __rotate_point__((point[0], point[1]), angle)[0],
+            __rotate_point__((point[0], point[1]), angle)[1],
+        )
     rad = math.radians(angle % 360)
-    return (point[0] * math.cos(rad) - point[1] * math.sin(rad),
-            point[0] * math.sin(rad) + point[1] * math.cos(rad))
+    return (
+        point[0] * math.cos(rad) - point[1] * math.sin(rad),
+        point[0] * math.sin(rad) + point[1] * math.cos(rad),
+    )
 
 
 def __rotate_graph__(g, angle):
@@ -47,9 +53,12 @@ def __rotate_graph__(g, angle):
 
 
 def __rotate_crossings__(crossing_list, angle):
-    return [crossings.Crossing(
-        __rotate_point__(crossing.pos, angle), crossing.involved_edges)
-        for crossing in crossing_list]
+    return [
+        crossings.Crossing(
+            __rotate_point__(crossing.pos, angle), crossing.involved_edges
+        )
+        for crossing in crossing_list
+    ]
 
 
 def __draw_graph__(g: nx.Graph, title: str, crossings_a, crossings_b):
@@ -64,16 +73,28 @@ def __draw_graph__(g: nx.Graph, title: str, crossings_a, crossings_b):
     plt.axis("on")
 
     # Points
-    points_a = list(filter(lambda cr: type(cr.pos) is gdMetriX.crossings.crossingDataTypes.CrossingPoint, crossings_a))
-    points_b = list(filter(lambda cr: type(cr.pos) is gdMetriX.crossings.crossingDataTypes.CrossingPoint, crossings_b))
+    points_a = list(
+        filter(
+            lambda cr: type(cr.pos)
+            is gdMetriX.crossings.crossingDataTypes.CrossingPoint,
+            crossings_a,
+        )
+    )
+    points_b = list(
+        filter(
+            lambda cr: type(cr.pos)
+            is gdMetriX.crossings.crossingDataTypes.CrossingPoint,
+            crossings_b,
+        )
+    )
 
     x_values = [point.pos[0] for point in points_a]
     y_values = [point.pos[1] for point in points_a]
-    plt.plot(x_values, y_values, 'rX', markersize=12)
+    plt.plot(x_values, y_values, "rX", markersize=12)
 
     x_values = [point.pos[0] for point in points_b]
     y_values = [point.pos[1] for point in points_b]
-    plt.plot(x_values, y_values, 'gX', markersize=9)
+    plt.plot(x_values, y_values, "gX", markersize=9)
 
     plt.show()
 
@@ -88,17 +109,29 @@ def __equal_crossings__(crossings_a, crossings_b, g, title):
     assert sorted(crossings_a) == sorted(crossings_b)
 
 
-def assert_crossing_equality(g, crossing_list,
-                             crossing_function, include_rotation: bool = False,
-                             include_node_crossings: bool = False):
+def assert_crossing_equality(
+    g,
+    crossing_list,
+    crossing_function,
+    include_rotation: bool = False,
+    include_node_crossings: bool = False,
+):
     title = inspect.getouterframes(inspect.currentframe(), 2)[1][3]
-    __equal_crossings__(crossing_function(g, include_node_crossings=include_node_crossings), crossing_list,
-                        g, title)
+    __equal_crossings__(
+        crossing_function(g, include_node_crossings=include_node_crossings),
+        crossing_list,
+        g,
+        title,
+    )
     angle_resolution = 10
     if include_rotation:
         for i in range(0, int(360 / angle_resolution)):
             __rotate_graph__(g, angle_resolution)
             crossing_list = __rotate_crossings__(crossing_list, 10)
             print(nx.get_node_attributes(g, "pos"))
-            __equal_crossings__(crossing_function(g, include_node_crossings=include_node_crossings),
-                                crossing_list, g, title)
+            __equal_crossings__(
+                crossing_function(g, include_node_crossings=include_node_crossings),
+                crossing_list,
+                g,
+                title,
+            )

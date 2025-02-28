@@ -15,14 +15,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Unittests of for planarization
+Unittests of for planarization
 """
 
 import unittest
 
 import networkx as nx
+
 # noinspection PyUnresolvedReferences
 import pytest
+
 # noinspection PyUnresolvedReferences
 import pytest_socket
 
@@ -43,7 +45,9 @@ class TestPlanarization(unittest.TestCase):
         g.add_node(8, pos=(4, 2))
         g.add_node(9, pos=(6, 5))
         g.add_node(10, pos=(8, 5))
-        g.add_edges_from([(1, 2), (2, 3), (2, 5), (2, 7), (4, 5), (5, 7), (6, 7), (9, 10)])
+        g.add_edges_from(
+            [(1, 2), (2, 3), (2, 5), (2, 7), (4, 5), (5, 7), (6, 7), (9, 10)]
+        )
 
         planar_g = g.copy()
         crossings.planarize(planar_g)
@@ -57,9 +61,7 @@ class TestPlanarization(unittest.TestCase):
         g.add_node(2, pos=(1, 0))
         g.add_node(3, pos=(1, 1))
         g.add_node(4, pos=(0, 1))
-        g.add_edges_from([
-            (1, 3), (2, 4)
-        ])
+        g.add_edges_from([(1, 3), (2, 4)])
 
         planar_g = g.copy()
         crossings.planarize(planar_g)
@@ -67,7 +69,7 @@ class TestPlanarization(unittest.TestCase):
 
         correct_node_exists = False
         for node, data in planar_g.nodes(data=True):
-            if data['pos'] == (0.5, 0.5):
+            if data["pos"] == (0.5, 0.5):
                 if sorted(nx.all_neighbors(planar_g, node)) == [1, 2, 3, 4]:
                     correct_node_exists = True
 
@@ -87,7 +89,7 @@ class TestPlanarization(unittest.TestCase):
 
         correct_node_exists = False
         for node, data in planar_g.nodes(data=True):
-            if data['pos'] == (0, 1):
+            if data["pos"] == (0, 1):
                 if sorted(nx.all_neighbors(planar_g, node)) == [1, 2, 4]:
                     correct_node_exists = True
 
@@ -125,7 +127,7 @@ class TestPlanarization(unittest.TestCase):
 
         correct_node_exists = False
         for node, data in planar_g.nodes(data=True):
-            if data['pos'] == (0, 0):
+            if data["pos"] == (0, 0):
                 if sorted(nx.all_neighbors(planar_g, node)) == [1, 2, 3, 4, 5, 6, 7, 8]:
                     correct_node_exists = True
 
