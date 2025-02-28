@@ -48,15 +48,19 @@ def _flip_point_around_axis(p: np.array, a: np.array, b: np.array) -> np.array:
     v_ab_rot = np.asarray((v_ab[1], v_ab[0] * -1))
     v_ab_rot_norm = v_ab_rot / np.linalg.norm(v_ab_rot)
 
-    projection = m + v_mp.dot(
-        v_ab_rot_norm) * v_ab_rot_norm
+    projection = m + v_mp.dot(v_ab_rot_norm) * v_ab_rot_norm
 
     v_pl = projection - p
     return p + 2 * v_pl
 
 
-def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, threshold: int = 2,
-                        tolerance: float = 1e-2, fraction: float = 1) -> float:
+def reflective_symmetry(
+    g: nx.Graph,
+    pos: Union[str, dict, None] = None,
+    threshold: int = 2,
+    tolerance: float = 1e-2,
+    fraction: float = 1,
+) -> float:
     r"""
     Computes a metric for axial symmetry between 0 and 1 as defined by :footcite:t:`purchase_metrics_2002`.
 
@@ -93,7 +97,7 @@ def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, thresho
 
     def _is_crossing_node(node):
         node = g.nodes[node]
-        return 'is_elevated_crossing' in node and node['is_elevated_crossing']
+        return "is_elevated_crossing" in node and node["is_elevated_crossing"]
 
     def _subgraph_symmetry(edge_pairs) -> float:
 
@@ -103,8 +107,16 @@ def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, thresho
             total = 0
 
             for pair_1, pair_2 in edge_pairs:
-                factor_1 = fraction if _is_crossing_node(pair_1[0]) != _is_crossing_node(pair_1[1]) else 1
-                factor_2 = fraction if _is_crossing_node(pair_2[0]) != _is_crossing_node(pair_2[1]) else 1
+                factor_1 = (
+                    fraction
+                    if _is_crossing_node(pair_1[0]) != _is_crossing_node(pair_1[1])
+                    else 1
+                )
+                factor_2 = (
+                    fraction
+                    if _is_crossing_node(pair_2[0]) != _is_crossing_node(pair_2[1])
+                    else 1
+                )
 
                 total += factor_1 * factor_2
 
@@ -113,7 +125,9 @@ def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, thresho
     def _find_mirrored_nodes(pos_a, pos_b):
 
         node_positions = np.array([pos[node] for node in node_list])
-        node_positions_mirrored = np.array([_flip_point_around_axis(pos[node], pos_a, pos_b) for node in node_list])
+        node_positions_mirrored = np.array(
+            [_flip_point_around_axis(pos[node], pos_a, pos_b) for node in node_list]
+        )
 
         kdtree = KDTree(node_positions)
         kdtree_mirrored = KDTree(node_positions_mirrored)
@@ -143,7 +157,7 @@ def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, thresho
     g = nx.edge_subgraph(g, g.edges()).copy()
 
     pos = common.get_node_positions(g, pos)
-    nx.set_node_attributes(g, pos, 'pos')
+    nx.set_node_attributes(g, pos, "pos")
 
     # Planarize by replacing crossings with nodes
     crossings.planarize(g)
@@ -159,7 +173,9 @@ def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, thresho
         for i_b in range(i_a, n):
             node_b = node_list[i_b]
 
-            if node_a == node_b or (pos[node_a][0] == pos[node_b][0] and pos[node_a][1] == pos[node_b][1]):
+            if node_a == node_b or (
+                pos[node_a][0] == pos[node_b][0] and pos[node_a][1] == pos[node_b][1]
+            ):
                 continue
 
             # Iterate over all node pairs
@@ -197,8 +213,12 @@ def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, thresho
                         mirror_of_a = node_list[mirror_of_a]
                         for mirror_of_b in mirrored_node_pairs[b]:
                             mirror_of_b = node_list[mirror_of_b]
-                            if g.has_edge(mirror_of_a, mirror_of_b) or g.has_edge(mirror_of_b, mirror_of_a):
-                                subgraph_edge_pairs.append(((a, b), (mirror_of_a, mirror_of_b)))
+                            if g.has_edge(mirror_of_a, mirror_of_b) or g.has_edge(
+                                mirror_of_b, mirror_of_a
+                            ):
+                                subgraph_edge_pairs.append(
+                                    ((a, b), (mirror_of_a, mirror_of_b))
+                                )
 
                 sub_sym = _subgraph_symmetry(subgraph_edge_pairs)
 
@@ -210,9 +230,10 @@ def reflective_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, thresho
 
 
 class SymmetryType(Enum):
-    """ Type of symmetry used for :func:`edge_based_symmetry` """
-    REFLECTIVE = 0,
-    ROTATIONAL = 1,
+    """Type of symmetry used for :func:`edge_based_symmetry`"""
+
+    REFLECTIVE = 0
+    ROTATIONAL = 1
     TRANSLATIONAL = 2
 
 
@@ -225,13 +246,19 @@ class _SIFTFeature:
 
         self.mid = (point_a + point_b) / 2
         self.length = common.euclidean_distance(edge_pos[0], edge_pos[1])
-        self.angle = ((common.Vector.from_point(edge_pos[1]) - (common.Vector.from_point(edge_pos[0])))
-                      .upward_and_forward_direction().rad())
+        self.angle = (
+            (
+                common.Vector.from_point(edge_pos[1])
+                - (common.Vector.from_point(edge_pos[0]))
+            )
+            .upward_and_forward_direction()
+            .rad()
+        )
         self.edge = edge
         self.score = score
 
     def compare_scale(self, other: _SIFTFeature, sigma_scale: float) -> float:
-        """ Scale similarity """
+        """Scale similarity"""
         top = -abs(self.length - other.length)
         bottom = sigma_scale * (self.length + other.length)
 
@@ -240,15 +267,17 @@ class _SIFTFeature:
 
         return math.exp(top / bottom) ** 2
 
-    def compare_distance(self, other: _SIFTFeature, sigma_distance: float, is_distance_bound: bool):
-        """ Distance similarity """
+    def compare_distance(
+        self, other: _SIFTFeature, sigma_distance: float, is_distance_bound: bool
+    ):
+        """Distance similarity"""
         if not is_distance_bound:
             return 1
         dist = self.mid.distance(other.mid)
-        return math.exp(- (dist ** 2) / (2 * sigma_distance * sigma_distance))
+        return math.exp(-(dist**2) / (2 * sigma_distance * sigma_distance))
 
     def compare_rotation(self, other: _SIFTFeature, theta: float = None):
-        """ Rotation similarity """
+        """Rotation similarity"""
         if theta is None:
             return abs(math.cos(self.angle - other.angle))
         else:
@@ -269,8 +298,18 @@ class _Axis:
 
 class _AxesSystem:
 
-    def __init__(self, pos: dict, sigma_scale: float, distance_bound: bool, sigma_distance: float, num_features: int,
-                 angle_merge: float, pixel_merge: float, x_min: float, y_min: float):
+    def __init__(
+        self,
+        pos: dict,
+        sigma_scale: float,
+        distance_bound: bool,
+        sigma_distance: float,
+        num_features: int,
+        angle_merge: float,
+        pixel_merge: float,
+        x_min: float,
+        y_min: float,
+    ):
         self.pos = pos
         self.y_min = y_min
         self.x_min = x_min
@@ -283,14 +322,16 @@ class _AxesSystem:
         self.votes = []
 
     def add_rotational_vote(self, feature):
-        """ Add rotational axis to voting """
+        """Add rotational axis to voting"""
         self.votes.append(_Axis(feature.mid, feature.edge, feature.edge, 1))
         pass
 
     def add_rotational_vote_from_two(self, feature_a, feature_b):
-        """ Add rotational axis to voting created from two edges """
+        """Add rotational axis to voting created from two edges"""
         sca = feature_a.compare_scale(feature_b, self.sigma_scale)
-        dis = feature_a.compare_distance(feature_b, self.sigma_distance, self.is_distance_bound)
+        dis = feature_a.compare_distance(
+            feature_b, self.sigma_distance, self.is_distance_bound
+        )
         score = sca * dis
 
         mid = feature_a.mid.mid(feature_b.mid)
@@ -306,7 +347,11 @@ class _AxesSystem:
 
         radius = delta_dist / math.tan(delta_angl)
 
-        if abs(radius) < 0.001 or abs(delta_angl) < 0.5 or abs(delta_angl - math.pi) < 0.05:
+        if (
+            abs(radius) < 0.001
+            or abs(delta_angl) < 0.5
+            or abs(delta_angl - math.pi) < 0.05
+        ):
             # The rotational symmetry is centered at the mid itself
             vote = _Axis(mid, feature_a.edge, feature_b.edge, score)
             self.votes.append(vote)
@@ -350,7 +395,9 @@ class _AxesSystem:
                 self.votes.append(vote)
 
     @staticmethod
-    def _parse_reflective_vote(angle: common.Angle, radius: float, score: float, edge_a, edge_b) -> _Axis:
+    def _parse_reflective_vote(
+        angle: common.Angle, radius: float, score: float, edge_a, edge_b
+    ) -> _Axis:
         while angle.rad() < 0:
             angle += math.pi
 
@@ -363,7 +410,7 @@ class _AxesSystem:
         return _Axis(common.Vector(angle.deg(), radius), edge_a, edge_b, score)
 
     def add_reflective_vote(self, feature):
-        """ Add reflective axis to voting """
+        """Add reflective axis to voting"""
 
         mid = feature.mid
 
@@ -374,15 +421,23 @@ class _AxesSystem:
         theta_ij_bisector = common.Angle(theta_ij + math.pi / 2)
 
         # Symmetry axis along perpendicular bisector
-        r_ij = mid.x * math.cos(theta_ij_bisector.rad()) + mid.y * math.sin(theta_ij_bisector.rad())
-        self.votes.append(self._parse_reflective_vote(theta_ij_bisector, r_ij, 1, feature.edge, feature.edge))
+        r_ij = mid.x * math.cos(theta_ij_bisector.rad()) + mid.y * math.sin(
+            theta_ij_bisector.rad()
+        )
+        self.votes.append(
+            self._parse_reflective_vote(
+                theta_ij_bisector, r_ij, 1, feature.edge, feature.edge
+            )
+        )
 
         # Symmetry axis along edge itself
         r_ij = mid.x * math.cos(theta_ij.rad()) + mid.y * math.sin(theta_ij.rad())
-        self.votes.append(self._parse_reflective_vote(theta_ij, r_ij, 1, feature.edge, feature.edge))
+        self.votes.append(
+            self._parse_reflective_vote(theta_ij, r_ij, 1, feature.edge, feature.edge)
+        )
 
     def add_reflective_vote_from_two(self, feature_a, feature_b):
-        """ Add reflective axis to voting created from two edges """
+        """Add reflective axis to voting created from two edges"""
 
         theta_ij = (feature_a.mid - feature_b.mid).rad() % math.pi
         mid = feature_a.mid.mid(feature_b.mid)
@@ -390,18 +445,25 @@ class _AxesSystem:
 
         rot = feature_a.compare_rotation(feature_b, theta_ij)
         sca = feature_a.compare_scale(feature_b, self.sigma_scale)
-        dis = feature_a.compare_distance(feature_b, self.sigma_distance, self.is_distance_bound)
+        dis = feature_a.compare_distance(
+            feature_b, self.sigma_distance, self.is_distance_bound
+        )
         score = rot * sca * dis
 
         self.votes.append(
-            self._parse_reflective_vote(theta_ij, r_ij, score, feature_a.edge, feature_b.edge))
+            self._parse_reflective_vote(
+                theta_ij, r_ij, score, feature_a.edge, feature_b.edge
+            )
+        )
 
     def add_translative_vote(self, feature_a, feature_b):
-        """ Add translative axis to voting """
+        """Add translative axis to voting"""
 
         rot = feature_a.compare_rotation(feature_b)
         sca = feature_a.compare_scale(feature_b, self.sigma_scale)
-        dis = feature_a.compare_distance(feature_b, self.sigma_distance, self.is_distance_bound)
+        dis = feature_a.compare_distance(
+            feature_b, self.sigma_distance, self.is_distance_bound
+        )
 
         delta = feature_a.mid - feature_b.mid
 
@@ -413,7 +475,9 @@ class _AxesSystem:
         self.votes.append(vote)
 
     def _points_too_close(self, pos_a, pos_b):
-        return abs(pos_a.x - pos_b.x) < self.x_min and abs(pos_a.y - pos_b.y) < self.y_min
+        return (
+            abs(pos_a.x - pos_b.x) < self.x_min and abs(pos_a.y - pos_b.y) < self.y_min
+        )
 
     def _find_maxima(self):
         def _merge_close_point(value: float, merge_span: float):
@@ -437,7 +501,9 @@ class _AxesSystem:
                 voting_dic[key] = vote.score
 
         # Find max-scoring points
-        sorted_axes = list(sorted(voting_dic.keys(), key=lambda x: voting_dic[x], reverse=True))
+        sorted_axes = list(
+            sorted(voting_dic.keys(), key=lambda x: voting_dic[x], reverse=True)
+        )
 
         # Remove double-entries that are too close
         for i in range(min(self.num_features, len(sorted_axes))):
@@ -448,10 +514,10 @@ class _AxesSystem:
                 else:
                     j += 1
 
-        return sorted_axes[:min(self.num_features, len(sorted_axes))]
+        return sorted_axes[: min(self.num_features, len(sorted_axes))]
 
     def conclude_voting(self, g: nx.Graph) -> float:
-        """ Takes the top axes and counts the percentage of edges voting for at least one of them """
+        """Takes the top axes and counts the percentage of edges voting for at least one of them"""
         top_features = self._find_maxima()
 
         if len(top_features) == 0:
@@ -474,12 +540,19 @@ class _AxesSystem:
         return len(matching_edge_dic) / float(len(top_features) * len(g.edges()))
 
 
-def edge_based_symmetry(g: nx.Graph, symmetry_type: SymmetryType, pos: Union[str, dict, None] = None,
-                        axes_count: int = 1,
-                        sigma_scale: float = 0.1, sigma_distance: float = 2,
-                        is_distance_bound: bool = False,
-                        angle_merge: float = 5, pixel_merge: float = 5,
-                        x_min: float = 10, y_min: float = 10) -> float:
+def edge_based_symmetry(
+    g: nx.Graph,
+    symmetry_type: SymmetryType,
+    pos: Union[str, dict, None] = None,
+    axes_count: int = 1,
+    sigma_scale: float = 0.1,
+    sigma_distance: float = 2,
+    is_distance_bound: bool = False,
+    angle_merge: float = 5,
+    pixel_merge: float = 5,
+    x_min: float = 10,
+    y_min: float = 10,
+) -> float:
     """
     This calculates the symmetry metric proposed by :footcite:t:`chapman_symmetry_2018`. It is
     capable of estimating either translational, reflective or rotational symmetry.
@@ -518,9 +591,17 @@ def edge_based_symmetry(g: nx.Graph, symmetry_type: SymmetryType, pos: Union[str
     if len(g.edges()) == 0:
         return 1
 
-    votes = _AxesSystem(pos, sigma_scale, is_distance_bound, sigma_distance, axes_count, angle_merge, pixel_merge,
-                        x_min,
-                        y_min)
+    votes = _AxesSystem(
+        pos,
+        sigma_scale,
+        is_distance_bound,
+        sigma_distance,
+        axes_count,
+        angle_merge,
+        pixel_merge,
+        x_min,
+        y_min,
+    )
     sift_features = [_SIFTFeature(e, (pos[e[0]], pos[e[1]]), 1) for e in g.edges()]
 
     for a in range(len(sift_features)):
@@ -544,10 +625,15 @@ def edge_based_symmetry(g: nx.Graph, symmetry_type: SymmetryType, pos: Union[str
     return votes.conclude_voting(g)
 
 
-def visual_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, resolution: int = 100, sigma: float = 2,
-                    rotational: bool = True,
-                    reflective: bool = True,
-                    dihedral: bool = True) -> float:
+def visual_symmetry(
+    g: nx.Graph,
+    pos: Union[str, dict, None] = None,
+    resolution: int = 100,
+    sigma: float = 2,
+    rotational: bool = True,
+    reflective: bool = True,
+    dihedral: bool = True,
+) -> float:
     """
     Tries to estimate the perceived symmetry of the drawing by visually testing reflective, rotational and dihedral
     symmetry.
@@ -581,7 +667,7 @@ def visual_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, resolution:
 
     def _build_canvas():
         fig = plt.figure(1, figsize=(1, 1), dpi=resolution)
-        ax = plt.axes([0., 0., 1., 1.], frameon=False, xticks=[], yticks=[])
+        ax = plt.axes([0.0, 0.0, 1.0, 1.0], frameon=False, xticks=[], yticks=[])
         ax.set_xlim(-0.8, 0.8)
         ax.set_ylim(-0.8, 0.8)
         ax.set_facecolor((0, 0, 0))
@@ -590,11 +676,13 @@ def visual_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, resolution:
         return canvas, fig, ax
 
     def _draw_to_array(canvas):
-        return np.frombuffer(canvas.tostring_rgb(), dtype='uint8').reshape(*reversed(canvas.get_width_height()), 3)
+        return np.frombuffer(canvas.tostring_rgb(), dtype="uint8").reshape(
+            *reversed(canvas.get_width_height()), 3
+        )
 
     def _get_edge_image():
         canvas, fig, ax = _build_canvas()
-        nx.draw_networkx_edges(g, pos, edge_color='#f00', ax=ax)
+        nx.draw_networkx_edges(g, pos, edge_color="#f00", ax=ax)
         canvas.draw()
         image = _draw_to_array(canvas)
         fig.clf()
@@ -602,7 +690,7 @@ def visual_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, resolution:
 
     def _get_node_image():
         canvas, fig, ax = _build_canvas()
-        nx.draw_networkx_nodes(g, pos, node_size=.1, node_color='#0f0', ax=ax)
+        nx.draw_networkx_nodes(g, pos, node_size=0.1, node_color="#0f0", ax=ax)
         canvas.draw()
         image = _draw_to_array(canvas)
         fig.clf()
@@ -622,9 +710,9 @@ def visual_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, resolution:
     # Translate to centroid
     centroid = ndimage.center_of_mass(graph_image)
     shape = graph_image.shape
-    graph_image = ndimage.shift(graph_image,
-                                np.array([shape[0] / 2 - centroid[0],
-                                          shape[1] / 2 - centroid[1]]))
+    graph_image = ndimage.shift(
+        graph_image, np.array([shape[0] / 2 - centroid[0], shape[1] / 2 - centroid[1]])
+    )
 
     # Blur
     graph_image = ndimage.gaussian_filter(graph_image, sigma=sigma)
@@ -637,13 +725,13 @@ def visual_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, resolution:
     def _get_axis_weight(degree) -> float:
         if degree % 180 == 0:
             # Vertical
-            return .5
+            return 0.5
         if degree % 90 == 0:
             # Horizontal
-            return .3
+            return 0.3
         if degree % 45 == 0:
             # In between
-            return .1
+            return 0.1
         return 0
 
     for i in range(0, 360, 45):
@@ -677,7 +765,9 @@ def visual_symmetry(g: nx.Graph, pos: Union[str, dict, None] = None, resolution:
     return 1 - math.pow(minimum, 2)
 
 
-def stress(g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: bool = True) -> float:
+def stress(
+    g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: bool = True
+) -> float:
     r"""
     Estimates symmetry by utilizing the stress of the graph embedding as proposed by :footcite:t:`welch_measuring_2017`.
 
@@ -702,7 +792,7 @@ def stress(g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: 
     shortest_path_distances = dict(nx.all_pairs_shortest_path_length(g))
 
     def _get_stress(scale):
-        stress = 0
+        stress_value = 0
 
         for i, p_i_key in enumerate(pos):
             p_i = pos[p_i_key]
@@ -711,9 +801,9 @@ def stress(g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: 
                 if i < j and p_j_key in shortest_path_distances[p_i_key]:
                     d_ij = shortest_path_distances[p_i_key][p_j_key]
                     euclidean_distance = common.euclidean_distance(p_i, p_j)
-                    stress += (euclidean_distance * scale - d_ij) ** 2 / (d_ij ** 2)
+                    stress_value += (euclidean_distance * scale - d_ij) ** 2 / (d_ij**2)
 
-        return stress
+        return stress_value
 
     def _binary_search_optimize(s_min, s_max, epsilon=1e-4):
 
@@ -731,11 +821,15 @@ def stress(g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: 
 
         return (s_min + s_max) / 2
 
-    optimal_scale = _binary_search_optimize(0.00000025, 4000000) if scale_minimization else 1
+    optimal_scale = (
+        _binary_search_optimize(0.00000025, 4000000) if scale_minimization else 1
+    )
     return _get_stress(optimal_scale)
 
 
-def even_neighborhood_distribution(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
+def even_neighborhood_distribution(
+    g: nx.Graph, pos: Union[str, dict, None] = None
+) -> float:
     r"""
     Estimates symmetry by calculating how central each node is within its neighborhood as proposed by
     :footcite:t:`xu_force-directed_2018`.
@@ -761,7 +855,7 @@ def even_neighborhood_distribution(g: nx.Graph, pos: Union[str, dict, None] = No
     if g.order() <= 2:
         return 1
 
-    sum = 0
+    total_distance = 0
     for i in g.nodes():
         W_i = [pos[neighbor] for neighbor in g[i]]
         W_i.append(pos[i])
@@ -771,6 +865,6 @@ def even_neighborhood_distribution(g: nx.Graph, pos: Union[str, dict, None] = No
 
         center, radius = smallest_enclosing_circle_from_point_set(W_i)
         barycenter = common.barycenter(W_i)
-        sum += center.distance(barycenter) / radius
+        total_distance += center.distance(barycenter) / radius
 
-    return 1 - (sum / g.order())
+    return 1 - (total_distance / g.order())

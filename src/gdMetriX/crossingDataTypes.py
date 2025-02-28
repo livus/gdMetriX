@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Supporting module for the crossings module containing some datastructures.
+Supporting module for the crossings module containing some datastructures.
 """
 
 import math
@@ -25,7 +25,7 @@ from typing import List, Optional, Iterable
 
 from gdMetriX.common import numeric
 
-__precision = 1e-09
+PRECISION = 1e-09
 
 
 def set_precision(precision: float) -> None:
@@ -35,13 +35,13 @@ def set_precision(precision: float) -> None:
     :param precision: Precision
     :type precision: float
     """
-    global __precision
-    __precision = precision
+    global PRECISION
+    PRECISION = precision
 
 
 def _get_precision() -> float:
-    global __precision
-    return __precision
+    global PRECISION
+    return PRECISION
 
 
 CrossingPoint = namedtuple("CrossingPoint", "x y")
@@ -56,7 +56,7 @@ def __greater_than__(a: float, b: float) -> bool:
 
 
 def __numeric_eq__(a: numeric, b: numeric) -> bool:
-    return math.isclose(a, b, abs_tol=__precision)
+    return math.isclose(a, b, abs_tol=PRECISION)
 
 
 def __points_equal__(crossing_a, crossing_b):
@@ -64,17 +64,34 @@ def __points_equal__(crossing_a, crossing_b):
         return CrossingPoint(line[0], line[1])
 
     if isinstance(crossing_a, CrossingLine) or isinstance(crossing_b, CrossingLine):
-        if not (isinstance(crossing_a, CrossingLine) and isinstance(crossing_b, CrossingLine)):
+        if not (
+            isinstance(crossing_a, CrossingLine)
+            and isinstance(crossing_b, CrossingLine)
+        ):
             return False
         return (
-                __points_equal__(__point_to_crossing(crossing_a.point_a), __point_to_crossing(crossing_b.point_a)) and
-                __points_equal__(__point_to_crossing(crossing_a.point_a), __point_to_crossing(crossing_b.point_a))
+            __points_equal__(
+                __point_to_crossing(crossing_a.point_a),
+                __point_to_crossing(crossing_b.point_a),
+            )
+            and __points_equal__(
+                __point_to_crossing(crossing_a.point_a),
+                __point_to_crossing(crossing_b.point_a),
+            )
         ) or (
-                __points_equal__(__point_to_crossing(crossing_a.point_a), __point_to_crossing(crossing_b.point_b)) and
-                __points_equal__(__point_to_crossing(crossing_a.point_b), __point_to_crossing(crossing_b.point_a))
+            __points_equal__(
+                __point_to_crossing(crossing_a.point_a),
+                __point_to_crossing(crossing_b.point_b),
+            )
+            and __points_equal__(
+                __point_to_crossing(crossing_a.point_b),
+                __point_to_crossing(crossing_b.point_a),
+            )
         )
 
-    return __numeric_eq__(crossing_a[0], crossing_b[0]) and __numeric_eq__(crossing_a[1], crossing_b[1])
+    return __numeric_eq__(crossing_a[0], crossing_b[0]) and __numeric_eq__(
+        crossing_a[1], crossing_b[1]
+    )
 
 
 def _less_than(point1, point2):
@@ -82,12 +99,13 @@ def _less_than(point1, point2):
     Defines the order of the event points
     """
     return __greater_than__(point1[1], point2[1]) or (
-            __numeric_eq__(point1[1], point2[1]) and __greater_than__(point2[0], point1[0]))
+        __numeric_eq__(point1[1], point2[1]) and __greater_than__(point2[0], point1[0])
+    )
 
 
 class Crossing:
     """
-        Represents a single crossing point
+    Represents a single crossing point
     """
 
     def __init__(self, pos, involved_edges):
@@ -102,9 +120,11 @@ class Crossing:
 
     def __eq__(self, other):
         if isinstance(other, Crossing):
-            return __points_equal__(self.pos, other.pos) and len(self.involved_edges) == len(
-                other.involved_edges) and sorted(
-                self.involved_edges) == sorted(other.involved_edges)
+            return (
+                __points_equal__(self.pos, other.pos)
+                and len(self.involved_edges) == len(other.involved_edges)
+                and sorted(self.involved_edges) == sorted(other.involved_edges)
+            )
         return False
 
     def __lt__(self, other):
@@ -115,15 +135,22 @@ class Crossing:
                 return True
         if type(self.pos) is CrossingLine:
             if type(other.pos) is CrossingLine:
-                self_start = self.pos[0] if _less_than(self.pos[0], self.pos[1]) else self.pos[1]
-                other_start = other.pos[0] if _less_than(other.pos[0], other.pos[1]) else other.pos[1]
+                self_start = (
+                    self.pos[0] if _less_than(self.pos[0], self.pos[1]) else self.pos[1]
+                )
+                other_start = (
+                    other.pos[0]
+                    if _less_than(other.pos[0], other.pos[1])
+                    else other.pos[1]
+                )
                 return _less_than(self_start, other_start)
             else:
                 return False
 
 
 class EventType(Enum):
-    """ Simple enum for distinguishing in which scenario an edge is introduced """
+    """Simple enum for distinguishing in which scenario an edge is introduced"""
+
     START = 1
     END = 2
     CROSSING = 3
@@ -132,9 +159,10 @@ class EventType(Enum):
 
 # region AVL tree
 
+
 class SortableObject:
-    """ Represents an object to be inserted in the ParameterizedBalancedBinarySearchTree.
-        The item is comparable with a parameter. The comparison does not have to build a total order.
+    """Represents an object to be inserted in the ParameterizedBalancedBinarySearchTree.
+    The item is comparable with a parameter. The comparison does not have to build a total order.
     """
 
     def less_than(self, other, key_parameter: numeric) -> bool:
@@ -178,9 +206,9 @@ class SortableObject:
         pass
 
 
-class BBTNode(object):
+class BBTNode:
     """
-        Node for the ParameterizedBalancedBinarySearchTree
+    Node for the ParameterizedBalancedBinarySearchTree
     """
 
     def __init__(self, content):
@@ -192,10 +220,10 @@ class BBTNode(object):
 
 class ParameterizedBalancedBinarySearchTree:
     """
-        An AVL tree, where the key can be parameterized (i.e. the keys of the inserted elements depend on an parameter).
-        Note that, even though the parameter for the keys might change throughout, whenever the order might change with
-        a change in the parameter, all objects with a change in order will have to be deleted and reinserted to be
-        placed into their correct spot.
+    An AVL tree, where the key can be parameterized (i.e. the keys of the inserted elements depend on an parameter).
+    Note that, even though the parameter for the keys might change throughout, whenever the order might change with
+    a change in the parameter, all objects with a change in order will have to be deleted and reinserted to be
+    placed into their correct spot.
     """
 
     def __init__(self):
@@ -203,7 +231,9 @@ class ParameterizedBalancedBinarySearchTree:
         self.__length__ = 0
 
     def __update_height__(self, root):
-        root.height = 1 + max(self.__get_height__(root.left), self.__get_height__(root.right))
+        root.height = 1 + max(
+            self.__get_height__(root.left), self.__get_height__(root.right)
+        )
 
     def insert(self, item: SortableObject, key_parameter: object) -> None:
         """
@@ -261,8 +291,12 @@ class ParameterizedBalancedBinarySearchTree:
         node.right = old_left
 
         # Update changed heights
-        node.height = 1 + max(self.__get_height__(node.left), self.__get_height__(node.right))
-        old_right.height = 1 + max(self.__get_height__(old_right.left), self.__get_height__(old_right.right))
+        node.height = 1 + max(
+            self.__get_height__(node.left), self.__get_height__(node.right)
+        )
+        old_right.height = 1 + max(
+            self.__get_height__(old_right.left), self.__get_height__(old_right.right)
+        )
 
         return old_right
 
@@ -275,8 +309,12 @@ class ParameterizedBalancedBinarySearchTree:
         node.left = old_right
 
         # Update changed heights
-        node.height = 1 + max(self.__get_height__(node.left), self.__get_height__(node.right))
-        old_left.height = 1 + max(self.__get_height__(old_left.left), self.__get_height__(old_left.right))
+        node.height = 1 + max(
+            self.__get_height__(node.left), self.__get_height__(node.right)
+        )
+        old_left.height = 1 + max(
+            self.__get_height__(old_left.left), self.__get_height__(old_left.right)
+        )
 
         return old_left
 
@@ -291,7 +329,9 @@ class ParameterizedBalancedBinarySearchTree:
             return 0
         return self.__get_height__(root.left) - self.__get_height__(root.right)
 
-    def get_left(self, key_value: numeric, key_parameter: object) -> Optional[SortableObject]:
+    def get_left(
+        self, key_value: numeric, key_parameter: object
+    ) -> Optional[SortableObject]:
         """
             Returns the next element to the left of the key specified by 'key_value'. Elements having the key
             'key_value' are not considered - only elements strictly left of 'key_value'.
@@ -316,7 +356,9 @@ class ParameterizedBalancedBinarySearchTree:
 
             # Check if current root is a better candidate
             if root.content.less_than_key(key_value, key_parameter):
-                if candidate is None or candidate.content.less_than(root.content, key_parameter):
+                if candidate is None or candidate.content.less_than(
+                    root.content, key_parameter
+                ):
                     return root
 
             return candidate
@@ -324,7 +366,9 @@ class ParameterizedBalancedBinarySearchTree:
         left_node = __get_left__(self.root)
         return None if left_node is None else left_node.content
 
-    def get_right(self, key_value: numeric, key_parameter: object) -> Optional[SortableObject]:
+    def get_right(
+        self, key_value: numeric, key_parameter: object
+    ) -> Optional[SortableObject]:
         """
             Returns the next element to the right of the key specified by 'key_value'. Elements having the key
             'key_value' are not considered - only elements strictly right of 'key_value'.
@@ -349,7 +393,9 @@ class ParameterizedBalancedBinarySearchTree:
 
             # Check if current root is a better candidate
             if root.content.greater_than_key(key_value, key_parameter):
-                if candidate is None or root.content.less_than(candidate.content, key_parameter):
+                if candidate is None or root.content.less_than(
+                    candidate.content, key_parameter
+                ):
                     return root
 
             return candidate
@@ -451,7 +497,9 @@ class ParameterizedBalancedBinarySearchTree:
 
         yield from __list__(self.root)
 
-    def find(self, item: SortableObject, key_parameter: object) -> Optional[SortableObject]:
+    def find(
+        self, item: SortableObject, key_parameter: object
+    ) -> Optional[SortableObject]:
         """
         Tries to find an item in the tree that is equivalent to the supplied item. If none is found,
         None is returned.
@@ -478,7 +526,9 @@ class ParameterizedBalancedBinarySearchTree:
         found_item = __find__(self.root)
         return None if found_item is None else found_item.content
 
-    def get_range(self, start_key: numeric, end_key: numeric, key_parameter: object) -> Iterable[SortableObject]:
+    def get_range(
+        self, start_key: numeric, end_key: numeric, key_parameter: object
+    ) -> Iterable[SortableObject]:
         """
             Returns all items in the range of [start_key, end_key] (including elements on the bounds)
         :param start_key: Start key
@@ -494,10 +544,13 @@ class ParameterizedBalancedBinarySearchTree:
         def _range_overlaps(current_start, current_end) -> bool:
             if __greater_than__(current_start, current_end):
                 return False
-            return (not __greater_than__(start_key, current_end) and
-                    not __greater_than__(current_start, end_key))
+            return not __greater_than__(
+                start_key, current_end
+            ) and not __greater_than__(current_start, end_key)
 
-        def __get_range__(root: BBTNode, current_start, current_end) -> Iterable[SortableObject]:
+        def __get_range__(
+            root: BBTNode, current_start, current_end
+        ) -> Iterable[SortableObject]:
             if root is None:
                 return
 
@@ -510,8 +563,9 @@ class ParameterizedBalancedBinarySearchTree:
                 if _range_overlaps(new_start, new_end):
                     yield from __get_range__(root.left, new_start, new_end)
 
-            if (not root.content.less_than_key(start_key, key_parameter)
-                    and not root.content.greater_than_key(end_key, key_parameter)):
+            if not root.content.less_than_key(
+                start_key, key_parameter
+            ) and not root.content.greater_than_key(end_key, key_parameter):
                 yield root.content
 
             if root.right is not None:
@@ -551,16 +605,17 @@ class ParameterizedBalancedBinarySearchTree:
 
 # region Edge and point classes for insertion into AVL tree
 
+
 class SweepLineEdgeInfo(SortableObject):
     """
-        Represents an edge within the sweep line. Supports basic properties for comparison
+    Represents an edge within the sweep line. Supports basic properties for comparison
     """
 
     def __init__(
-            self,
-            edge: (numeric, numeric),
-            position_a: (numeric, numeric),
-            position_b: (numeric, numeric),
+        self,
+        edge: (numeric, numeric),
+        position_a: (numeric, numeric),
+        position_b: (numeric, numeric),
     ):
         self.edge = edge
 
@@ -601,7 +656,9 @@ class SweepLineEdgeInfo(SortableObject):
     # endregion
 
     def __str__(self):
-        return "[{}, start: {}, end: {}]".format(self.edge, self.start_position, self.end_position)
+        return "[{}, start: {}, end: {}]".format(
+            self.edge, self.start_position, self.end_position
+        )
 
     def __repr__(self):
         return self.__str__()
@@ -612,8 +669,9 @@ class SweepLineEdgeInfo(SortableObject):
         :return:
         :rtype:
         """
-        return (__numeric_eq__(self.start_position[1], self.end_position[1])
-                and not __numeric_eq__(self.start_position[0], self.end_position[0]))
+        return __numeric_eq__(
+            self.start_position[1], self.end_position[1]
+        ) and not __numeric_eq__(self.start_position[0], self.end_position[0])
 
 
 class SweepLinePoint(SortableObject):
@@ -654,10 +712,11 @@ class SweepLinePoint(SortableObject):
 
 # region Event queue and sweep line status
 
+
 class EventQueue:
     """
-        An event queue ordering SweepLinePoints by their total order.
-        For each point, a list of edges added to that point can be stored.
+    An event queue ordering SweepLinePoints by their total order.
+    For each point, a list of edges added to that point can be stored.
     """
 
     def __init__(self) -> None:
@@ -685,7 +744,9 @@ class EventQueue:
             EventType.HORIZONTAL if edge_info.is_horizontal() else EventType.END,
         )
 
-    def add_crossing(self, crossing: CrossingPoint, edge_list: List[SweepLineEdgeInfo]) -> None:
+    def add_crossing(
+        self, crossing: CrossingPoint, edge_list: List[SweepLineEdgeInfo]
+    ) -> None:
         """
         Adds a new event point to the queue. If there is already an event point with the same position,
         the new event point will be added to the existing event point.
@@ -700,10 +761,15 @@ class EventQueue:
 
         for edge in edge_list:
             # If the edge only crosses in an endpoint, it will not be added as an "interior point"
-            if not (__points_equal__(edge.start_position, crossing) or __points_equal__(edge.end_position, crossing)):
+            if not (
+                __points_equal__(edge.start_position, crossing)
+                or __points_equal__(edge.end_position, crossing)
+            ):
                 self.__add(crossing.x, crossing.y, edge, EventType.CROSSING)
 
-    def __add(self, x: int, y, edge_info: SweepLineEdgeInfo, event_type: EventType) -> None:
+    def __add(
+        self, x: int, y, edge_info: SweepLineEdgeInfo, event_type: EventType
+    ) -> None:
         sweep_line_point = self.sorted_list.find(SweepLinePoint(x, y), None)
         if sweep_line_point is None:
             sweep_line_point = SweepLinePoint(x, y)
@@ -738,7 +804,7 @@ def __get_x_at_y__(edge_info: SweepLineEdgeInfo, y: numeric):
     if x2 == x1:
         return x1
     if y2 - y1 == 0:
-        return min(x1,x2)
+        return min(x1, x2)
 
     m = (y2 - y1) / (x2 - x1)
     b = y1 - m * x1
@@ -749,8 +815,8 @@ def __get_x_at_y__(edge_info: SweepLineEdgeInfo, y: numeric):
 
 class SweepLineStatus:
     """
-        Stores all edges in order from left to right as they intersect the sweep line.
-        Note that when the height changes, edges with changing order have to be explicitly deleted and reinserted.
+    Stores all edges in order from left to right as they intersect the sweep line.
+    Note that when the height changes, edges with changing order have to be explicitly deleted and reinserted.
     """
 
     def __init__(self):
@@ -796,7 +862,9 @@ class SweepLineStatus:
         """
         return self.sortedList.get_right(point.x, point.y)
 
-    def get_range(self, y: numeric, left_x: numeric, right_x: numeric) -> Iterable[SweepLineEdgeInfo]:
+    def get_range(
+        self, y: numeric, left_x: numeric, right_x: numeric
+    ) -> Iterable[SweepLineEdgeInfo]:
         """
             Returns all matching edges in range [left_x, right_x]
         :param y:
@@ -807,5 +875,6 @@ class SweepLineStatus:
         :type right_x:
         """
         return self.sortedList.get_range(left_x, right_x, y)
+
 
 # endregion

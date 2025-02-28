@@ -33,8 +33,11 @@ from gdMetriX import common, boundary, crossings
 from gdMetriX.common import numeric, Vector
 
 
-def center_of_mass(g: nx.Graph, pos: Union[str, dict, None] = None, weight: Union[str, dict, None] = None) \
-        -> Optional[Vector]:
+def center_of_mass(
+    g: nx.Graph,
+    pos: Union[str, dict, None] = None,
+    weight: Union[str, dict, None] = None,
+) -> Optional[Vector]:
     """
     Calculates the center of mass of all vertices (i.e. the average vertex position). Edges are not considered.
 
@@ -75,14 +78,23 @@ def center_of_mass(g: nx.Graph, pos: Union[str, dict, None] = None, weight: Unio
     return total_sum
 
 
-def __get_grid_distribution(g: nx.Graph, pos: Union[str, dict, None], grid_size: int,
-                            bounding_box: Tuple[numeric, numeric, numeric, numeric] = None):
+def __get_grid_distribution(
+    g: nx.Graph,
+    pos: Union[str, dict, None],
+    grid_size: int,
+    bounding_box: Tuple[numeric, numeric, numeric, numeric] = None,
+):
     return heatmap(g, pos, None, grid_size, bounding_box, False)
 
 
-def heatmap(g: nx.Graph, pos: Union[dict, list], values: Optional[list], grid_size: int,
-            bounding_box: Tuple[numeric, numeric, numeric, numeric] = None,
-            average: bool = True) -> np.ndarray:
+def heatmap(
+    g: nx.Graph,
+    pos: Union[dict, list],
+    values: Optional[list],
+    grid_size: int,
+    bounding_box: Tuple[numeric, numeric, numeric, numeric] = None,
+    average: bool = True,
+) -> np.ndarray:
     """
     Calculates a heatmap for all the values in `values` at the positions `pos`. The values and positions are expected
     to be of the same length and in the same order.
@@ -105,7 +117,9 @@ def heatmap(g: nx.Graph, pos: Union[dict, list], values: Optional[list], grid_si
     """
 
     def __get_grid_cell__(min_bound, max_bound, v):
-        return int(min(((v - min_bound) / (max_bound - min_bound)) * grid_size, grid_size - 1))
+        return int(
+            min(((v - min_bound) / (max_bound - min_bound)) * grid_size, grid_size - 1)
+        )
 
     if values is None:
         values = np.ones(len(pos))
@@ -141,7 +155,12 @@ def heatmap(g: nx.Graph, pos: Union[dict, list], values: Optional[list], grid_si
     return grid
 
 
-def _balance(g: nx.Graph, pos: Union[str, dict, None], use_relative_coordinates: bool, index_offset: int) -> float:
+def _balance(
+    g: nx.Graph,
+    pos: Union[str, dict, None],
+    use_relative_coordinates: bool,
+    index_offset: int,
+) -> float:
     pos = common.get_node_positions(g, pos)
 
     if len(pos) == 0:
@@ -165,10 +184,18 @@ def _balance(g: nx.Graph, pos: Union[str, dict, None], use_relative_coordinates:
             upper_count += 0.5
             lower_count += 0.5
 
-    return 0 if lower_count + upper_count == 0 else (upper_count - lower_count) / (lower_count + upper_count)
+    return (
+        0
+        if lower_count + upper_count == 0
+        else (upper_count - lower_count) / (lower_count + upper_count)
+    )
 
 
-def horizontal_balance(g: nx.Graph, pos: Union[str, dict, None] = None, use_relative_coordinates: bool = True) -> float:
+def horizontal_balance(
+    g: nx.Graph,
+    pos: Union[str, dict, None] = None,
+    use_relative_coordinates: bool = True,
+) -> float:
     """
     Returns a value between -1 and 1 indicating the horizontal balance.
 
@@ -192,7 +219,11 @@ def horizontal_balance(g: nx.Graph, pos: Union[str, dict, None] = None, use_rela
     return _balance(g, pos, use_relative_coordinates, 1)
 
 
-def vertical_balance(g: nx.Graph, pos: Union[str, dict, None] = None, use_relative_coordinates: bool = True) -> float:
+def vertical_balance(
+    g: nx.Graph,
+    pos: Union[str, dict, None] = None,
+    use_relative_coordinates: bool = True,
+) -> float:
     """
     Returns a value between -1 and 1 indicating the vertical balance.
 
@@ -247,9 +278,9 @@ def homogeneity(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     for n_quadrant in quadrants.flatten():
         n_quadrant = int(n_quadrant)
         if n_quadrant < n_avg:
-            multiply += (list(range(n_quadrant + 1, n_avg + 1)))
+            multiply += list(range(n_quadrant + 1, n_avg + 1))
         elif n_quadrant > n_avg:
-            divide += (list(range(n_avg + 1, n_quadrant + 1)))
+            divide += list(range(n_avg + 1, n_quadrant + 1))
 
     # Calculate the logarithmic sum of the numerator and denominator
     numerator = sum(math.log(x) for x in multiply)
@@ -261,8 +292,12 @@ def homogeneity(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     return 1 - fraction
 
 
-def concentration(g: nx.Graph, pos: Union[str, dict, None] = None, grid_size: numeric = 0,
-                  bounding_box: Tuple[numeric, numeric, numeric, numeric] = None) -> float:
+def concentration(
+    g: nx.Graph,
+    pos: Union[str, dict, None] = None,
+    grid_size: numeric = 0,
+    bounding_box: Tuple[numeric, numeric, numeric, numeric] = None,
+) -> float:
     """
     Calculates the concentration of the given networkX graph g.
     The concentration is a density measure counting the number of nodes in each cell of a sqrt(n) * sqrt(n) grid,
@@ -298,8 +333,10 @@ def concentration(g: nx.Graph, pos: Union[str, dict, None] = None, grid_size: nu
     elif grid_size < 0:
         raise ValueError("grid_size")
     elif grid_size > int(math.ceil(math.sqrt(g.order()))):
-        raise ValueError("The cell size is to small for the given graph. There can be at most one grid cell per node "
-                         "in the graph")
+        raise ValueError(
+            "The cell size is to small for the given graph. There can be at most one grid cell per node "
+            "in the graph"
+        )
     else:
         expected_per_cell = g.order() / math.pow(grid_size, 2)
 
@@ -308,7 +345,7 @@ def concentration(g: nx.Graph, pos: Union[str, dict, None] = None, grid_size: nu
 
 
 class __EmbeddedPoint:
-    """ Represents a vertex with position """
+    """Represents a vertex with position"""
 
     def __init__(self, key, vec: Vector):
         self.key = key
@@ -345,7 +382,9 @@ def closest_pair_of_points(g: nx.Graph, pos: Union[str, dict, None] = None):
 
 
 def _closest_pair_recursion(x_sorted, y_sorted):
-    def _bruteforce_distance(points: List[__EmbeddedPoint]) -> Tuple[__EmbeddedPoint, __EmbeddedPoint, float]:
+    def _bruteforce_distance(
+        points: List[__EmbeddedPoint],
+    ) -> Tuple[__EmbeddedPoint, __EmbeddedPoint, float]:
         mi = points[0].vec.distance(points[1].vec)
         p1 = points[0]
         p2 = points[1]
@@ -361,12 +400,17 @@ def _closest_pair_recursion(x_sorted, y_sorted):
                         p1, p2 = points[i], points[j]
         return p1, p2, mi
 
-    def _closest_split_pair(x_sorted_list: List[__EmbeddedPoint], y_sorted_list: List[__EmbeddedPoint], old_min: float,
-                            old_min_pair: Tuple[__EmbeddedPoint, __EmbeddedPoint]) \
-            -> Tuple[__EmbeddedPoint, __EmbeddedPoint, float]:
+    def _closest_split_pair(
+        x_sorted_list: List[__EmbeddedPoint],
+        y_sorted_list: List[__EmbeddedPoint],
+        old_min: float,
+        old_min_pair: Tuple[__EmbeddedPoint, __EmbeddedPoint],
+    ) -> Tuple[__EmbeddedPoint, __EmbeddedPoint, float]:
         x_med = x_sorted_list[len(x_sorted_list) // 2].vec.x
 
-        close_y = [p for p in y_sorted_list if x_med - old_min <= p.vec.x <= x_med + old_min]
+        close_y = [
+            p for p in y_sorted_list if x_med - old_min <= p.vec.x <= x_med + old_min
+        ]
         new_min = old_min
         for i in range(len(close_y) - 1):
             for j in range(i + 1, min(i + 7, len(close_y))):
@@ -406,7 +450,9 @@ def _closest_pair_recursion(x_sorted, y_sorted):
         min_total = min_left
         min_pair = (p_left, q_left)
 
-    (p_split, q_split, min_split) = _closest_split_pair(x_sorted, y_sorted, min_total, min_pair)
+    (p_split, q_split, min_split) = _closest_split_pair(
+        x_sorted, y_sorted, min_total, min_pair
+    )
 
     if min_total <= min_split:
         return min_pair[0], min_pair[1], min_total
@@ -441,7 +487,9 @@ def _get_distance_between_edge_and_node(edge_pos_a, edge_pos_b, node_pos) -> flo
         return np.abs(np.cross(v_ab, v_na) / np.linalg.norm(v_ab))
 
 
-def closest_pair_of_elements(g: nx.Graph, pos: Union[str, dict, None] = None, consider_crossings=False):
+def closest_pair_of_elements(
+    g: nx.Graph, pos: Union[str, dict, None] = None, consider_crossings=False
+):
     """
     Returns the two graph elements (i.e. nodes and edges) with minimum distance between between them.
 
@@ -463,7 +511,11 @@ def closest_pair_of_elements(g: nx.Graph, pos: Union[str, dict, None] = None, co
         crossing_list = crossings.get_crossings_quadratic(g, pos)
         if len(crossing_list) > 0:
             first_crossing = crossing_list[0]
-            return first_crossing.involved_edges[0], first_crossing.involved_edges[1], 0.0
+            return (
+                first_crossing.involved_edges[0],
+                first_crossing.involved_edges[1],
+                0.0,
+            )
 
     # TODO implement more efficient sweep line approach
 
@@ -480,9 +532,12 @@ def closest_pair_of_elements(g: nx.Graph, pos: Union[str, dict, None] = None, co
     return element_a, element_b, min_distance
 
 
-def node_orthogonality(g: nx.Graph, pos: Union[dict, list, None] = None,
-                       width: int = None,
-                       height: int = None) -> float:
+def node_orthogonality(
+    g: nx.Graph,
+    pos: Union[dict, list, None] = None,
+    width: int = None,
+    height: int = None,
+) -> float:
     """
     Calculates the node orthogonality of a graph, defined by how densely packed nodes are on the grid. More precisely,
     the metric is defined by the number of nodes devided by the number of grid cells.
@@ -562,9 +617,12 @@ def gabriel_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     return 1 - (violations / max_estimate)
 
 
-def _smallest_enclosing_circle_iteratively(points: List[common.Vector]) -> common.Circle:
+def _smallest_enclosing_circle_iteratively(
+    points: List[common.Vector],
+) -> common.Circle:
     class _SecStages(Enum):
-        """ Stages between all recursive calls """
+        """Stages between all recursive calls"""
+
         FIRST_CALL = 0
         SECOND_CALL = 1
         TRAIL = 2
@@ -584,9 +642,13 @@ def _smallest_enclosing_circle_iteratively(points: List[common.Vector]) -> commo
                 elif len(point_boundary) == 1:
                     circle = point_boundary[0], 0
                 elif len(point_boundary) == 2:
-                    circle = common.circle_from_two_points(point_boundary[0], point_boundary[1])
+                    circle = common.circle_from_two_points(
+                        point_boundary[0], point_boundary[1]
+                    )
                 elif len(point_boundary) == 3:
-                    circle = common.circle_from_three_points(point_boundary[0], point_boundary[1], point_boundary[2])
+                    circle = common.circle_from_three_points(
+                        point_boundary[0], point_boundary[1], point_boundary[2]
+                    )
                 else:
                     raise ValueError()
                 results.append(circle)
@@ -663,7 +725,9 @@ def smallest_enclosing_circle_from_point_set(points: Iterable) -> common.Circle:
     return _smallest_enclosing_circle_iteratively(points)
 
 
-def smallest_enclosing_circle(g: nx.Graph, pos: Union[str, dict, None] = None) -> common.Circle:
+def smallest_enclosing_circle(
+    g: nx.Graph, pos: Union[str, dict, None] = None
+) -> common.Circle:
     """
     Implementation of Welzl's algorithm to find the smallest enclosing circle of a graph.
 

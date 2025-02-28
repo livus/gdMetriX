@@ -96,8 +96,9 @@ def area_tight(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
         return 0.0
 
 
-def bounding_box(g: nx.Graph, pos: Union[str, dict, None] = None) \
-        -> Optional[Tuple[numeric, numeric, numeric, numeric]]:
+def bounding_box(
+    g: nx.Graph, pos: Union[str, dict, None] = None
+) -> Optional[Tuple[numeric, numeric, numeric, numeric]]:
     """
     Returns the tight bounding box around the given graph.
 
@@ -145,8 +146,8 @@ def height(g: nx.Graph, pos: Union[str, dict, None] = None) -> numeric:
     """
     if g.order() == 0:
         return 0
-    (minX, minY, maxX, maxY) = bounding_box(g, pos)
-    return maxY - minY
+    (_, min_y, _, max_y) = bounding_box(g, pos)
+    return max_y - min_y
 
 
 def width(g: nx.Graph, pos: Union[str, dict, None] = None) -> numeric:
@@ -164,8 +165,8 @@ def width(g: nx.Graph, pos: Union[str, dict, None] = None) -> numeric:
     """
     if g.order() == 0:
         return 0
-    (minX, minY, maxX, maxY) = bounding_box(g, pos)
-    return maxX - minX
+    (min_x, _, max_x, _) = bounding_box(g, pos)
+    return max_x - min_x
 
 
 def aspect_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> Optional[float]:
@@ -195,9 +196,12 @@ def aspect_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> Optional[fl
     return smaller / bigger
 
 
-def normalize_positions(g: nx.Graph, pos: Union[str, dict, None] = None,
-                        box: Tuple[numeric, numeric, numeric, numeric] = (-0.5, -0.5, 0.5, 0.5),
-                        preserve_aspect_ratio: bool = True) -> dict:
+def normalize_positions(
+    g: nx.Graph,
+    pos: Union[str, dict, None] = None,
+    box: Tuple[numeric, numeric, numeric, numeric] = (-0.5, -0.5, 0.5, 0.5),
+    preserve_aspect_ratio: bool = True,
+) -> dict:
     """
     Normalizes the positions of the graph to fit within a given bounding box.
 
@@ -254,6 +258,9 @@ def normalize_positions(g: nx.Graph, pos: Union[str, dict, None] = None,
         percentage_x = 0.5 if w == 0 else (x - minX) / w
         percentage_y = 0.5 if h == 0 else (y - minY) / h
 
-        pos[key] = (start_x + percentage_x * target_width, start_y + percentage_y * target_height)
+        pos[key] = (
+            start_x + percentage_x * target_width,
+            start_y + percentage_y * target_height,
+        )
 
     return pos

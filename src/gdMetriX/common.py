@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    Collects some basic classes used in other modules as well as useful methods.
+Collects some basic classes used in other modules as well as useful methods.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ def get_node_positions(g, pos: Union[str, dict, None] = None) -> dict:
         - pos is not supplied: Returns the positions of the 'pos' property in the graph - if present
         - pos is given as a string: Returns the positions saved in the properties of the graph under the that name
         - pos is a dictionary: Simply returns the given dictionary
-    
+
     :param g: A networkX graph
     :type g: nx.Graph
     :param pos: Optional position value
@@ -80,7 +80,11 @@ class Vector:
         :return: A vector pointing upwards and forwards
         :rtype: Vector
         """
-        return self if (self.y > 0 or (self.y == 0 and self.x >= 0)) else Vector(-self.x, -self.y)
+        return (
+            self
+            if (self.y > 0 or (self.y == 0 and self.x >= 0))
+            else Vector(-self.x, -self.y)
+        )
 
     def _to_array(self) -> np.array:
         return np.asarray((self.x, self.y))
@@ -106,8 +110,7 @@ class Vector:
 
         if angle < 0:
             return Angle(math.pi * 2) + angle
-        else:
-            return angle
+        return angle
 
     def rad(self) -> Angle:
         """
@@ -199,7 +202,7 @@ class Vector:
         return Vector(self.x / scalar, self.y / scalar)
 
     def __abs__(self) -> float:
-        return math.sqrt(self.x ** 2 + self.y ** 2)
+        return math.sqrt(self.x**2 + self.y**2)
 
     def __eq__(self, other: Vector) -> bool:
         return self.x == other.x and self.y == other.y
@@ -216,7 +219,7 @@ class Vector:
     def __getitem__(self, index):
         if index == 0:
             return self.x
-        elif index == 1:
+        if index == 1:
             return self.y
 
         raise IndexError
@@ -236,8 +239,7 @@ class Angle(float):
     def __add__(self, other) -> Angle:
         if isinstance(other, Angle):
             return Angle(self._rad + other._rad)
-        else:
-            return Angle(self._rad + other)
+        return Angle(self._rad + other)
 
     def __mul__(self, other: float) -> Angle:
         return Angle(self._rad * other)
@@ -279,7 +281,9 @@ class Angle(float):
         return hash(self._rad)
 
 
-def euclidean_distance(point_a: Tuple[numeric, numeric], point_b: Tuple[numeric, numeric]) -> float:
+def euclidean_distance(
+    point_a: Tuple[numeric, numeric], point_b: Tuple[numeric, numeric]
+) -> float:
     """
     Obtains the euclidean distance between point_a and point_b.
 
@@ -332,7 +336,11 @@ def circle_from_three_points(a: Vector, b: Vector, c: Vector) -> Circle:
         return None
 
     def _calculate_center_coordinate(factor_1, factor_2, factor_3):
-        return ((ax ** 2 + ay ** 2) * factor_1 + (bx ** 2 + by ** 2) * factor_2 + (cx ** 2 + cy ** 2) * factor_3) / d
+        return (
+            (ax**2 + ay**2) * factor_1
+            + (bx**2 + by**2) * factor_2
+            + (cx**2 + cy**2) * factor_3
+        ) / d
 
     ux = _calculate_center_coordinate(by - cy, cy - ay, ay - by)
     uy = _calculate_center_coordinate(cx - bx, ax - cx, bx - ax)

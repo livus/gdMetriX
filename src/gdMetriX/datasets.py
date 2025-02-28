@@ -15,45 +15,45 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-    This module makes graphs collected by the
-    '`Graph Layout Benchmark Datasets <https://visdunneright.github.io/gd_benchmark_sets/>`_'
-    project from the Northeastern University Visualization Lab easily accessible for networkX.
+This module makes graphs collected by the
+'`Graph Layout Benchmark Datasets <https://visdunneright.github.io/gd_benchmark_sets/>`_'
+project from the Northeastern University Visualization Lab easily accessible for networkX.
 
-    The project aims to collect datasets used for graph layout algorithms and make them available for long-term access.
-    The graphs are stored on the `Open Science Foundation platform <https://osf.io/j7ucv/>`_
+The project aims to collect datasets used for graph layout algorithms and make them available for long-term access.
+The graphs are stored on the `Open Science Foundation platform <https://osf.io/j7ucv/>`_
 
-    Information about the individual datasets can be found at the
-    `project homepage <https://visdunneright.github.io/gd_benchmark_sets/>`_. For more information refer to the
-    corresponding `short paper <https://osf.io/preprints/osf/yftju>`_
-    :footcite:p:`DiBartolomeo2023CollectionBenchmarkDatasets`.
+Information about the individual datasets can be found at the
+`project homepage <https://visdunneright.github.io/gd_benchmark_sets/>`_. For more information refer to the
+corresponding `short paper <https://osf.io/preprints/osf/yftju>`_
+:footcite:p:`DiBartolomeo2023CollectionBenchmarkDatasets`.
 
-    Usage
-    --------
+Usage
+--------
 
-    To get a list of all available datasets, call :func:`get_available_datasets()`:
+To get a list of all available datasets, call :func:`get_available_datasets()`:
 
-    .. code-block:: python
+.. code-block:: python
 
-        >>> available_datasets = get_available_datasets()
-        >>> print(available_datasets)
-        ['subways', 'code', 'rome', 'chess', 'steinlib', ...
+    >>> available_datasets = get_available_datasets()
+    >>> print(available_datasets)
+    ['subways', 'code', 'rome', 'chess', 'steinlib', ...
 
-    To iterate over all graphs of a given dataset, simply call :func:`iterate_dataset()`:
+To iterate over all graphs of a given dataset, simply call :func:`iterate_dataset()`:
 
-    .. code-block:: python
+.. code-block:: python
 
-        >>> for name, g in iterate_dataset('subways'):
-        >>>     print("'{name}' has {n} vertices and {m} edges".format(name=name, n=g.order(), m=len(g.edges()))
+    >>> for name, g in iterate_dataset('subways'):
+    >>>     print("'{name}' has {n} vertices and {m} edges".format(name=name, n=g.order(), m=len(g.edges()))
 
-    The module takes care of downloading, caching, maintaining and updating the graphs automatically. In case there are
-    any problems or you want to free up disc space, you can clean all saved data with the following command:
+The module takes care of downloading, caching, maintaining and updating the graphs automatically. In case there are
+any problems or you want to free up disc space, you can clean all saved data with the following command:
 
-    .. code-block:: python
+.. code-block:: python
 
-        >>> clear_cache()
+    >>> clear_cache()
 
-    Methods
-    -------
+Methods
+-------
 """
 import json
 import os
@@ -88,18 +88,18 @@ def __get_data_dir__():
 
 class _Args:
     def __init__(
-            self,
-            project,
-            username=None,
-            update=True,
-            force=False,
-            destination=None,
-            source=None,
-            recursive=False,
-            target=None,
-            output=None,
-            remote=None,
-            local=None,
+        self,
+        project,
+        username=None,
+        update=True,
+        force=False,
+        destination=None,
+        source=None,
+        recursive=False,
+        target=None,
+        output=None,
+        remote=None,
+        local=None,
     ):
         self.project = project
         self.username = username
@@ -274,7 +274,9 @@ def get_available_datasets() -> List[str]:
     return list(__get_available_datasets__().keys())
 
 
-def iterate_dataset(dataset: str, adapt_attributes: bool = True) -> Iterator[Tuple[str, nx.Graph]]:
+def iterate_dataset(
+    dataset: str, adapt_attributes: bool = True
+) -> Iterator[Tuple[str, nx.Graph]]:
     """
     Generates an iterator of all graphs in the specified data set.
 
@@ -304,8 +306,11 @@ def iterate_dataset(dataset: str, adapt_attributes: bool = True) -> Iterator[Tup
         graph = nx.node_link_graph(graph)
 
         if adapt_attributes:
+
             def _convert_to_float(parameter: str):
-                for edge, to_convert in nx.get_edge_attributes(graph, parameter).items():
+                for edge, to_convert in nx.get_edge_attributes(
+                    graph, parameter
+                ).items():
                     try:
                         graph.edges[edge][parameter] = float(to_convert)
                     except ValueError:
@@ -324,7 +329,10 @@ def iterate_dataset(dataset: str, adapt_attributes: bool = True) -> Iterator[Tup
 
             if len(x) > 0 and len(y) > 0 and len(pos) == 0:
                 try:
-                    pos = {key: [float(x_value), float(y[key])] for key, x_value in x.items()}
+                    pos = {
+                        key: [float(x_value), float(y[key])]
+                        for key, x_value in x.items()
+                    }
                     nx.set_node_attributes(graph, pos, "pos")
                 except ValueError:
                     pass

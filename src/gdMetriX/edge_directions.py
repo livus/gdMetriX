@@ -33,8 +33,11 @@ from gdMetriX import common
 from gdMetriX.common import numeric, Vector, Angle
 
 
-def upwards_flow(g: nx.DiGraph, pos: Union[str, dict, None] = None,
-                 direction_vector: Tuple[numeric, numeric] = (0, 1)) -> Optional[float]:
+def upwards_flow(
+    g: nx.DiGraph,
+    pos: Union[str, dict, None] = None,
+    direction_vector: Tuple[numeric, numeric] = (0, 1),
+) -> Optional[float]:
     """
     Calculates the percentage of edges pointing in the 'upwards' direction.
     An edge points 'upwards' if the angle between the upwards vector and the edge is smaller than 90 degrees.
@@ -71,7 +74,9 @@ def upwards_flow(g: nx.DiGraph, pos: Union[str, dict, None] = None,
     return float(sum_upward_edges) / len(g.edges())
 
 
-def average_flow(g: nx.DiGraph, pos: Union[str, dict, None] = None) -> Optional[Tuple[float, float]]:
+def average_flow(
+    g: nx.DiGraph, pos: Union[str, dict, None] = None
+) -> Optional[Tuple[float, float]]:
     """
     Calculates the average edge direction as defined by :footcite:t:`purchase_metrics_2002`.
 
@@ -105,7 +110,9 @@ def average_flow(g: nx.DiGraph, pos: Union[str, dict, None] = None) -> Optional[
     return float(average[0]), float(average[1])
 
 
-def coherence_to_average_flow(g: nx.DiGraph, pos: Union[str, dict, None] = None) -> Optional[float]:
+def coherence_to_average_flow(
+    g: nx.DiGraph, pos: Union[str, dict, None] = None
+) -> Optional[float]:
     """
     Calculates the upwards flow along the average edge direction.
     This is equal to calling :func:`upwards_flow(g, average_flow(g))`.
@@ -121,7 +128,9 @@ def coherence_to_average_flow(g: nx.DiGraph, pos: Union[str, dict, None] = None)
     return upwards_flow(g, pos, average_flow(g, pos))
 
 
-def ordered_neighborhood(g: nx.Graph, node: object, pos: Union[str, dict, None] = None) -> List:
+def ordered_neighborhood(
+    g: nx.Graph, node: object, pos: Union[str, dict, None] = None
+) -> List:
     """
     Returns the neighborhood of the given node in the networkX graph ordered clockwise.
 
@@ -142,7 +151,9 @@ def ordered_neighborhood(g: nx.Graph, node: object, pos: Union[str, dict, None] 
     return __order_clockwise__(neighbors, pos[node], pos)
 
 
-def __order_clockwise__(nodes: List, origin: Tuple[numeric, numeric], pos: Union[str, dict, None]) -> List:
+def __order_clockwise__(
+    nodes: List, origin: Tuple[numeric, numeric], pos: Union[str, dict, None]
+) -> List:
     def __get_angle_between_nodes__(pos_a, pos_b) -> float:
         vector = Vector.from_point(pos_b) - Vector.from_point(pos_a)
         return Vector(0, 1).angle(vector)
@@ -150,8 +161,12 @@ def __order_clockwise__(nodes: List, origin: Tuple[numeric, numeric], pos: Union
     return sorted(nodes, key=lambda nb: __get_angle_between_nodes__(origin, pos[nb]))
 
 
-def __edge_angles__(nodes: List, origin: Tuple[numeric, numeric], pos: Union[str, dict, None], deg: bool = False) \
-        -> List:
+def __edge_angles__(
+    nodes: List,
+    origin: Tuple[numeric, numeric],
+    pos: Union[str, dict, None],
+    deg: bool = False,
+) -> List:
     ordered_nodes = __order_clockwise__(nodes, origin, pos)
 
     angles = []
@@ -187,7 +202,9 @@ def combinatorial_embedding(g: nx.Graph, pos: Union[str, dict, None] = None) -> 
     return {node: ordered_neighborhood(g, node, pos) for node in g.nodes()}
 
 
-def edge_angles(g: nx.Graph, node: object, pos: Union[str, dict, None] = None, deg: bool = False) -> List:
+def edge_angles(
+    g: nx.Graph, node: object, pos: Union[str, dict, None] = None, deg: bool = False
+) -> List:
     """
     Returns a list of edge angles for the given node present in the networkX graph.
 
@@ -210,7 +227,9 @@ def edge_angles(g: nx.Graph, node: object, pos: Union[str, dict, None] = None, d
     return __edge_angles__(neighbors, pos[node], pos, deg)
 
 
-def minimum_angle(g: nx.Graph, pos: Union[str, dict, None] = None, deg: bool = False) -> float:
+def minimum_angle(
+    g: nx.Graph, pos: Union[str, dict, None] = None, deg: bool = False
+) -> float:
     """
     Returns the shallowest angle between any two edges sharing an endpoint.
 
@@ -238,7 +257,9 @@ def minimum_angle(g: nx.Graph, pos: Union[str, dict, None] = None, deg: bool = F
     return minimum
 
 
-def angular_resolution(g: nx.Graph, pos: Union[str, dict, None] = None, deg: bool = False) -> float:
+def angular_resolution(
+    g: nx.Graph, pos: Union[str, dict, None] = None, deg: bool = False
+) -> float:
     r"""
     Returns the deviation from the optimal angle between any two edges sharing an endpoint as defined by
     :footcite:t:`purchase_metrics_2002`.
@@ -309,7 +330,9 @@ def edge_orthogonality(g: nx.Graph, pos: Union[str, dict, None] = None) -> float
     return 1 - (total / len(g.edges()))
 
 
-def edge_length_deviation(g: nx.Graph, pos: Union[str, dict, None] = None, ideal_length: float = None) -> float:
+def edge_length_deviation(
+    g: nx.Graph, pos: Union[str, dict, None] = None, ideal_length: float = None
+) -> float:
     """
     Calculates the average edge length deviation as defined by :footcite:t:`purchase_landscape`.
 
@@ -330,6 +353,10 @@ def edge_length_deviation(g: nx.Graph, pos: Union[str, dict, None] = None, ideal
 
     pos = common.get_node_positions(g, pos)
 
-    edge_lengths = [common.euclidean_distance(pos[edge[0]], pos[edge[1]]) for edge in g.edges()]
+    edge_lengths = [
+        common.euclidean_distance(pos[edge[0]], pos[edge[1]]) for edge in g.edges()
+    ]
     average = ideal_length if ideal_length is not None else np.average(edge_lengths)
-    return np.average([abs(average - edge_length) / average for edge_length in edge_lengths])
+    return np.average(
+        [abs(average - edge_length) / average for edge_length in edge_lengths]
+    )
