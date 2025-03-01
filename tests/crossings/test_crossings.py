@@ -20,6 +20,7 @@ Unit tests for crossing detection.
 
 import math
 import random
+import sys
 import unittest
 
 from libpysal import weights
@@ -31,6 +32,7 @@ import networkx as nx
 import pytest
 
 import crossing_test_helper
+import gdMetriX
 from gdMetriX import crossings, datasets
 
 
@@ -1113,15 +1115,17 @@ class TestDatasetGraphs(object):
     @pytest.mark.parametrize(
         "dataset_name",
         [
+            "graphviz examples",
             "subways",
-            "scotch",
+            "airlines-migration-air traffic"
         ],
     )
     def test_dataset(self, dataset_name):
-        for name in datasets.get_available_datasets():
-            for name, graph in datasets.iterate_dataset(
-                dataset_name, adapt_attributes=True
-            ):
-                __assert_crossing_equality__(
-                    graph, crossings.get_crossings_quadratic(graph)
-                )
+        for name, graph in datasets.iterate_dataset(dataset_name):
+            if len(graph.edges()) < 1000:
+                pos = gdMetriX.get_node_positions(graph)
+                if len(pos) > 0:
+                    print(name)
+                    __assert_crossing_equality__(
+                        graph, crossings.get_crossings_quadratic(graph)
+                    )

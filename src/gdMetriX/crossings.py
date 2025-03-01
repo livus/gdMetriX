@@ -45,6 +45,7 @@ Methods
 -------
 
 """
+import itertools
 import math
 import sys
 from typing import List, Optional, Tuple, Union
@@ -476,7 +477,7 @@ def get_crossings(
 
             __insert_crossing_into_crossing_list__(crossing)
 
-        # Check for crossing lines (now this is the main part of the Bentley-Ottmann algorithm)
+        # Check for crossing lines
         if len(current_event_point.start_list) > 0:
             candidates_sorted = sorted(
                 edges_at_crossing,
@@ -523,17 +524,16 @@ def get_crossings(
                     index_candidate += 1
                 else:
                     # Report group pairwise as line crossings
-                    for i in range(len(start_group)):
-                        for j in range(i + 1, len(start_group)):
-                            a = start_group[i]
-                            b = start_group[j]
+                    for a, b in itertools.combinations(start_group, 2):
+                        if a == b:
+                            continue
 
-                            crossing = __check_lines__(a, b)
+                        crossing = __check_lines__(a, b)
 
-                            if type(crossing) is CrossingLine:
-                                crossing_lines.append(
-                                    Crossing(__check_lines__(a, b), {a.edge, b.edge})
-                                )
+                        if type(crossing) is CrossingLine:
+                            crossing_lines.append(
+                                Crossing(crossing, {a.edge, b.edge})
+                            )
 
                     for a in start_group:
                         for b in candidate_group:

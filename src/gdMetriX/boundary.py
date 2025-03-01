@@ -54,7 +54,7 @@ import scipy.spatial
 from scipy.spatial import ConvexHull
 
 from gdMetriX import common
-from gdMetriX.common import numeric
+from gdMetriX.common import Numeric
 
 
 def area(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
@@ -98,7 +98,7 @@ def area_tight(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
 
 def bounding_box(
     g: nx.Graph, pos: Union[str, dict, None] = None
-) -> Optional[Tuple[numeric, numeric, numeric, numeric]]:
+) -> Optional[Tuple[Numeric, Numeric, Numeric, Numeric]]:
     """
     Returns the tight bounding box around the given graph.
 
@@ -132,7 +132,7 @@ def bounding_box(
     return min_x, min_y, max_x, max_y
 
 
-def height(g: nx.Graph, pos: Union[str, dict, None] = None) -> numeric:
+def height(g: nx.Graph, pos: Union[str, dict, None] = None) -> Numeric:
     """
     Returns the height of the graph, which is defined as the vertical distance between the lowest and the highest node.
 
@@ -150,7 +150,7 @@ def height(g: nx.Graph, pos: Union[str, dict, None] = None) -> numeric:
     return max_y - min_y
 
 
-def width(g: nx.Graph, pos: Union[str, dict, None] = None) -> numeric:
+def width(g: nx.Graph, pos: Union[str, dict, None] = None) -> Numeric:
     """
     Returns the width of the graph, which is defined as the horizontal distance between the left-most and the right-most
     node.
@@ -199,7 +199,7 @@ def aspect_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> Optional[fl
 def normalize_positions(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
-    box: Tuple[numeric, numeric, numeric, numeric] = (-0.5, -0.5, 0.5, 0.5),
+    box: Tuple[Numeric, Numeric, Numeric, Numeric] = (-0.5, -0.5, 0.5, 0.5),
     preserve_aspect_ratio: bool = True,
 ) -> dict:
     """

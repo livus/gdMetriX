@@ -336,5 +336,14 @@ def iterate_dataset(
                     nx.set_node_attributes(graph, pos, "pos")
                 except ValueError:
                     pass
+            elif len(pos) > 0:
+                try:
+                    pos = {
+                        key: [float(x) for x in pos_value.strip('"').split(",")]
+                        for key, pos_value in pos.items()
+                    }
+                    nx.set_node_attributes(graph, pos, "pos")
+                except ValueError as ve:
+                    pass
 
         yield file.stem, graph

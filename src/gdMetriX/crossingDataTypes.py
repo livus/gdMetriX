@@ -135,15 +135,26 @@ class Crossing:
                 return True
         if type(self.pos) is CrossingLine:
             if type(other.pos) is CrossingLine:
-                self_start = (
-                    self.pos[0] if _less_than(self.pos[0], self.pos[1]) else self.pos[1]
+
+                # TODO start/end should already be saved somewhere
+                # Look if another datatype makes sense
+                def _get_start(crossing):
+                    return (
+                        crossing.pos[0]
+                        if _less_than(crossing.pos[0], crossing.pos[1])
+                        else crossing.pos[1]
+                    )
+
+                def _get_end(crossing):
+                    return (
+                        crossing.pos[0]
+                        if not _less_than(crossing.pos[0], crossing.pos[1])
+                        else crossing.pos[1]
+                    )
+
+                return _less_than(_get_start(self), _get_start(other)) or _less_than(
+                    _get_end(self), _get_end(other)
                 )
-                other_start = (
-                    other.pos[0]
-                    if _less_than(other.pos[0], other.pos[1])
-                    else other.pos[1]
-                )
-                return _less_than(self_start, other_start)
             else:
                 return False
 
