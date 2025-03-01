@@ -30,13 +30,13 @@ import networkx as nx
 import numpy as np
 
 from gdMetriX import common
-from gdMetriX.common import numeric, Vector, Angle
+from gdMetriX.common import Numeric, Vector, Angle
 
 
 def upwards_flow(
     g: nx.DiGraph,
     pos: Union[str, dict, None] = None,
-    direction_vector: Tuple[numeric, numeric] = (0, 1),
+    direction_vector: Tuple[Numeric, Numeric] = (0, 1),
 ) -> Optional[float]:
     """
     Calculates the percentage of edges pointing in the 'upwards' direction.
@@ -152,7 +152,7 @@ def ordered_neighborhood(
 
 
 def __order_clockwise__(
-    nodes: List, origin: Tuple[numeric, numeric], pos: Union[str, dict, None]
+    nodes: List, origin: Tuple[Numeric, Numeric], pos: Union[str, dict, None]
 ) -> List:
     def __get_angle_between_nodes__(pos_a, pos_b) -> float:
         vector = Vector.from_point(pos_b) - Vector.from_point(pos_a)
@@ -163,7 +163,7 @@ def __order_clockwise__(
 
 def __edge_angles__(
     nodes: List,
-    origin: Tuple[numeric, numeric],
+    origin: Tuple[Numeric, Numeric],
     pos: Union[str, dict, None],
     deg: bool = False,
 ) -> List:
@@ -175,8 +175,8 @@ def __edge_angles__(
     if len(ordered_nodes) <= 1:
         angles.append(Angle(math.pi * 2))
     else:
-        for i in range(len(ordered_nodes)):
-            p_nb_a = Vector.from_point(pos[ordered_nodes[i]])
+        for i, node in enumerate(ordered_nodes):
+            p_nb_a = Vector.from_point(pos[node])
             p_nb_b = Vector.from_point(pos[ordered_nodes[(i + 1) % len(ordered_nodes)]])
             vector_nb_a = p_nb_a - origin
             vector_nb_b = p_nb_b - origin
@@ -250,9 +250,7 @@ def minimum_angle(
 
     for node in g.nodes():
         resolution = min(edge_angles(g, node, pos, deg))
-
-        if resolution < minimum:
-            minimum = resolution
+        minimum = min(minimum, resolution)
 
     return minimum
 

@@ -21,12 +21,12 @@ Collects some basic classes used in other modules as well as useful methods.
 from __future__ import annotations
 
 import math
-from typing import Union, Tuple, List
+from typing import Union, Tuple, List, Optional
 
 import networkx as nx
 import numpy as np
 
-numeric = Union[int, float]
+Numeric = Union[int, float]
 
 
 def get_node_positions(g, pos: Union[str, dict, None] = None) -> dict:
@@ -57,12 +57,12 @@ class Vector:
     Represents a simple 2-dimensional vector
     """
 
-    def __init__(self, x: numeric, y: numeric):
+    def __init__(self, x: Numeric, y: Numeric):
         self.x = x
         self.y = y
 
     @staticmethod
-    def from_point(pos: Tuple[numeric, numeric]) -> Vector:
+    def from_point(pos: Tuple[Numeric, Numeric]) -> Vector:
         """
         Converts a tuple into a vector.
 
@@ -86,9 +86,6 @@ class Vector:
             else Vector(-self.x, -self.y)
         )
 
-    def _to_array(self) -> np.array:
-        return np.asarray((self.x, self.y))
-
     def angle(self, other) -> Angle:
         """
         Obtains the clockwise angle from the vector to the given vector
@@ -98,8 +95,8 @@ class Vector:
         :return: An angle between 0° and 360°
         :rtype: Angle
         """
-        a = self._to_array()
-        b = other._to_array()
+        a = np.asarray((self.x, self.y))
+        b = np.asarray((other.x, other.y))
 
         if self.x == self.y == 0 or other.x == other.y == 0:
             return Angle(0)
@@ -282,7 +279,7 @@ class Angle(float):
 
 
 def euclidean_distance(
-    point_a: Tuple[numeric, numeric], point_b: Tuple[numeric, numeric]
+    point_a: Tuple[Numeric, Numeric], point_b: Tuple[Numeric, Numeric]
 ) -> float:
     """
     Obtains the euclidean distance between point_a and point_b.
@@ -314,7 +311,7 @@ def circle_from_two_points(a: Vector, b: Vector) -> Circle:
     return a.mid(b), a.distance(b) / 2
 
 
-def circle_from_three_points(a: Vector, b: Vector, c: Vector) -> Circle:
+def circle_from_three_points(a: Vector, b: Vector, c: Vector) -> Optional[Circle]:
     """
     Calculates the unique circle :math:`C` defined by a, b and c with all points on the perimeter of :math:`C`.
 

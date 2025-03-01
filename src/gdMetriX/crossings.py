@@ -151,23 +151,14 @@ def get_crossings_quadratic(
     pos = common.get_node_positions(g, pos)
     crossings = []
 
-    for edge1 in g.edges():
-        for edge2 in g.edges():
+    for edge1, edge2 in itertools.combinations(g.edges(), 2):
+        crossing_point = __check_lines__(
+            crossingDataTypes.SweepLineEdgeInfo(edge1, pos[edge1[0]], pos[edge1[1]]),
+            crossingDataTypes.SweepLineEdgeInfo(edge2, pos[edge2[0]], pos[edge2[1]]),
+        )
 
-            if edge1 == edge2:
-                continue
-
-            crossing_point = __check_lines__(
-                crossingDataTypes.SweepLineEdgeInfo(
-                    edge1, pos[edge1[0]], pos[edge1[1]]
-                ),
-                crossingDataTypes.SweepLineEdgeInfo(
-                    edge2, pos[edge2[0]], pos[edge2[1]]
-                ),
-            )
-
-            if crossing_point is not None:
-                crossings.append(Crossing(crossing_point, {edge1, edge2}))
+        if crossing_point is not None:
+            crossings.append(Crossing(crossing_point, {edge1, edge2}))
 
     crossings.sort()
 
@@ -550,7 +541,7 @@ def get_crossings(
                             crossing = __check_lines__(a, b)
                             if type(crossing) is CrossingLine:
                                 crossing_lines.append(
-                                    Crossing(__check_lines__(a, b), {a.edge, b.edge})
+                                    Crossing(crossing, {a.edge, b.edge})
                                 )
 
                     start_group = []

@@ -36,7 +36,7 @@ from scipy import ndimage
 from scipy.spatial import ConvexHull, QhullError, KDTree
 
 from gdMetriX import crossings, common, boundary
-from gdMetriX.common import numeric, Vector
+from gdMetriX.common import Numeric, Vector
 from gdMetriX.distribution import smallest_enclosing_circle_from_point_set
 
 
@@ -56,11 +56,11 @@ def _flip_point_around_axis(p: np.array, a: np.array, b: np.array) -> np.array:
 
 
 def reflective_symmetry(
-    g: nx.Graph,
-    pos: Union[str, dict, None] = None,
-    threshold: int = 2,
-    tolerance: float = 1e-2,
-    fraction: float = 1,
+        g: nx.Graph,
+        pos: Union[str, dict, None] = None,
+        threshold: int = 2,
+        tolerance: float = 1e-2,
+        fraction: float = 1,
 ) -> float:
     r"""
     Computes a metric for axial symmetry between 0 and 1 as defined by :footcite:t:`purchase_metrics_2002`.
@@ -174,7 +174,7 @@ def reflective_symmetry(
             node_b = node_list[i_b]
 
             if node_a == node_b or (
-                pos[node_a][0] == pos[node_b][0] and pos[node_a][1] == pos[node_b][1]
+                    pos[node_a][0] == pos[node_b][0] and pos[node_a][1] == pos[node_b][1]
             ):
                 continue
 
@@ -213,7 +213,7 @@ def reflective_symmetry(
                         for mirror_of_b in mirrored_node_pairs[b]:
                             mirror_of_b = node_list[mirror_of_b]
                             if g.has_edge(mirror_of_a, mirror_of_b) or g.has_edge(
-                                mirror_of_b, mirror_of_a
+                                    mirror_of_b, mirror_of_a
                             ):
                                 subgraph_edge_pairs.append(
                                     ((a, b), (mirror_of_a, mirror_of_b))
@@ -238,7 +238,7 @@ class SymmetryType(Enum):
 
 class _SIFTFeature:
 
-    def __init__(self, edge: Tuple[numeric, numeric], edge_pos, score):
+    def __init__(self, edge: Tuple[Numeric, Numeric], edge_pos, score):
 
         point_a = common.Vector.from_point(edge_pos[0])
         point_b = common.Vector.from_point(edge_pos[1])
@@ -247,8 +247,8 @@ class _SIFTFeature:
         self.length = common.euclidean_distance(edge_pos[0], edge_pos[1])
         self.angle = (
             (
-                common.Vector.from_point(edge_pos[1])
-                - (common.Vector.from_point(edge_pos[0]))
+                    common.Vector.from_point(edge_pos[1])
+                    - (common.Vector.from_point(edge_pos[0]))
             )
             .upward_and_forward_direction()
             .rad()
@@ -267,13 +267,13 @@ class _SIFTFeature:
         return math.exp(top / bottom) ** 2
 
     def compare_distance(
-        self, other: _SIFTFeature, sigma_distance: float, is_distance_bound: bool
+            self, other: _SIFTFeature, sigma_distance: float, is_distance_bound: bool
     ):
         """Distance similarity"""
         if not is_distance_bound:
             return 1
         dist = self.mid.distance(other.mid)
-        return math.exp(-(dist**2) / (2 * sigma_distance * sigma_distance))
+        return math.exp(-(dist ** 2) / (2 * sigma_distance * sigma_distance))
 
     def compare_rotation(self, other: _SIFTFeature, theta: float = None):
         """Rotation similarity"""
@@ -297,16 +297,16 @@ class _Axis:
 class _AxesSystem:
 
     def __init__(
-        self,
-        pos: dict,
-        sigma_scale: float,
-        distance_bound: bool,
-        sigma_distance: float,
-        num_features: int,
-        angle_merge: float,
-        pixel_merge: float,
-        x_min: float,
-        y_min: float,
+            self,
+            pos: dict,
+            sigma_scale: float,
+            distance_bound: bool,
+            sigma_distance: float,
+            num_features: int,
+            angle_merge: float,
+            pixel_merge: float,
+            x_min: float,
+            y_min: float,
     ):
         self.pos = pos
         self.y_min = y_min
@@ -345,9 +345,9 @@ class _AxesSystem:
         radius = delta_dist / math.tan(delta_angl)
 
         if (
-            abs(radius) < 0.001
-            or abs(delta_angl) < 0.5
-            or abs(delta_angl - math.pi) < 0.05
+                abs(radius) < 0.001
+                or abs(delta_angl) < 0.5
+                or abs(delta_angl - math.pi) < 0.05
         ):
             # The rotational symmetry is centered at the mid itself
             vote = _Axis(mid, feature_a.edge, feature_b.edge, score)
@@ -393,7 +393,7 @@ class _AxesSystem:
 
     @staticmethod
     def _parse_reflective_vote(
-        angle: common.Angle, radius: float, score: float, edge_a, edge_b
+            angle: common.Angle, radius: float, score: float, edge_a, edge_b
     ) -> _Axis:
         while angle.rad() < 0:
             angle += math.pi
@@ -473,7 +473,7 @@ class _AxesSystem:
 
     def _points_too_close(self, pos_a, pos_b):
         return (
-            abs(pos_a.x - pos_b.x) < self.x_min and abs(pos_a.y - pos_b.y) < self.y_min
+                abs(pos_a.x - pos_b.x) < self.x_min and abs(pos_a.y - pos_b.y) < self.y_min
         )
 
     def _find_maxima(self):
@@ -538,17 +538,17 @@ class _AxesSystem:
 
 
 def edge_based_symmetry(
-    g: nx.Graph,
-    symmetry_type: SymmetryType,
-    pos: Union[str, dict, None] = None,
-    axes_count: int = 1,
-    sigma_scale: float = 0.1,
-    sigma_distance: float = 2,
-    is_distance_bound: bool = False,
-    angle_merge: float = 5,
-    pixel_merge: float = 5,
-    x_min: float = 10,
-    y_min: float = 10,
+        g: nx.Graph,
+        symmetry_type: SymmetryType,
+        pos: Union[str, dict, None] = None,
+        axes_count: int = 1,
+        sigma_scale: float = 0.1,
+        sigma_distance: float = 2,
+        is_distance_bound: bool = False,
+        angle_merge: float = 5,
+        pixel_merge: float = 5,
+        x_min: float = 10,
+        y_min: float = 10,
 ) -> float:
     """
     This calculates the symmetry metric proposed by :footcite:t:`chapman_symmetry_2018`. It is
@@ -602,7 +602,7 @@ def edge_based_symmetry(
     sift_features = [_SIFTFeature(e, (pos[e[0]], pos[e[1]]), 1) for e in g.edges()]
 
     for a, feature_a in enumerate(sift_features):
-        for _, feature_b in enumerate(sift_features[a+1:], start=a + 1):
+        for _, feature_b in enumerate(sift_features[a + 1:], start=a + 1):
             if symmetry_type == SymmetryType.REFLECTIVE:
                 votes.add_reflective_vote_from_two(feature_a, feature_b)
             elif symmetry_type == SymmetryType.ROTATIONAL:
@@ -619,13 +619,13 @@ def edge_based_symmetry(
 
 
 def visual_symmetry(
-    g: nx.Graph,
-    pos: Union[str, dict, None] = None,
-    resolution: int = 100,
-    sigma: float = 2,
-    rotational: bool = True,
-    reflective: bool = True,
-    dihedral: bool = True,
+        g: nx.Graph,
+        pos: Union[str, dict, None] = None,
+        resolution: int = 100,
+        sigma: float = 2,
+        rotational: bool = True,
+        reflective: bool = True,
+        dihedral: bool = True,
 ) -> float:
     """
     Tries to estimate the perceived symmetry of the drawing by visually testing reflective, rotational and dihedral
@@ -757,7 +757,7 @@ def visual_symmetry(
 
 
 def stress(
-    g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: bool = True
+        g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: bool = True
 ) -> float:
     r"""
     Estimates symmetry by utilizing the stress of the graph embedding as proposed by :footcite:t:`welch_measuring_2017`.
@@ -792,7 +792,7 @@ def stress(
                 if i < j and p_j_key in shortest_path_distances[p_i_key]:
                     d_ij = shortest_path_distances[p_i_key][p_j_key]
                     euclidean_distance = common.euclidean_distance(p_i, p_j)
-                    stress_value += (euclidean_distance * scale - d_ij) ** 2 / (d_ij**2)
+                    stress_value += (euclidean_distance * scale - d_ij) ** 2 / (d_ij ** 2)
 
         return stress_value
 
@@ -819,7 +819,7 @@ def stress(
 
 
 def even_neighborhood_distribution(
-    g: nx.Graph, pos: Union[str, dict, None] = None
+        g: nx.Graph, pos: Union[str, dict, None] = None
 ) -> float:
     r"""
     Estimates symmetry by calculating how central each node is within its neighborhood as proposed by

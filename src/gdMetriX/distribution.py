@@ -20,7 +20,7 @@ This module collects some metrics on the distribution of nodes.
 Methods
 -------
 """
-
+from dataclasses import dataclass
 import math
 import random
 from enum import Enum
@@ -30,7 +30,7 @@ import networkx as nx
 import numpy as np
 
 from gdMetriX import common, boundary, crossings
-from gdMetriX.common import numeric, Vector
+from gdMetriX.common import Numeric, Vector
 
 
 def center_of_mass(
@@ -82,7 +82,7 @@ def __get_grid_distribution(
     g: nx.Graph,
     pos: Union[str, dict, None],
     grid_size: int,
-    bounding_box: Tuple[numeric, numeric, numeric, numeric] = None,
+    bounding_box: Tuple[Numeric, Numeric, Numeric, Numeric] = None,
 ):
     return heatmap(g, pos, None, grid_size, bounding_box, False)
 
@@ -92,7 +92,7 @@ def heatmap(
     pos: Union[dict, list],
     values: Optional[list],
     grid_size: int,
-    bounding_box: Tuple[numeric, numeric, numeric, numeric] = None,
+    bounding_box: Tuple[Numeric, Numeric, Numeric, Numeric] = None,
     average: bool = True,
 ) -> np.ndarray:
     """
@@ -132,7 +132,7 @@ def heatmap(
     grid = np.zeros((grid_size, grid_size))
     count = np.zeros((grid_size, grid_size))
 
-    if type(pos) is dict:
+    if isinstance(pos, dict):
         x_positions = [point[0] for point in pos.values()]
         y_positions = [point[1] for point in pos.values()]
     else:
@@ -295,8 +295,8 @@ def homogeneity(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
 def concentration(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
-    grid_size: numeric = 0,
-    bounding_box: Tuple[numeric, numeric, numeric, numeric] = None,
+    grid_size: Numeric = 0,
+    bounding_box: Tuple[Numeric, Numeric, Numeric, Numeric] = None,
 ) -> float:
     """
     Calculates the concentration of the given networkX graph g.
@@ -344,12 +344,12 @@ def concentration(
     return (np.sum(np.maximum(grid - expected_per_cell, 0))) / (g.order() - 1)
 
 
-class __EmbeddedPoint:
+@dataclass
+class _EmbeddedPoint:
     """Represents a vertex with position"""
 
-    def __init__(self, key, vec: Vector):
-        self.key = key
-        self.vec = vec
+    key: object
+    vec: Vector
 
     def __str__(self):
         return f"[{self.key}, {self.vec}]"
@@ -371,7 +371,7 @@ def closest_pair_of_points(g: nx.Graph, pos: Union[str, dict, None] = None):
         return None, None, None
     pos = common.get_node_positions(g, pos)
 
-    p_list = list(__EmbeddedPoint(p, Vector.from_point(pos[p])) for p in pos)
+    p_list = list(_EmbeddedPoint(p, Vector.from_point(pos[p])) for p in pos)
 
     x_sorted = sorted(p_list, key=lambda p: p.vec.x)
     y_sorted = sorted(p_list, key=lambda p: p.vec.y)
@@ -383,8 +383,8 @@ def closest_pair_of_points(g: nx.Graph, pos: Union[str, dict, None] = None):
 
 def _closest_pair_recursion(x_sorted, y_sorted):
     def _bruteforce_distance(
-        points: List[__EmbeddedPoint],
-    ) -> Tuple[__EmbeddedPoint, __EmbeddedPoint, float]:
+        points: List[_EmbeddedPoint],
+    ) -> Tuple[_EmbeddedPoint, _EmbeddedPoint, float]:
         mi = points[0].vec.distance(points[1].vec)
         p1 = points[0]
         p2 = points[1]
@@ -401,11 +401,11 @@ def _closest_pair_recursion(x_sorted, y_sorted):
         return p1, p2, mi
 
     def _closest_split_pair(
-        x_sorted_list: List[__EmbeddedPoint],
-        y_sorted_list: List[__EmbeddedPoint],
+        x_sorted_list: List[_EmbeddedPoint],
+        y_sorted_list: List[_EmbeddedPoint],
         old_min: float,
-        old_min_pair: Tuple[__EmbeddedPoint, __EmbeddedPoint],
-    ) -> Tuple[__EmbeddedPoint, __EmbeddedPoint, float]:
+        old_min_pair: Tuple[_EmbeddedPoint, _EmbeddedPoint],
+    ) -> Tuple[_EmbeddedPoint, _EmbeddedPoint, float]:
         x_med = x_sorted_list[len(x_sorted_list) // 2].vec.x
 
         close_y = [
@@ -430,7 +430,7 @@ def _closest_pair_recursion(x_sorted, y_sorted):
     left_x = x_sorted[:mid]
     right_x = x_sorted[mid:]
 
-    left_y, right_y = list(), list()
+    left_y, right_y = [], []
 
     # Do the same for y
     for point in y_sorted:
@@ -478,12 +478,12 @@ def _get_distance_between_edge_and_node(edge_pos_a, edge_pos_b, node_pos) -> flo
     if np.linalg.norm(v_ab) == 0 or np.dot(v_ab, v_bn) > 0:
         # Node is closer to endpoint b
         return _distance(n_pos, b_pos)
-    elif np.dot(v_ab, v_an) < 0:
+    if np.dot(v_ab, v_an) < 0:
         # Node is closer to endpoint a
         return _distance(n_pos, a_pos)
-    else:
-        # Node is closer to edge itself -> return distance to line
-        return np.abs(np.cross(v_ab, v_na) / np.linalg.norm(v_ab))
+
+    # Node is closer to edge itself -> return distance to line
+    return np.abs(np.cross(v_ab, v_na) / np.linalg.norm(v_ab))
 
 
 def closest_pair_of_elements(
@@ -516,11 +516,9 @@ def closest_pair_of_elements(
                 0.0,
             )
 
-    # TODO implement more efficient sweep line approach
-
     for edge in g.edges():
         for node in g.nodes():
-            if edge[0] == node or edge[1] == node:
+            if node in edge:
                 continue
 
             distance = _edge_node_distance(edge, node, pos)

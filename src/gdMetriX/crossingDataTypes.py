@@ -23,7 +23,7 @@ from collections import namedtuple
 from enum import Enum
 from typing import List, Optional, Iterable
 
-from gdMetriX.common import numeric
+from gdMetriX.common import Numeric
 
 PRECISION = 1e-09
 
@@ -55,7 +55,7 @@ def __greater_than__(a: float, b: float) -> bool:
     return a > b
 
 
-def __numeric_eq__(a: numeric, b: numeric) -> bool:
+def __numeric_eq__(a: Numeric, b: Numeric) -> bool:
     return math.isclose(a, b, abs_tol=PRECISION)
 
 
@@ -165,7 +165,7 @@ class SortableObject:
     The item is comparable with a parameter. The comparison does not have to build a total order.
     """
 
-    def less_than(self, other, key_parameter: numeric) -> bool:
+    def less_than(self, other, key_parameter: Numeric) -> bool:
         """
             Returns true iff the object is strictly less than the other one.
         :param other: The object to compare too
@@ -175,7 +175,7 @@ class SortableObject:
         """
         pass
 
-    def less_than_key(self, key: numeric, key_parameter: numeric) -> bool:
+    def less_than_key(self, key: Numeric, key_parameter: Numeric) -> bool:
         """
             Returns true iff the object is strictly less than the other one.
         :param key: The key of the object to compare too
@@ -185,7 +185,7 @@ class SortableObject:
         """
         pass
 
-    def greater_than_key(self, key: numeric, key_parameter: numeric) -> bool:
+    def greater_than_key(self, key: Numeric, key_parameter: Numeric) -> bool:
         """
             Returns true iff the object is strictly greater than the other one.
         :param key: The key of the object to compare too
@@ -195,7 +195,7 @@ class SortableObject:
         """
         pass
 
-    def get_key(self, key_parameter: numeric) -> numeric:
+    def get_key(self, key_parameter: Numeric) -> Numeric:
         """
             Returns the key under the given parameter
         :param key_parameter:
@@ -330,7 +330,7 @@ class ParameterizedBalancedBinarySearchTree:
         return self.__get_height__(root.left) - self.__get_height__(root.right)
 
     def get_left(
-        self, key_value: numeric, key_parameter: object
+        self, key_value: Numeric, key_parameter: object
     ) -> Optional[SortableObject]:
         """
             Returns the next element to the left of the key specified by 'key_value'. Elements having the key
@@ -367,7 +367,7 @@ class ParameterizedBalancedBinarySearchTree:
         return None if left_node is None else left_node.content
 
     def get_right(
-        self, key_value: numeric, key_parameter: object
+        self, key_value: Numeric, key_parameter: object
     ) -> Optional[SortableObject]:
         """
             Returns the next element to the right of the key specified by 'key_value'. Elements having the key
@@ -527,7 +527,7 @@ class ParameterizedBalancedBinarySearchTree:
         return None if found_item is None else found_item.content
 
     def get_range(
-        self, start_key: numeric, end_key: numeric, key_parameter: object
+        self, start_key: Numeric, end_key: Numeric, key_parameter: object
     ) -> Iterable[SortableObject]:
         """
             Returns all items in the range of [start_key, end_key] (including elements on the bounds)
@@ -613,9 +613,9 @@ class SweepLineEdgeInfo(SortableObject):
 
     def __init__(
         self,
-        edge: (numeric, numeric),
-        position_a: (numeric, numeric),
-        position_b: (numeric, numeric),
+        edge: (Numeric, Numeric),  # TODO what about other edge key data tyes
+        position_a: (Numeric, Numeric),
+        position_b: (Numeric, Numeric),
     ):
         self.edge = edge
 
@@ -628,7 +628,7 @@ class SweepLineEdgeInfo(SortableObject):
 
     # region Implementation of SortableObject
 
-    def less_than(self, other, key_parameter: numeric):
+    def less_than(self, other, key_parameter: Numeric):
         x_self = __get_x_at_y__(self, key_parameter)
         x_other = __get_x_at_y__(other, key_parameter)
 
@@ -641,16 +641,16 @@ class SweepLineEdgeInfo(SortableObject):
 
         return __greater_than__(x_other, x_self)
 
-    def less_than_key(self, key: numeric, y: numeric):
+    def less_than_key(self, key: Numeric, y: Numeric):
         x_self = __get_x_at_y__(self, y)
 
         return __greater_than__(key, x_self)
 
-    def greater_than_key(self, key: numeric, y: numeric):
+    def greater_than_key(self, key: Numeric, y: Numeric):
         x_self = __get_x_at_y__(self, y)
         return __greater_than__(x_self, key)
 
-    def get_key(self, key_parameter: numeric) -> numeric:
+    def get_key(self, key_parameter: Numeric) -> Numeric:
         return __get_x_at_y__(self, key_parameter)
 
     # endregion
@@ -797,7 +797,7 @@ class EventQueue:
         return self.sorted_list.pop()
 
 
-def __get_x_at_y__(edge_info: SweepLineEdgeInfo, y: numeric):
+def __get_x_at_y__(edge_info: SweepLineEdgeInfo, y: Numeric):
     x1, y1 = edge_info.start_position
     x2, y2 = edge_info.end_position
 
@@ -825,7 +825,7 @@ class SweepLineStatus:
     def __str__(self):
         return [edge.edge for edge in self.sortedList].__str__()
 
-    def add(self, y_value: numeric, edge_info: SweepLineEdgeInfo) -> None:
+    def add(self, y_value: Numeric, edge_info: SweepLineEdgeInfo) -> None:
         """Adds a new edge to the sweep line. It will be added next to its neighboring edges at height y_value.
         :param y_value: Height of the sweep line
         :type y_value:
@@ -834,7 +834,7 @@ class SweepLineStatus:
         """
         self.sortedList.insert(edge_info, y_value)
 
-    def remove(self, y_value: numeric, edge_info: SweepLineEdgeInfo):
+    def remove(self, y_value: Numeric, edge_info: SweepLineEdgeInfo):
         """
         Removes an edge from the sweep line.
         :param y_value:
@@ -863,7 +863,7 @@ class SweepLineStatus:
         return self.sortedList.get_right(point.x, point.y)
 
     def get_range(
-        self, y: numeric, left_x: numeric, right_x: numeric
+        self, y: Numeric, left_x: Numeric, right_x: Numeric
     ) -> Iterable[SweepLineEdgeInfo]:
         """
             Returns all matching edges in range [left_x, right_x]

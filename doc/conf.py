@@ -17,7 +17,7 @@ author = 'Martin Nöllenburg, Sebastian Röder, Markus Wallinger'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc', 'nbsphinx', 'sphinx.ext.mathjax', 'sphinxcontrib.bibtex']
+extensions = ['sphinx.ext.autodoc', 'sphinx.util.console', 'nbsphinx', 'sphinx.ext.mathjax', 'sphinxcontrib.bibtex']
 
 bibtex_bibfiles = ['references.bib']
 
