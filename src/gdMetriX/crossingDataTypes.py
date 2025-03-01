@@ -75,8 +75,8 @@ def __points_equal__(crossing_a, crossing_b):
                 __point_to_crossing(crossing_b.point_a),
             )
             and __points_equal__(
-                __point_to_crossing(crossing_a.point_a),
-                __point_to_crossing(crossing_b.point_a),
+                __point_to_crossing(crossing_a.point_b),
+                __point_to_crossing(crossing_b.point_b),
             )
         ) or (
             __points_equal__(
@@ -673,6 +673,26 @@ class SweepLineEdgeInfo(SortableObject):
 
     def __repr__(self):
         return self.__str__()
+
+    def __eq__(self, other):
+        if other is None or not isinstance(other, SweepLineEdgeInfo):
+            return False
+        return (
+            self.edge == other.edge
+            and __points_equal__(self.start_position, other.start_position)
+            and __points_equal__(self.end_position, other.end_position)
+        )
+
+    def __hash__(self):
+        return hash(
+            (
+                self.edge,
+                self.start_position[0],
+                self.start_position[1],
+                self.end_position[0],
+                self.end_position[1],
+            )
+        )
 
     def is_horizontal(self):
         """
