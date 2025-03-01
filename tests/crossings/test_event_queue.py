@@ -39,24 +39,36 @@ class TestEventQueue(unittest.TestCase):
 
     def test_add_edge(self):
         queue = EventQueue()
-        sweep_line_edge_info = SweepLineEdgeInfo((1, 2), (0, 0), (1, 1))
+        sweep_line_edge_info = SweepLineEdgeInfo(
+            (1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)
+        )
         queue.add_edge(sweep_line_edge_info)
 
     def test_add_multiple_edges_without_duplicate_points(self):
         queue = EventQueue()
-        queue.add_edge(SweepLineEdgeInfo((1, 2), (0, 3), (1, 1)))
-        queue.add_edge(SweepLineEdgeInfo((3, 4), (2, 123), (1023, 352)))
-        queue.add_edge(SweepLineEdgeInfo((5, 6), (435, 8345), (9234, 48)))
+        queue.add_edge(
+            SweepLineEdgeInfo((1, 2), CrossingPoint(0, 3), CrossingPoint(1, 1))
+        )
+        queue.add_edge(
+            SweepLineEdgeInfo((3, 4), CrossingPoint(2, 123), CrossingPoint(1023, 352))
+        )
+        queue.add_edge(
+            SweepLineEdgeInfo((5, 6), CrossingPoint(435, 8345), CrossingPoint(9234, 48))
+        )
 
     def test_pop_edge(self):
         queue = EventQueue()
-        sweep_line_edge_info = SweepLineEdgeInfo((1, 2), (0, 0), (1, 1))
+        sweep_line_edge_info = SweepLineEdgeInfo(
+            (1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)
+        )
         queue.add_edge(sweep_line_edge_info)
         queue.pop()
 
     def test_pop_edge_check_two_inserted(self):
         queue = EventQueue()
-        sweep_line_edge_info = SweepLineEdgeInfo((1, 2), (0, 0), (1, 1))
+        sweep_line_edge_info = SweepLineEdgeInfo(
+            (1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)
+        )
         queue.add_edge(sweep_line_edge_info)
 
         assert queue.pop() is not None
@@ -66,7 +78,9 @@ class TestEventQueue(unittest.TestCase):
 
     def test_pop_edge_check_correct_inserted(self):
         queue = EventQueue()
-        sweep_line_edge_info = SweepLineEdgeInfo((1, 2), (0, 0), (1, 1))
+        sweep_line_edge_info = SweepLineEdgeInfo(
+            (1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)
+        )
         queue.add_edge(sweep_line_edge_info)
 
         point_a = queue.pop()
@@ -85,8 +99,12 @@ class TestEventQueue(unittest.TestCase):
 
     def test_no_double_edge_inserts(self):
         queue = EventQueue()
-        sweep_line_edge_info_a = SweepLineEdgeInfo((1, 2), (-3, 5), (12, 18))
-        sweep_line_edge_info_b = SweepLineEdgeInfo((3, 4), (12, 18), (-3, 5))
+        sweep_line_edge_info_a = SweepLineEdgeInfo(
+            (1, 2), CrossingPoint(-3, 5), CrossingPoint(12, 18)
+        )
+        sweep_line_edge_info_b = SweepLineEdgeInfo(
+            (3, 4), CrossingPoint(12, 18), CrossingPoint(-3, 5)
+        )
         queue.add_edge(sweep_line_edge_info_a)
         queue.add_edge(sweep_line_edge_info_b)
 
@@ -96,9 +114,15 @@ class TestEventQueue(unittest.TestCase):
 
     def test_insert_multiple_edges_at_same_point(self):
         queue = EventQueue()
-        queue.add_edge(SweepLineEdgeInfo((1, 2), (0, 300), (3, 5)))
-        queue.add_edge(SweepLineEdgeInfo((1, 2), (0, 300), (12, 3)))
-        queue.add_edge(SweepLineEdgeInfo((1, 2), (0, 300), (7, 18)))
+        queue.add_edge(
+            SweepLineEdgeInfo((1, 2), CrossingPoint(0, 300), CrossingPoint(3, 5))
+        )
+        queue.add_edge(
+            SweepLineEdgeInfo((1, 2), CrossingPoint(0, 300), CrossingPoint(12, 3))
+        )
+        queue.add_edge(
+            SweepLineEdgeInfo((1, 2), CrossingPoint(0, 300), CrossingPoint(7, 18))
+        )
 
         first_point = queue.pop()
 
@@ -113,13 +137,19 @@ class TestEventQueue(unittest.TestCase):
         """
 
         queue = EventQueue()
-        queue.add_edge(SweepLineEdgeInfo((1, 2), (-3, 1), (3, 5)))
-        queue.add_edge(SweepLineEdgeInfo((1, 2), (19, 3), (0, 2)))
-        queue.add_edge(SweepLineEdgeInfo((1, 2), (19, 0), (0, 4)))
+        queue.add_edge(
+            SweepLineEdgeInfo((1, 2), CrossingPoint(-3, 1), CrossingPoint(3, 5))
+        )
+        queue.add_edge(
+            SweepLineEdgeInfo((1, 2), CrossingPoint(19, 3), CrossingPoint(0, 2))
+        )
+        queue.add_edge(
+            SweepLineEdgeInfo((1, 2), CrossingPoint(19, 0), CrossingPoint(0, 4))
+        )
 
         for i in range(6).__reversed__():
             event_point = queue.pop()
-            assert event_point.y == i
+            assert event_point.position.y == i
 
     def test_edges_inserted_in_correct_x_order(self):
         """
@@ -127,21 +157,27 @@ class TestEventQueue(unittest.TestCase):
         """
 
         queue = EventQueue()
-        queue.add_edge(SweepLineEdgeInfo((1, 2), (5, -123), (2, 5)))
-        queue.add_edge(SweepLineEdgeInfo((1, 2), (3, -123), (1, 5)))
-        queue.add_edge(SweepLineEdgeInfo((1, 2), (4, -123), (0, 5)))
+        queue.add_edge(
+            SweepLineEdgeInfo((1, 2), CrossingPoint(5, -123), CrossingPoint(2, 5))
+        )
+        queue.add_edge(
+            SweepLineEdgeInfo((1, 2), CrossingPoint(3, -123), CrossingPoint(1, 5))
+        )
+        queue.add_edge(
+            SweepLineEdgeInfo((1, 2), CrossingPoint(4, -123), CrossingPoint(0, 5))
+        )
 
         for i in range(6):
             event_point = queue.pop()
-            assert event_point.x == i
+            assert event_point.position.x == i
 
     def test_add_crossing(self):
         queue = EventQueue()
         queue.add_crossing(
             CrossingPoint(3, 5),
             [
-                SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
-                SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
+                SweepLineEdgeInfo((1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)),
+                SweepLineEdgeInfo((1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)),
             ],
         )
 
@@ -150,15 +186,15 @@ class TestEventQueue(unittest.TestCase):
         queue.add_crossing(
             CrossingPoint(3, 5),
             [
-                SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
-                SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
+                SweepLineEdgeInfo((1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)),
+                SweepLineEdgeInfo((1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)),
             ],
         )
         queue.add_crossing(
             CrossingPoint(13, 5),
             [
-                SweepLineEdgeInfo((1, 3), (0, 0), (1, 5)),
-                SweepLineEdgeInfo((1, 3), (0, 0), (1, 5)),
+                SweepLineEdgeInfo((1, 3), CrossingPoint(0, 0), CrossingPoint(1, 5)),
+                SweepLineEdgeInfo((1, 3), CrossingPoint(0, 0), CrossingPoint(1, 5)),
             ],
         )
 
@@ -167,8 +203,8 @@ class TestEventQueue(unittest.TestCase):
         queue.add_crossing(
             CrossingPoint(3, 5),
             [
-                SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
-                SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
+                SweepLineEdgeInfo((1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)),
+                SweepLineEdgeInfo((1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)),
             ],
         )
         queue.pop()
@@ -178,8 +214,8 @@ class TestEventQueue(unittest.TestCase):
         queue.add_crossing(
             CrossingPoint(3, 5),
             [
-                SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
-                SweepLineEdgeInfo((3, 4), (0, 0), (1, 1)),
+                SweepLineEdgeInfo((1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)),
+                SweepLineEdgeInfo((3, 4), CrossingPoint(0, 0), CrossingPoint(1, 1)),
             ],
         )
 
@@ -192,15 +228,15 @@ class TestEventQueue(unittest.TestCase):
         queue.add_crossing(
             CrossingPoint(3, 5),
             [
-                SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
-                SweepLineEdgeInfo((3, 4), (0, 0), (1, 1)),
+                SweepLineEdgeInfo((1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)),
+                SweepLineEdgeInfo((3, 4), CrossingPoint(0, 0), CrossingPoint(1, 1)),
             ],
         )
 
         point_a = queue.pop()
 
-        assert point_a.x == 3
-        assert point_a.y == 5
+        assert point_a.position.x == 3
+        assert point_a.position.y == 5
         assert len(point_a.start_list) == 0
         assert len(point_a.end_list) == 0
         assert len(point_a.interior_list) == 2
@@ -212,15 +248,17 @@ class TestEventQueue(unittest.TestCase):
         queue.add_crossing(
             CrossingPoint(3, 5),
             [
-                SweepLineEdgeInfo((1, 2), (0, 0), (1, 1)),
-                SweepLineEdgeInfo((3, 4), (0, 0), (1, 1)),
+                SweepLineEdgeInfo((1, 2), CrossingPoint(0, 0), CrossingPoint(1, 1)),
+                SweepLineEdgeInfo((3, 4), CrossingPoint(0, 0), CrossingPoint(1, 1)),
             ],
         )
         queue.add_crossing(
             CrossingPoint(3, 5),
             [
-                SweepLineEdgeInfo((5, 6), (2, 20), (-1, 2)),
-                SweepLineEdgeInfo((12, 4), (5, 76), (61, 345)),
+                SweepLineEdgeInfo((5, 6), CrossingPoint(2, 20), CrossingPoint(-1, 2)),
+                SweepLineEdgeInfo(
+                    (12, 4), CrossingPoint(5, 76), CrossingPoint(61, 345)
+                ),
             ],
         )
 
@@ -232,8 +270,8 @@ class TestEventQueue(unittest.TestCase):
         The event points should be returned in y order
         """
         edge_list = [
-            SweepLineEdgeInfo((5, 6), (2, 20), (-1, 2)),
-            SweepLineEdgeInfo((12, 4), (5, 76), (61, 345)),
+            SweepLineEdgeInfo((5, 6), CrossingPoint(2, 20), CrossingPoint(-1, 2)),
+            SweepLineEdgeInfo((12, 4), CrossingPoint(5, 76), CrossingPoint(61, 345)),
         ]
 
         queue = EventQueue()
@@ -245,7 +283,7 @@ class TestEventQueue(unittest.TestCase):
         queue.add_crossing(CrossingPoint(5, 0), edge_list)
 
         assert list(range(6).__reversed__()) == [
-            queue.pop().y for _ in range(len(queue))
+            queue.pop().position.y for _ in range(len(queue))
         ]
 
     def test_crossings_inserted_in_correct_x_order(self):
@@ -253,8 +291,8 @@ class TestEventQueue(unittest.TestCase):
         The event points should be returned in y order
         """
         edge_list = [
-            SweepLineEdgeInfo((5, 6), (2, 20), (-1, 2)),
-            SweepLineEdgeInfo((12, 4), (5, 76), (61, 345)),
+            SweepLineEdgeInfo((5, 6), CrossingPoint(2, 20), CrossingPoint(-1, 2)),
+            SweepLineEdgeInfo((12, 4), CrossingPoint(5, 76), CrossingPoint(61, 345)),
         ]
 
         queue = EventQueue()
@@ -265,7 +303,7 @@ class TestEventQueue(unittest.TestCase):
         queue.add_crossing(CrossingPoint(4, 4), edge_list)
         queue.add_crossing(CrossingPoint(3, 4), edge_list)
 
-        assert list(range(6)) == [queue.pop().x for _ in range(len(queue))]
+        assert list(range(6)) == [queue.pop().position.x for _ in range(len(queue))]
 
     def test_stress_test(self):
         random.seed(12930919203)
@@ -277,8 +315,8 @@ class TestEventQueue(unittest.TestCase):
         queue = EventQueue()
 
         edge_list_for_crossing = [
-            SweepLineEdgeInfo((5, 6), (2, 20), (-1, 2)),
-            SweepLineEdgeInfo((12, 4), (5, 76), (61, 345)),
+            SweepLineEdgeInfo((5, 6), CrossingPoint(2, 20), CrossingPoint(-1, 2)),
+            SweepLineEdgeInfo((12, 4), CrossingPoint(5, 76), CrossingPoint(61, 345)),
         ]
 
         point_list = []
@@ -294,17 +332,23 @@ class TestEventQueue(unittest.TestCase):
                 queue.add_crossing(CrossingPoint(x, y), edge_list_for_crossing)
                 queue.add_crossing(CrossingPoint(x + 1, y + 1), edge_list_for_crossing)
             else:
-                queue.add_edge(SweepLineEdgeInfo((x, y), (x, y), (x + 1, y + 1)))
+                queue.add_edge(
+                    SweepLineEdgeInfo(
+                        (x, y), CrossingPoint(x, y), CrossingPoint(x + 1, y + 1)
+                    )
+                )
 
         prev_x, prev_y = None, None
         count = 0
         item = queue.pop()
         while item is not None:
             if prev_x is not None and prev_y is not None:
-                assert prev_y > item.y or (prev_y == item.y and item.x >= prev_x)
+                assert prev_y > item.position.y or (
+                    prev_y == item.position.y and item.position.x >= prev_x
+                )
             assert -1 <= queue.sorted_list.__get_balance__(queue.sorted_list.root) <= 1
             count += 1
-            prev_x, prev_y = item.x, item.y
+            prev_x, prev_y = item.position.x, item.position.y
             item = queue.pop()
 
         assert count == (width + 1) * (height + 1) - 2
@@ -314,8 +358,8 @@ class TestEventQueue(unittest.TestCase):
         queue = EventQueue()
 
         edge_list_for_crossing = [
-            SweepLineEdgeInfo((5, 6), (2, 20), (-1, 2)),
-            SweepLineEdgeInfo((12, 4), (5, 76), (61, 345)),
+            SweepLineEdgeInfo((5, 6), CrossingPoint(2, 20), CrossingPoint(-1, 2)),
+            SweepLineEdgeInfo((12, 4), CrossingPoint(5, 76), CrossingPoint(61, 345)),
         ]
 
         queue.add_crossing(CrossingPoint(1, 1.001), edge_list_for_crossing)
@@ -326,12 +370,12 @@ class TestEventQueue(unittest.TestCase):
         crossingDataTypes.set_precision(1e-09)
 
     def test_close_points_are_grouped_2(self):
-        crossingDataTypes.set_precision(0.001)
+        crossingDataTypes.set_precision(0.00142)
         queue = EventQueue()
 
         edge_list_for_crossing = [
-            SweepLineEdgeInfo((5, 6), (2, 20), (-1, 2)),
-            SweepLineEdgeInfo((12, 4), (5, 76), (61, 345)),
+            SweepLineEdgeInfo((5, 6), CrossingPoint(2, 20), CrossingPoint(-1, 2)),
+            SweepLineEdgeInfo((12, 4), CrossingPoint(5, 76), CrossingPoint(61, 345)),
         ]
 
         queue.add_crossing(CrossingPoint(1.001, 1.001), edge_list_for_crossing)
@@ -345,19 +389,29 @@ class TestEventQueue(unittest.TestCase):
         crossingDataTypes.set_precision(0.001)
         queue = EventQueue()
 
-        queue.add_edge(SweepLineEdgeInfo((0, 1), (1, 1.001), (2, 2.001)))
-        queue.add_edge(SweepLineEdgeInfo((2, 3), (1, 1), (2, 2)))
+        queue.add_edge(
+            SweepLineEdgeInfo((0, 1), CrossingPoint(1, 1.001), CrossingPoint(2, 2.001))
+        )
+        queue.add_edge(
+            SweepLineEdgeInfo((2, 3), CrossingPoint(1, 1), CrossingPoint(2, 2))
+        )
 
         assert len(queue) == 2
 
         crossingDataTypes.set_precision(1e-09)
 
     def test_close_points_are_grouped_4(self):
-        crossingDataTypes.set_precision(0.001)
+        crossingDataTypes.set_precision(0.00142)
         queue = EventQueue()
 
-        queue.add_edge(SweepLineEdgeInfo((0, 1), (1.001, 1.001), (2.001, 2.001)))
-        queue.add_edge(SweepLineEdgeInfo((2, 3), (1, 1), (2, 2)))
+        queue.add_edge(
+            SweepLineEdgeInfo(
+                (0, 1), CrossingPoint(1.001, 1.001), CrossingPoint(2.001, 2.001)
+            )
+        )
+        queue.add_edge(
+            SweepLineEdgeInfo((2, 3), CrossingPoint(1, 1), CrossingPoint(2, 2))
+        )
 
         assert len(queue) == 2
 

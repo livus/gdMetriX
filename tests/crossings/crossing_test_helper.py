@@ -32,13 +32,13 @@ from gdMetriX import crossings
 def __rotate_point__(point, angle):
     if isinstance(point, crossings.CrossingLine):
         return crossings.CrossingLine(
-            __rotate_point__(point.point_a, angle),
-            __rotate_point__(point.point_b, angle),
+            __rotate_point__(point.start, angle),
+            __rotate_point__(point.end, angle),
         )
     if isinstance(point, crossings.CrossingPoint):
         return crossings.CrossingPoint(
-            __rotate_point__((point[0], point[1]), angle)[0],
-            __rotate_point__((point[0], point[1]), angle)[1],
+            __rotate_point__((point.x, point.y), angle)[0],
+            __rotate_point__((point.x, point.y), angle)[1],
         )
     rad = math.radians(angle % 360)
     return (

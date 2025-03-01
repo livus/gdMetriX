@@ -464,6 +464,7 @@ def _edge_node_distance(edge: Tuple[object, object], node: object, pos) -> float
 
 
 def _get_distance_between_edge_and_node(edge_pos_a, edge_pos_b, node_pos) -> float:
+    # TODO replace with common.LineSegment.distance_to_point()
     def _distance(point_a, point_b):
         return np.linalg.norm(point_a - point_b)
 

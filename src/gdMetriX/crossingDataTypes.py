@@ -19,11 +19,20 @@ Supporting module for the crossings module containing some datastructures.
 """
 
 import math
-from collections import namedtuple
 from enum import Enum
-from typing import List, Optional, Iterable
+from typing import (
+    List,
+    Optional,
+    Iterable,
+    Union,
+    Self,
+    Tuple,
+    SupportsIndex,
+    Set,
+    Dict,
+)
 
-from gdMetriX.common import Numeric
+from gdMetriX.common import Numeric, Vector, LineSegment
 
 PRECISION = 1e-09
 
@@ -44,8 +53,65 @@ def _get_precision() -> float:
     return PRECISION
 
 
-CrossingPoint = namedtuple("CrossingPoint", "x y")
-CrossingLine = namedtuple("CrossingLine", "point_a point_b")
+class CrossingPoint(Vector):
+    """
+    Represents a point used during the crossing detection algorithm, not necessarely an actuall crossing.
+    Supports total ordering according to sweep line direction.
+    """
+
+    def __eq__(self, other: Vector):
+        if other is None or not isinstance(other, CrossingPoint):
+            return False
+        return __numeric_eq__(self.distance(other), 0)
+
+    @staticmethod
+    def from_point(pos: Tuple[Numeric, Numeric]) -> Self:
+        vec = Vector.from_point(pos)
+        return CrossingPoint(vec.x, vec.y)
+
+    def __lt__(self, other):
+        if isinstance(other, CrossingPoint):
+            return __greater_than__(self.y, other.y) or (
+                __numeric_eq__(self.y, other.y) and __greater_than__(other.x, self.x)
+            )
+        if isinstance(other, CrossingLine):
+            return True
+        raise TypeError(other)
+
+    def __hash__(self):
+        return hash(
+            (
+                self.x,
+                self.y,
+            )
+        )
+
+
+class CrossingLine(LineSegment):
+    """
+    Represents a line segment used during the crossing detection algorithm.
+    Supports total ordering according to sweep line direction.
+    """
+
+    start: CrossingPoint
+    end: CrossingPoint
+
+    def __init__(self, point_a: CrossingPoint, point_b: CrossingPoint):
+        self.start, self.end = sorted([point_a, point_b])
+        super().__init__(self.start, self.end)
+
+    def __lt__(self, other):
+        if isinstance(other, CrossingLine):
+            return self.start < other.start or self.end < other.end
+        if isinstance(other, CrossingPoint):
+            return False
+        raise TypeError(other)
+
+    def __eq__(self, other):
+        return self.start == other.start and self.end == other.end
+
+    def __str__(self):
+        return f"Line({self.start}, {self.end})"
 
 
 def __greater_than__(a: float, b: float) -> bool:
@@ -59,104 +125,29 @@ def __numeric_eq__(a: Numeric, b: Numeric) -> bool:
     return math.isclose(a, b, abs_tol=PRECISION)
 
 
-def __points_equal__(crossing_a, crossing_b):
-    def __point_to_crossing(line):
-        return CrossingPoint(line[0], line[1])
-
-    if isinstance(crossing_a, CrossingLine) or isinstance(crossing_b, CrossingLine):
-        if not (
-            isinstance(crossing_a, CrossingLine)
-            and isinstance(crossing_b, CrossingLine)
-        ):
-            return False
-        return (
-            __points_equal__(
-                __point_to_crossing(crossing_a.point_a),
-                __point_to_crossing(crossing_b.point_a),
-            )
-            and __points_equal__(
-                __point_to_crossing(crossing_a.point_b),
-                __point_to_crossing(crossing_b.point_b),
-            )
-        ) or (
-            __points_equal__(
-                __point_to_crossing(crossing_a.point_a),
-                __point_to_crossing(crossing_b.point_b),
-            )
-            and __points_equal__(
-                __point_to_crossing(crossing_a.point_b),
-                __point_to_crossing(crossing_b.point_a),
-            )
-        )
-
-    return __numeric_eq__(crossing_a[0], crossing_b[0]) and __numeric_eq__(
-        crossing_a[1], crossing_b[1]
-    )
-
-
-def _less_than(point1, point2):
-    """
-    Defines the order of the event points
-    """
-    return __greater_than__(point1[1], point2[1]) or (
-        __numeric_eq__(point1[1], point2[1]) and __greater_than__(point2[0], point1[0])
-    )
-
-
 class Crossing:
     """
     Represents a single crossing point
     """
 
-    def __init__(self, pos, involved_edges):
+    def __init__(self, pos: Union[CrossingPoint, CrossingLine], involved_edges: set):
         self.pos = pos
         self.involved_edges = involved_edges
 
     def __str__(self):
-        return "[{}, edges: {}]".format(self.pos, sorted(self.involved_edges))
+        return f"[{self.pos}, edges: {sorted(self.involved_edges)}]"
 
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
         if isinstance(other, Crossing):
-            return (
-                __points_equal__(self.pos, other.pos)
-                and len(self.involved_edges) == len(other.involved_edges)
-                and sorted(self.involved_edges) == sorted(other.involved_edges)
-            )
+            return self.pos == other.pos and self.involved_edges == other.involved_edges
         return False
 
     def __lt__(self, other):
-        if type(self.pos) is CrossingPoint:
-            if type(other.pos) is CrossingPoint:
-                return _less_than(self.pos, other.pos)
-            else:
-                return True
-        if type(self.pos) is CrossingLine:
-            if type(other.pos) is CrossingLine:
-
-                # TODO start/end should already be saved somewhere
-                # Look if another datatype makes sense
-                def _get_start(crossing):
-                    return (
-                        crossing.pos[0]
-                        if _less_than(crossing.pos[0], crossing.pos[1])
-                        else crossing.pos[1]
-                    )
-
-                def _get_end(crossing):
-                    return (
-                        crossing.pos[0]
-                        if not _less_than(crossing.pos[0], crossing.pos[1])
-                        else crossing.pos[1]
-                    )
-
-                return _less_than(_get_start(self), _get_start(other)) or _less_than(
-                    _get_end(self), _get_end(other)
-                )
-            else:
-                return False
+        # Comparison purely based on CrPoint/CrLineSegment
+        return self.pos < other.pos
 
 
 class EventType(Enum):
@@ -167,6 +158,8 @@ class EventType(Enum):
     CROSSING = 3
     HORIZONTAL = 4
 
+
+# TODO move AVL tree to new file
 
 # region AVL tree
 
@@ -184,7 +177,6 @@ class SortableObject:
         :param key_parameter: Parameter for comparison
         :type key_parameter: numeric
         """
-        pass
 
     def less_than_key(self, key: Numeric, key_parameter: Numeric) -> bool:
         """
@@ -194,7 +186,6 @@ class SortableObject:
         :param key_parameter: Parameter for comparison
         :type key_parameter: numeric
         """
-        pass
 
     def greater_than_key(self, key: Numeric, key_parameter: Numeric) -> bool:
         """
@@ -204,7 +195,6 @@ class SortableObject:
         :param key_parameter: Parameter for comparison
         :type key_parameter: numeric
         """
-        pass
 
     def get_key(self, key_parameter: Numeric) -> Numeric:
         """
@@ -214,7 +204,6 @@ class SortableObject:
         :return:
         :rtype:
         """
-        pass
 
 
 class BBTNode:
@@ -276,17 +265,15 @@ class ParameterizedBalancedBinarySearchTree:
 
                 if not root.left.content.less_than(item, key_parameter):
                     return self.__right_rotate__(root)
-                else:
-                    root.left = self.__left_rotate__(root.left)
-                    return self.__right_rotate__(root)
-            elif balance < -1:
+                root.left = self.__left_rotate__(root.left)
+                return self.__right_rotate__(root)
+            if balance < -1:
                 # Tree is unbalanced with longer side on the right
 
                 if root.right.content.less_than(item, key_parameter):
                     return self.__left_rotate__(root)
-                else:
-                    root.right = self.__right_rotate__(root.right)
-                    return self.__left_rotate__(root)
+                root.right = self.__right_rotate__(root.right)
+                return self.__left_rotate__(root)
 
             return root
 
@@ -456,7 +443,7 @@ class ParameterizedBalancedBinarySearchTree:
                 # If either the left or right is None, we can simply move the node one up
                 if root.left is None:
                     return root.right
-                elif root.right is None:
+                if root.right is None:
                     return root.left
 
                 # Move min up and delete min down the road
@@ -477,15 +464,13 @@ class ParameterizedBalancedBinarySearchTree:
             if balance > 1:
                 if self.__get_balance__(root.left) >= 0:
                     return self.__right_rotate__(root)
-                else:
-                    root.left = self.__left_rotate__(root.left)
-                    return self.__right_rotate__(root)
-            elif balance < -1:
+                root.left = self.__left_rotate__(root.left)
+                return self.__right_rotate__(root)
+            if balance < -1:
                 if self.__get_balance__(root.right) <= 0:
                     return self.__left_rotate__(root)
-                else:
-                    root.right = self.__right_rotate__(root.right)
-                    return self.__left_rotate__(root)
+                root.right = self.__right_rotate__(root.right)
+                return self.__left_rotate__(root)
 
             return root
 
@@ -529,10 +514,9 @@ class ParameterizedBalancedBinarySearchTree:
 
             if root.content == item:
                 return root
-            elif root.content.less_than(item, key_parameter):
+            if root.content.less_than(item, key_parameter):
                 return __find__(root.right)
-            else:
-                return __find__(root.left)
+            return __find__(root.left)
 
         found_item = __find__(self.root)
         return None if found_item is None else found_item.content
@@ -622,29 +606,41 @@ class SweepLineEdgeInfo(SortableObject):
     Represents an edge within the sweep line. Supports basic properties for comparison
     """
 
+    start_position: CrossingPoint
+    end_position: CrossingPoint
+
     def __init__(
         self,
-        edge: (Numeric, Numeric),  # TODO what about other edge key data tyes
-        position_a: (Numeric, Numeric),
-        position_b: (Numeric, Numeric),
+        edge: (object, object),
+        position_a: CrossingPoint,
+        position_b: CrossingPoint,  # TODO why is this not a CrossingLine
     ):
         self.edge = edge
+        self.crossing_line = CrossingLine(position_a, position_b)
+        self.start_position = self.crossing_line.start
+        self.end_position = self.crossing_line.end
 
-        if _less_than(position_a, position_b):
-            self.start_position = position_a
-            self.end_position = position_b
-        else:
-            self.start_position = position_b
-            self.end_position = position_a
+    @staticmethod
+    def from_edge(
+        edge: Tuple[SupportsIndex, SupportsIndex], pos: Dict[object, CrossingPoint]
+    ) -> Self:
+        point_a = pos[edge[0]]
+        point_b = pos[edge[1]]
+
+        return SweepLineEdgeInfo(
+            edge,
+            CrossingPoint(point_a[0], point_a[1]),
+            CrossingPoint(point_b[0], point_b[1]),
+        )
 
     # region Implementation of SortableObject
 
-    def less_than(self, other, key_parameter: Numeric):
+    def less_than(self, other: Self, key_parameter: Numeric):
         x_self = __get_x_at_y__(self, key_parameter)
         x_other = __get_x_at_y__(other, key_parameter)
 
         if __numeric_eq__(x_self, x_other):
-            lower_end = min(self.end_position[1], other.end_position[1])
+            lower_end = min(self.end_position.y, other.end_position.y)
             key_parameter = min(key_parameter - _get_precision(), lower_end)
 
             x_self = __get_x_at_y__(self, key_parameter)
@@ -667,9 +663,7 @@ class SweepLineEdgeInfo(SortableObject):
     # endregion
 
     def __str__(self):
-        return "[{}, start: {}, end: {}]".format(
-            self.edge, self.start_position, self.end_position
-        )
+        return f"[{self.edge}, start: {self.start_position}, end: {self.end_position}]"
 
     def __repr__(self):
         return self.__str__()
@@ -679,30 +673,37 @@ class SweepLineEdgeInfo(SortableObject):
             return False
         return (
             self.edge == other.edge
-            and __points_equal__(self.start_position, other.start_position)
-            and __points_equal__(self.end_position, other.end_position)
+            and self.start_position == other.start_position
+            and self.end_position == other.end_position
         )
 
     def __hash__(self):
-        return hash(
-            (
-                self.edge,
-                self.start_position[0],
-                self.start_position[1],
-                self.end_position[0],
-                self.end_position[1],
-            )
-        )
+        return hash((self.edge, self.start_position, self.end_position))
 
-    def is_horizontal(self):
+    def is_horizontal(self) -> bool:
         """
             Returns true if and only if the edge is considered to be horizontal
         :return:
         :rtype:
         """
         return __numeric_eq__(
-            self.start_position[1], self.end_position[1]
-        ) and not __numeric_eq__(self.start_position[0], self.end_position[0])
+            self.start_position.y, self.end_position.y
+        ) and not __numeric_eq__(self.start_position.x, self.end_position.x)
+
+    def share_endpoint(self, other) -> bool:
+        """
+            Checks if the two edges have at least one node in common
+        :param other: The second edge
+        :type other: gdMetriX.SweepLineEdgeInfo
+        :return: Returns true if and only if one ore more nodes are shared between the edges
+        :rtype: bool
+        """
+        return (
+            self.edge[0] == other.edge[0]
+            or self.edge[0] == other.edge[1]
+            or self.edge[1] == other.edge[0]
+            or self.edge[1] == other.edge[1]
+        )
 
 
 class SweepLinePoint(SortableObject):
@@ -710,30 +711,29 @@ class SweepLinePoint(SortableObject):
     Represents a point on the event queue
     """
 
-    def __init__(self, x, y):
-        self.end_list = set()
-        self.start_list = set()
-        self.interior_list = set()
-        self.horizontal_list = set()
-        self.x = x
-        self.y = y
-        self.is_crossing = False
+    def __init__(self, position: CrossingPoint):
+        self.end_list: Set[SweepLineEdgeInfo] = set()
+        self.start_list: Set[SweepLineEdgeInfo] = set()
+        self.interior_list: Set[SweepLineEdgeInfo] = set()
+        self.horizontal_list: Set[SweepLineEdgeInfo] = set()
+        self.position: CrossingPoint = position
+        self.is_crossing: bool = False
 
     def __str__(self):
-        return "(" + str(self.x) + ", " + str(self.y) + ")"
+        return self.position.__str__()
 
     def __eq__(self, other):
         if other is None:
             return False
-        return __points_equal__((self.x, self.y), (other.x, other.y))
+        return self.position == other.position
 
     def __lt__(self, other):
-        return _less_than((self.x, self.y), (other.x, other.y))
+        return self.position < other.position
 
     # region Implementation of SortableObject
 
-    def less_than(self, other, _):
-        return self.__lt__(other)
+    def less_than(self, other: Self, _):
+        return self < other
 
     # endregion
 
@@ -763,14 +763,12 @@ class EventQueue:
         :type edge_info:
         """
         self.__add(
-            edge_info.start_position[0],
-            edge_info.start_position[1],
+            edge_info.start_position,
             edge_info,
             EventType.HORIZONTAL if edge_info.is_horizontal() else EventType.START,
         )
         self.__add(
-            edge_info.end_position[0],
-            edge_info.end_position[1],
+            edge_info.end_position,
             edge_info,
             EventType.HORIZONTAL if edge_info.is_horizontal() else EventType.END,
         )
@@ -792,18 +790,18 @@ class EventQueue:
 
         for edge in edge_list:
             # If the edge only crosses in an endpoint, it will not be added as an "interior point"
-            if not (
-                __points_equal__(edge.start_position, crossing)
-                or __points_equal__(edge.end_position, crossing)
-            ):
-                self.__add(crossing.x, crossing.y, edge, EventType.CROSSING)
+            if crossing not in (edge.start_position, edge.end_position):
+                self.__add(crossing, edge, EventType.CROSSING)
 
     def __add(
-        self, x: int, y, edge_info: SweepLineEdgeInfo, event_type: EventType
+        self, point: CrossingPoint, edge_info: SweepLineEdgeInfo, event_type: EventType
     ) -> None:
-        sweep_line_point = self.sorted_list.find(SweepLinePoint(x, y), None)
+
+        new_point_to_add = SweepLinePoint(point)
+
+        sweep_line_point = self.sorted_list.find(new_point_to_add, None)
         if sweep_line_point is None:
-            sweep_line_point = SweepLinePoint(x, y)
+            sweep_line_point = new_point_to_add
             self.sorted_list.insert(sweep_line_point, None)
 
         list_to_add_to = None
@@ -829,19 +827,18 @@ class EventQueue:
 
 
 def __get_x_at_y__(edge_info: SweepLineEdgeInfo, y: Numeric):
-    x1, y1 = edge_info.start_position
-    x2, y2 = edge_info.end_position
+    start = edge_info.start_position
+    end = edge_info.end_position
 
-    if x2 == x1:
-        return x1
-    if y2 - y1 == 0:
-        return min(x1, x2)
+    if __numeric_eq__(start.x, end.x):
+        return start.x
+    if __numeric_eq__(end.y - start.y, 0):
+        return min(start.x, end.x)
 
-    m = (y2 - y1) / (x2 - x1)
-    b = y1 - m * x1
-    x = (y - b) / m
+    m = (end.y - start.y) / (end.x - start.x)
+    b = start.y - m * start.x
 
-    return x
+    return (y - b) / m
 
 
 class SweepLineStatus:
@@ -851,19 +848,19 @@ class SweepLineStatus:
     """
 
     def __init__(self):
-        self.sortedList = ParameterizedBalancedBinarySearchTree()
+        self.sorted_list = ParameterizedBalancedBinarySearchTree()
 
     def __str__(self):
-        return [edge.edge for edge in self.sortedList].__str__()
+        return [edge.edge for edge in self.sorted_list].__str__()
 
     def add(self, y_value: Numeric, edge_info: SweepLineEdgeInfo) -> None:
         """Adds a new edge to the sweep line. It will be added next to its neighboring edges at height y_value.
-        :param y_value: Height of the sweep line
+        :param y_value: Current height of the sweep line
         :type y_value:
         :param edge_info:
         :type edge_info:
         """
-        self.sortedList.insert(edge_info, y_value)
+        self.sorted_list.insert(edge_info, y_value)
 
     def remove(self, y_value: Numeric, edge_info: SweepLineEdgeInfo):
         """
@@ -873,7 +870,7 @@ class SweepLineStatus:
         :param edge_info: Edge that should be removed
         :type edge_info: :class:`SweepLineEdgeInfo`
         """
-        self.sortedList.remove(edge_info, y_value)
+        self.sorted_list.remove(edge_info, y_value)
 
     def get_left(self, point: SweepLinePoint) -> Optional[SweepLineEdgeInfo]:
         """
@@ -883,7 +880,7 @@ class SweepLineStatus:
         :return: Edge left of the given edge
         :rtype: SweepLineEdgeInfo
         """
-        return self.sortedList.get_left(point.x, point.y)
+        return self.sorted_list.get_left(point.position.x, point.position.y)
 
     def get_right(self, point: SweepLinePoint) -> Optional[SweepLineEdgeInfo]:
         """
@@ -891,7 +888,7 @@ class SweepLineStatus:
         :return: Edge right of the given edge
         :rtype: SweepLineEdgeInfo
         """
-        return self.sortedList.get_right(point.x, point.y)
+        return self.sorted_list.get_right(point.position.x, point.position.y)
 
     def get_range(
         self, y: Numeric, left_x: Numeric, right_x: Numeric
@@ -905,7 +902,7 @@ class SweepLineStatus:
         :param right_x:
         :type right_x:
         """
-        return self.sortedList.get_range(left_x, right_x, y)
+        return self.sorted_list.get_range(left_x, right_x, y)
 
 
 # endregion

@@ -20,7 +20,6 @@ Unit tests for crossing detection.
 
 import math
 import random
-import sys
 import unittest
 
 from libpysal import weights
@@ -34,6 +33,7 @@ import pytest
 import crossing_test_helper
 import gdMetriX
 from gdMetriX import crossings, datasets
+from gdMetriX.crossingDataTypes import CrossingPoint
 
 
 def __assert_crossing_equality__(
@@ -156,7 +156,7 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(4, pos=(0, 1))
         g.add_edges_from([(1, 3), (2, 4)])
         __assert_crossing_equality__(
-            g, [crossings.Crossing(crossings.CrossingPoint(0.5, 0.5), [(1, 3), (2, 4)])]
+            g, [crossings.Crossing(crossings.CrossingPoint(0.5, 0.5), {(1, 3), (2, 4)})]
         )
 
     def test_simple_crossing_1(self):
@@ -167,7 +167,7 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(4, pos=(0, 1))
         g.add_edges_from([(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)])
         __assert_crossing_equality__(
-            g, [crossings.Crossing(crossings.CrossingPoint(0.5, 0.5), [(1, 3), (2, 4)])]
+            g, [crossings.Crossing(crossings.CrossingPoint(0.5, 0.5), {(1, 3), (2, 4)})]
         )
 
     def test_simple_crossing_2(self):
@@ -186,10 +186,10 @@ class TestSimpleCrossings(unittest.TestCase):
         __assert_crossing_equality__(
             g,
             [
-                crossings.Crossing(crossings.CrossingPoint(3, 3), [(1, 2), (9, 10)]),
-                crossings.Crossing(crossings.CrossingPoint(3, 4), [(3, 4), (9, 10)]),
-                crossings.Crossing(crossings.CrossingPoint(3, 5), [(5, 6), (9, 10)]),
-                crossings.Crossing(crossings.CrossingPoint(3, 6), [(7, 8), (9, 10)]),
+                crossings.Crossing(crossings.CrossingPoint(3, 3), {(1, 2), (9, 10)}),
+                crossings.Crossing(crossings.CrossingPoint(3, 4), {(3, 4), (9, 10)}),
+                crossings.Crossing(crossings.CrossingPoint(3, 5), {(5, 6), (9, 10)}),
+                crossings.Crossing(crossings.CrossingPoint(3, 6), {(7, 8), (9, 10)}),
             ],
         )
 
@@ -204,7 +204,7 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(7, pos=(4, 0))
         g.add_edges_from([(1, 5), (2, 5), (3, 7), (4, 6)])
         __assert_crossing_equality__(
-            g, [crossings.Crossing(crossings.CrossingPoint(2, 2), [(3, 7), (4, 6)])]
+            g, [crossings.Crossing(crossings.CrossingPoint(2, 2), {(3, 7), (4, 6)})]
         )
 
     def test_non_crossing_graph_directed(self):
@@ -232,7 +232,7 @@ class TestSimpleCrossings(unittest.TestCase):
         g.add_node(4, pos=(0, 1))
         g.add_edges_from([(1, 3), (2, 4)])
         __assert_crossing_equality__(
-            g, [crossings.Crossing(crossings.CrossingPoint(0.5, 0.5), [(1, 3), (2, 4)])]
+            g, [crossings.Crossing(crossings.CrossingPoint(0.5, 0.5), {(1, 3), (2, 4)})]
         )
 
     def test_self_loop(self):
@@ -262,7 +262,7 @@ class TestSimpleCrossings(unittest.TestCase):
 
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(0, 0), [(2, 3), (1, 1)])],
+            [crossings.Crossing(crossings.CrossingPoint(0, 0), {(2, 3), (1, 1)})],
             True,
             True,
         )
@@ -278,7 +278,7 @@ class TestSimpleCrossings(unittest.TestCase):
 
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(0, 0), [(2, 3), (4, 5)])],
+            [crossings.Crossing(crossings.CrossingPoint(0, 0), {(2, 3), (4, 5)})],
             True,
         )
 
@@ -295,7 +295,7 @@ class TestSimpleCrossings(unittest.TestCase):
             g,
             [
                 crossings.Crossing(
-                    crossings.CrossingPoint(0, 0), [(1, 1), (2, 3), (4, 5)]
+                    crossings.CrossingPoint(0, 0), {(1, 1), (2, 3), (4, 5)}
                 )
             ],
             True,
@@ -314,7 +314,7 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_edges_from([(1, 2), (3, 4)])
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(0, 1), [(1, 2), (3, 4)])],
+            [crossings.Crossing(crossings.CrossingPoint(0, 1), {(1, 2), (3, 4)})],
             include_node_crossings=True,
         )
 
@@ -327,7 +327,7 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_edges_from([(1, 2), (3, 4)])
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(0, 1), [(1, 2), (3, 4)])],
+            [crossings.Crossing(crossings.CrossingPoint(0, 1), {(1, 2), (3, 4)})],
             include_node_crossings=True,
         )
 
@@ -340,7 +340,7 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_edges_from([(1, 2), (3, 4)])
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(0, 1), [(1, 2), (3, 4)])],
+            [crossings.Crossing(crossings.CrossingPoint(0, 1), {(1, 2), (3, 4)})],
             include_node_crossings=True,
         )
 
@@ -354,7 +354,7 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_edges_from([(1, 2), (3, 4)])
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
+            [crossings.Crossing(crossings.CrossingPoint(1, 1), {(1, 2), (3, 4)})],
             include_node_crossings=True,
         )
 
@@ -367,7 +367,7 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_edges_from([(1, 2), (3, 4)])
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
+            [crossings.Crossing(crossings.CrossingPoint(1, 1), {(1, 2), (3, 4)})],
             include_node_crossings=True,
         )
 
@@ -380,7 +380,7 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_edges_from([(1, 2), (3, 4)])
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
+            [crossings.Crossing(crossings.CrossingPoint(1, 1), {(1, 2), (3, 4)})],
             include_node_crossings=True,
         )
 
@@ -394,7 +394,7 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_edges_from([(1, 2), (3, 4)])
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
+            [crossings.Crossing(crossings.CrossingPoint(1, 1), {(1, 2), (3, 4)})],
             True,
             True,
         )
@@ -408,7 +408,7 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_edges_from([(1, 2), (3, 4)])
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
+            [crossings.Crossing(crossings.CrossingPoint(1, 1), {(1, 2), (3, 4)})],
             True,
             True,
         )
@@ -422,7 +422,7 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_edges_from([(1, 2), (3, 4)])
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])],
+            [crossings.Crossing(crossings.CrossingPoint(1, 1), {(1, 2), (3, 4)})],
             True,
             True,
         )
@@ -519,7 +519,7 @@ class TestCrossingsInvolvingVertices(unittest.TestCase):
         g.add_edges_from([(1, 2), (3, 4)])
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(0, 0), [(1, 2), (3, 4)])],
+            [crossings.Crossing(crossings.CrossingPoint(0, 0), {(1, 2), (3, 4)})],
             True,
             True,
         )
@@ -544,7 +544,7 @@ class TestHorizontalCrossings(unittest.TestCase):
         g.add_node(4, pos=(1, 2))
         g.add_edges_from([(1, 2), (3, 4)])
         __assert_crossing_equality__(
-            g, [crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)])]
+            g, [crossings.Crossing(crossings.CrossingPoint(1, 1), {(1, 2), (3, 4)})]
         )
 
     def test_horizontal_line_with_vertex_crossing(self):
@@ -580,10 +580,10 @@ class TestHorizontalCrossings(unittest.TestCase):
         __assert_crossing_equality__(
             g,
             [
-                crossings.Crossing(crossings.CrossingPoint(1, 1), [(1, 2), (3, 4)]),
-                crossings.Crossing(crossings.CrossingPoint(2, 1), [(1, 2), (5, 6)]),
-                crossings.Crossing(crossings.CrossingPoint(3, 1), [(1, 2), (7, 8)]),
-                crossings.Crossing(crossings.CrossingPoint(4, 1), [(1, 2), (9, 10)]),
+                crossings.Crossing(crossings.CrossingPoint(1, 1), {(1, 2), (3, 4)}),
+                crossings.Crossing(crossings.CrossingPoint(2, 1), {(1, 2), (5, 6)}),
+                crossings.Crossing(crossings.CrossingPoint(3, 1), {(1, 2), (7, 8)}),
+                crossings.Crossing(crossings.CrossingPoint(4, 1), {(1, 2), (9, 10)}),
             ],
         )
 
@@ -649,7 +649,8 @@ class TestOverlappingCrossings(unittest.TestCase):
             g,
             [
                 crossings.Crossing(
-                    crossings.CrossingLine((3, 0), (7, 0)), [(1, 2), (3, 4)]
+                    crossings.CrossingLine(CrossingPoint(3, 0), CrossingPoint(7, 0)),
+                    {(1, 2), (3, 4)},
                 )
             ],
         )
@@ -665,7 +666,8 @@ class TestOverlappingCrossings(unittest.TestCase):
             g,
             [
                 crossings.Crossing(
-                    crossings.CrossingLine((3, 0), (7, 0)), [(1, 2), (3, 4)]
+                    crossings.CrossingLine(CrossingPoint(3, 0), CrossingPoint(7, 0)),
+                    {(1, 2), (3, 4)},
                 )
             ],
         )
@@ -681,7 +683,8 @@ class TestOverlappingCrossings(unittest.TestCase):
             g,
             [
                 crossings.Crossing(
-                    crossings.CrossingLine((0, 3), (0, 7)), [(1, 2), (3, 4)]
+                    crossings.CrossingLine(CrossingPoint(0, 3), CrossingPoint(0, 7)),
+                    {(1, 2), (3, 4)},
                 )
             ],
         )
@@ -697,7 +700,8 @@ class TestOverlappingCrossings(unittest.TestCase):
             g,
             [
                 crossings.Crossing(
-                    crossings.CrossingLine((0, 3), (0, 7)), [(1, 2), (3, 4)]
+                    crossings.CrossingLine(CrossingPoint(0, 3), CrossingPoint(0, 7)),
+                    {(1, 2), (3, 4)},
                 )
             ],
         )
@@ -715,10 +719,11 @@ class TestOverlappingCrossings(unittest.TestCase):
             g,
             [
                 crossings.Crossing(
-                    crossings.CrossingLine((1, 1), (2, 2)), [(1, 4), (2, 3)]
+                    crossings.CrossingLine(CrossingPoint(1, 1), CrossingPoint(2, 2)),
+                    {(1, 4), (2, 3)},
                 ),
                 crossings.Crossing(
-                    crossings.CrossingPoint(1.5, 1.5), [(1, 4), (2, 3), (5, 6)]
+                    crossings.CrossingPoint(1.5, 1.5), {(1, 4), (2, 3), (5, 6)}
                 ),
             ],
         )
@@ -736,10 +741,11 @@ class TestOverlappingCrossings(unittest.TestCase):
             g,
             [
                 crossings.Crossing(
-                    crossings.CrossingLine((1, 1), (2, 2)), [(1, 3), (2, 4)]
+                    crossings.CrossingLine(CrossingPoint(1, 1), CrossingPoint(2, 2)),
+                    {(1, 3), (2, 4)},
                 ),
                 crossings.Crossing(
-                    crossings.CrossingPoint(1.5, 1.5), [(1, 3), (2, 4), (5, 6)]
+                    crossings.CrossingPoint(1.5, 1.5), {(1, 3), (2, 4), (5, 6)}
                 ),
             ],
         )
@@ -756,7 +762,8 @@ class TestOverlappingCrossings(unittest.TestCase):
             g,
             [
                 crossings.Crossing(
-                    crossings.CrossingLine((0, 0), (3, -2)), [(1, 2), (1, 3)]
+                    crossings.CrossingLine(CrossingPoint(0, 0), CrossingPoint(3, -2)),
+                    {(1, 2), (1, 3)},
                 )
             ],
             True,
@@ -778,8 +785,8 @@ class TestCommonEndpointCrossings(unittest.TestCase):
         __assert_crossing_equality__(
             g,
             [
-                crossings.Crossing(crossings.CrossingPoint(1.0, 1.5), [(3, 5), (1, 4)]),
-                crossings.Crossing(crossings.CrossingPoint(2.0, 1.0), [(2, 3), (1, 4)]),
+                crossings.Crossing(crossings.CrossingPoint(1.0, 1.5), {(3, 5), (1, 4)}),
+                crossings.Crossing(crossings.CrossingPoint(2.0, 1.0), {(2, 3), (1, 4)}),
             ],
         )
 
@@ -810,7 +817,7 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         g.add_node(6, pos=(-1, -1))
         g.add_node(7, pos=(0, -1))
         g.add_node(8, pos=(1, -1))
-        edges = [(1, 8), (2, 7), (3, 6), (4, 5)]
+        edges = {(1, 8), (2, 7), (3, 6), (4, 5)}
         g.add_edges_from(edges)
         __assert_crossing_equality__(
             g, [crossings.Crossing(crossings.CrossingPoint(0, 0), edges)]
@@ -858,21 +865,21 @@ class TestComplexCrossingScenarios(unittest.TestCase):
             [
                 crossings.Crossing(
                     crossings.CrossingPoint(0, 0),
-                    [(3, 14), (5, 8), (6, 8), (8, 10), (1, 13), (8, 9), (4, 8)],
+                    {(3, 14), (5, 8), (6, 8), (8, 10), (1, 13), (8, 9), (4, 8)},
                 ),
                 crossings.Crossing(
                     crossings.CrossingPoint(
                         1.44444444444444444444, -2.88888888888888888
                     ),
-                    [(1, 13), (7, 12)],
+                    {(1, 13), (7, 12)},
                 ),
                 crossings.Crossing(
                     crossings.CrossingPoint(-1.1538461538461537, -3.4615384615384617),
-                    [(3, 14), (2, 11)],
+                    {(3, 14), (2, 11)},
                 ),
                 crossings.Crossing(
                     crossings.CrossingPoint(-1.5517241379310345, -2.0689655172413794),
-                    [(8, 10), (2, 11)],
+                    {(8, 10), (2, 11)},
                 ),
             ],
             include_node_crossings=True,
@@ -889,10 +896,10 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         edges = [(1, 5), (2, 6), (3, 6), (4, 6)]
         g.add_edges_from(edges)
 
-        crossing_list = crossings.get_crossings(g, precision=0.1)
+        crossing_list = crossings.get_crossings(g, precision=0.142)
         assert len(crossing_list) == 1
-        assert math.isclose(crossing_list[0].pos[0], 1.5, rel_tol=0.1)
-        assert math.isclose(crossing_list[0].pos[1], 1.5, rel_tol=0.1)
+        assert math.isclose(crossing_list[0].pos[0], 1.5, rel_tol=0.142)
+        assert math.isclose(crossing_list[0].pos[1], 1.5, rel_tol=0.142)
 
         # Note that we explicitly do not check for the contained edges as grouping crossings together which are not
         #  actually crossing at the same point
@@ -952,7 +959,7 @@ class TestComplexCrossingScenarios(unittest.TestCase):
 
         __assert_crossing_equality__(
             g,
-            [crossings.Crossing(crossings.CrossingPoint(0, 0), [(0, 1), (2, 3)])],
+            [crossings.Crossing(crossings.CrossingPoint(0, 0), {(0, 1), (2, 3)})],
             True,
             True,
         )
@@ -972,7 +979,7 @@ class TestComplexCrossingScenarios(unittest.TestCase):
             g,
             [
                 crossings.Crossing(
-                    crossings.CrossingPoint(0, 0), [(0, 1), (2, 3), (4, 5)]
+                    crossings.CrossingPoint(0, 0), {(0, 1), (2, 3), (4, 5)}
                 )
             ],
             True,
@@ -994,7 +1001,7 @@ class TestComplexCrossingScenarios(unittest.TestCase):
             g,
             [
                 crossings.Crossing(
-                    crossings.CrossingPoint(0, 0), [(0, 1), (2, 3), (4, 5)]
+                    crossings.CrossingPoint(0, 0), {(0, 1), (2, 3), (4, 5)}
                 )
             ],
             True,
@@ -1062,10 +1069,11 @@ class TestComplexCrossingScenarios(unittest.TestCase):
             g,
             [
                 crossings.Crossing(
-                    crossings.CrossingLine((1, 1), (2, 2)), [(1, 3), (2, 4)]
+                    crossings.CrossingLine(CrossingPoint(1, 1), CrossingPoint(2, 2)),
+                    {(1, 3), (2, 4)},
                 ),
                 crossings.Crossing(
-                    crossings.CrossingPoint(1.5, 1.5), [(1, 3), (2, 4), (5, 6)]
+                    crossings.CrossingPoint(1.5, 1.5), {(1, 3), (2, 4), (5, 6)}
                 ),
             ],
             include_node_crossings=True,
@@ -1084,7 +1092,8 @@ class TestComplexCrossingScenarios(unittest.TestCase):
             g,
             [
                 crossings.Crossing(
-                    crossings.CrossingLine((1, 1), (2, 2)), [(1, 3), (2, 4)]
+                    crossings.CrossingLine(CrossingPoint(1, 1), CrossingPoint(2, 2)),
+                    {(1, 3), (2, 4)},
                 )
             ],
         )
@@ -1114,11 +1123,7 @@ class TestDatasetGraphs(object):
 
     @pytest.mark.parametrize(
         "dataset_name",
-        [
-            "graphviz examples",
-            "subways",
-            "airlines-migration-air traffic"
-        ],
+        ["graphviz examples", "subways", "airlines-migration-air traffic"],
     )
     def test_dataset(self, dataset_name):
         for name, graph in datasets.iterate_dataset(dataset_name):

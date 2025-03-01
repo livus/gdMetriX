@@ -117,7 +117,7 @@ class TestCrossingAngles(unittest.TestCase):
         )
         assert crossing_angular_resolution == 0.5
 
-    def test_crossing_angular_resolution_3(self):
+    def test_crossing_angular_resolution_4(self):
         g = nx.Graph()
         g.add_node(1, pos=(0, 0))
         g.add_node(2, pos=(1, 0))

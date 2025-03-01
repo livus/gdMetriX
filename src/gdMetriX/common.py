@@ -222,6 +222,32 @@ class Vector:
         raise IndexError
 
 
+class LineSegment:
+    #TODO go through the code and check where this can be used for
+
+    def __init__(self, start: Vector, end: Vector):
+        self.start = start
+        self.end = end
+
+    def distance_to_point(self, point: Vector):
+        #TODO unit test
+
+        v_ab = self.end - self.start
+        v_bn = point - self.end
+        v_an = point - self.start
+        v_na = self.start - point
+
+        if v_ab.len() == 0 or v_ab.dot(v_bn) > 0:
+            # Node is closer to endpoint b
+            return self.end.distance(point)
+        if v_ab.dot(v_an) < 0:
+            # Node is closer to endpoint a
+            return point.distance(self.start)
+
+        # Node is closer to edge itself -> return distance to line
+        return abs(v_ab.cross(v_na) / v_ab.len())
+
+
 class Angle(float):
     """
     A simple angle class for representing an angle as both radians and degrees.
