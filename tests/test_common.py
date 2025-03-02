@@ -80,6 +80,144 @@ class TestGetNodePosition(unittest.TestCase):
         assert len(pos) == 10
 
 
+class TestLineSegmentClass(object):
+
+    def test_init(self):
+        segm = LineSegment(Vector(0, 0), Vector(1, 1))
+        assert segm.start == Vector(0, 0)
+        assert segm.end == Vector(1, 1)
+
+    def test_line_segment_equality(self):
+        seg1 = LineSegment(Vector(0, 0), Vector(1, 1))
+        seg2 = LineSegment(Vector(0, 0), Vector(1, 1))
+
+        assert seg1 == seg2  # Same start and end points should be equal
+
+    def test_line_segment_inequality_different_points(self):
+        seg1 = LineSegment(Vector(0, 0), Vector(1, 1))
+        seg2 = LineSegment(Vector(1, 1), Vector(2, 2))
+
+        assert seg1 != seg2  # Different segments should not be equal
+
+    def test_line_segment_inequality_reversed(self):
+        seg1 = LineSegment(Vector(0, 0), Vector(1, 1))
+        seg2 = LineSegment(Vector(1, 1), Vector(0, 0))
+
+        assert seg1 != seg2  # Order of points matters
+
+    def test_line_segment_hash_equality(self):
+        seg1 = LineSegment(Vector(0, 0), Vector(1, 1))
+        seg2 = LineSegment(Vector(0, 0), Vector(1, 1))
+
+        assert hash(seg1) == hash(seg2)  # Identical segments should have the same hash
+
+    def test_line_segment_hash_inequality(self):
+        seg1 = LineSegment(Vector(0, 0), Vector(1, 1))
+        seg2 = LineSegment(Vector(1, 1), Vector(2, 2))
+
+        assert hash(seg1) != hash(
+            seg2
+        )  # Different segments should have different hashes
+
+    @pytest.mark.parametrize(
+        "point_a, point_b, point_c, expected_distance",
+        [
+            # Edge of length 0 (A and B are the same)
+            [
+                (0, 0),
+                (0, 0),
+                (1, 1),
+                ((1**2 + 1**2) ** 0.5),
+            ],  # Distance to single point
+            # Point on the endpoints (distance = 0)
+            [(0, 0), (2, 2), (0, 0), 0],  # Point C on A
+            [(0, 0), (2, 2), (2, 2), 0],  # Point C on B
+            [(1, 1), (2, 2), (1, 1), 0],
+            [(1, 1), (2, 2), (2, 2), 0],
+            # Point exactly on the line segment (distance = 0)
+            [(0, 0), (4, 4), (2, 2), 0],  # Middle of diagonal line
+            [(0, 0), (4, 0), (2, 0), 0],  # Horizontal line
+            [(1, 1), (2, 2), (1.2, 1.2), 0],  # Inbetween
+            # Point closer to the line than to the endpoints
+            [(0, 0), (4, 0), (2, 1), 1],  # Directly above the middle
+            [(0, 0), (4, 0), (2, -1), 1],  # Directly below the middle
+            [
+                (0, 0),
+                (4, 4),
+                (3, 2),
+                abs((3 - 2) / (2**0.5)),
+            ],  # Slightly off diagonal
+            # Point closer to the endpoints than to the line
+            [(0, 0), (4, 0), (5, 2), ((1**2 + 2**2) ** 0.5)],  # Outside to the right
+            [(0, 0), (4, 0), (-1, -2), ((1**2 + 2**2) ** 0.5)],  # Outside to the left
+            [
+                (0, 0),
+                (4, 4),
+                (-1, -1),
+                ((1**2 + 1**2) ** 0.5),
+            ],  # Past the start of diagonal
+            # Different orientations (switched x/y)
+            [(0, 0), (0, 4), (1, 2), 1],  # Vertical line, point to the right
+            [(0, 0), (0, 4), (-1, 2), 1],  # Vertical line, point to the left
+            [(0, 0), (4, 4), (2, 5), abs((5 - 2) / (2**0.5))],  # Above a diagonal
+            [(0, 0), (4, 4), (2, -1), abs((-1 - 2) / (2**0.5))],  # Below a diagonal
+            [(0, 0), (1, 0), (0.27, 1), 1],  # c is above the line
+            [(0, 0), (1, 0), (0.2481, -1), 1],  # c is below the line
+            [(0, 0), (1, 0), (0.27, 0.5), 0.5],  # c is slightly above the middle
+            [(0, 0), (1, 0), (-0.138, 0), 0.138],  # c is to the left of A
+            [
+                (0, 0),
+                (1, 0),
+                (-0.138, 0.5),
+                (0.138**2 + 0.5**2) ** 0.5,
+            ],  # c is to the left but above A
+            [
+                (0, 0),
+                (1, 0),
+                (-0.138, 1),
+                (0.138**2 + 1**2) ** 0.5,
+            ],  # c is to the left and above the line
+        ],
+        ids=[
+            "zero_length_edge",
+            "point_on_A",
+            "point_on_B",
+            "c_on_a",
+            "c_on_b",
+            "point_on_line_middle",
+            "point_on_horizontal_line",
+            "c_on_line_segment",
+            "point_closer_to_line_above",
+            "point_closer_to_line_below",
+            "point_closer_to_line_diagonal",
+            "point_closer_to_endpoint_right",
+            "point_closer_to_endpoint_left",
+            "point_closer_to_endpoint_diagonal",
+            "vertical_line_right",
+            "vertical_line_left",
+            "diagonal_line_above",
+            "diagonal_line_below",
+            "c_above_line",
+            "c_below_line",
+            "c_above_middle",
+            "c_left_of_a",
+            "c_left_above_a",
+            "c_left_above_line",
+        ],
+    )
+    def test_distance_to_point(self, point_a, point_b, point_c, expected_distance):
+        print(
+            f"Line: ({point_a}, {point_b})\nPoint: {point_c}\nExpected distance: {expected_distance}"
+        )
+
+        assert math.isclose(
+            LineSegment(
+                Vector.from_point(point_a), Vector.from_point(point_b)
+            ).distance_to_point(Vector.from_point(point_c)),
+            expected_distance,
+        )
+
+
 class TestVectorClass(object):
 
     def test_init(self):

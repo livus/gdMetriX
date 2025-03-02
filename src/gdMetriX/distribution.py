@@ -460,31 +460,12 @@ def _closest_pair_recursion(x_sorted, y_sorted):
 
 
 def _edge_node_distance(edge: Tuple[object, object], node: object, pos) -> float:
-    return _get_distance_between_edge_and_node(pos[edge[0]], pos[edge[1]], pos[node])
-
-
-def _get_distance_between_edge_and_node(edge_pos_a, edge_pos_b, node_pos) -> float:
-    # TODO replace with common.LineSegment.distance_to_point()
-    def _distance(point_a, point_b):
-        return np.linalg.norm(point_a - point_b)
-
-    a_pos, b_pos = np.asarray(edge_pos_a), np.asarray(edge_pos_b)
-    n_pos = np.asarray(node_pos)
-
-    v_ab = b_pos - a_pos
-    v_bn = n_pos - b_pos
-    v_an = n_pos - a_pos
-    v_na = a_pos - n_pos
-
-    if np.linalg.norm(v_ab) == 0 or np.dot(v_ab, v_bn) > 0:
-        # Node is closer to endpoint b
-        return _distance(n_pos, b_pos)
-    if np.dot(v_ab, v_an) < 0:
-        # Node is closer to endpoint a
-        return _distance(n_pos, a_pos)
-
-    # Node is closer to edge itself -> return distance to line
-    return np.abs(np.cross(v_ab, v_na) / np.linalg.norm(v_ab))
+    return common.LineSegment(
+        Vector.from_point(pos[edge[0]]),
+        Vector.from_point(pos[edge[1]])
+    ).distance_to_point(
+        Vector.from_point(pos[node])
+    )
 
 
 def closest_pair_of_elements(
@@ -512,11 +493,12 @@ def closest_pair_of_elements(
         if len(crossing_list) > 0:
             first_crossing = crossing_list[0]
             return (
-                first_crossing.involved_edges[0],
-                first_crossing.involved_edges[1],
+                first_crossing.involved_edges.pop(),
+                first_crossing.involved_edges.pop(),
                 0.0,
             )
 
+    # TODO implement sweep line approach
     for edge in g.edges():
         for node in g.nodes():
             if node in edge:

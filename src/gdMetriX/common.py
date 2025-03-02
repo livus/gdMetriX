@@ -202,6 +202,8 @@ class Vector:
         return math.sqrt(self.x**2 + self.y**2)
 
     def __eq__(self, other: Vector) -> bool:
+        if not isinstance(other, Vector):
+            return False
         return self.x == other.x and self.y == other.y
 
     def __hash__(self):
@@ -223,14 +225,37 @@ class Vector:
 
 
 class LineSegment:
-    #TODO go through the code and check where this can be used for
+    """
+    A tuple of vectors representing a line segment.
+    """
 
     def __init__(self, start: Vector, end: Vector):
         self.start = start
         self.end = end
 
-    def distance_to_point(self, point: Vector):
-        #TODO unit test
+    def __eq__(self, other: LineSegment) -> bool:
+        if not isinstance(other, LineSegment):
+            return False
+        return self.start == other.start and self.end == other.end
+
+    def __hash__(self):
+        return hash((self.start, self.end))
+
+    def __str__(self):
+        return f"LineSegment({self.start}->{self.end})"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def distance_to_point(self, point: Vector) -> float:
+        """
+        Returns the distance between the line segment and the given point. If the point lies on the line segment,
+        the distance is zero.
+        :param point: Point to measure the distance towards.
+        :type point: gdMetriX.Vector
+        :return: Distance to the given point
+        :rtype: float
+        """
 
         v_ab = self.end - self.start
         v_bn = point - self.end
