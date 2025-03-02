@@ -1,4 +1,21 @@
-# gdMetriX
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://livus.github.io/gdMetriX/_static/logo_dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://livus.github.io/gdMetriX/_static/logo.svg">
+  <img src="https://livus.github.io/gdMetriX/_static/logo.svg" alt="gdMetriX">
+</picture>
+
+
+[![PyPI](https://img.shields.io/pypi/v/gdMetriX.svg)](https://pypi.org/project/gdMetriX/)
+![Python](https://img.shields.io/pypi/pyversions/gdMetriX.svg)
+[![NumPy](https://img.shields.io/badge/works%20with-networkX-013243?logo=python)](https://github.com/networkx/networkx)
+![Downloads](https://img.shields.io/pypi/dm/gdMetriX)
+![Coverage](https://codecov.io/gh/livus/gdMetriX/branch/main/graph/badge.svg)
+![License](https://img.shields.io/github/license/livus/gdMetriX.svg)
+[![GitHub Pages](https://img.shields.io/badge/docs-github.io-blue.svg)](https://livus.github.io/gdMetriX/)
+[![Paper](https://img.shields.io/badge/DOI-10.4230%2FLIPIcs.GD.2024.45-blue)](https://doi.org/10.4230/LIPIcs.GD.2024.45)
+![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+
 
 gdMetriX is an extension to [networkX](https://github.com/networkx/networkx) providing commonly used quality measures in
 graph drawing as well as access to some datasets used previously for evaluating graph embedding algorithms.
@@ -96,3 +113,9 @@ To iterate over all graphs of a given dataset, simply call :func:`get_list_of_gr
 ## License
 
 The project is distributed under the GNU General Public License Version 3.
+
+
+## Citing
+
+If you find this project useful for your work, consider citing the corresponding
+[Dagstuhl publication](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.GD.2024.45>).
