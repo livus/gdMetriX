@@ -847,6 +847,7 @@ def even_neighborhood_distribution(
         return 1
 
     total_distance = 0
+    total_nodes = 0
     for i in g.nodes():
         w_i = [pos[neighbor] for neighbor in g[i]]
         w_i.append(pos[i])
@@ -854,8 +855,13 @@ def even_neighborhood_distribution(
         if len(w_i) <= 2:
             continue
 
+        total_nodes += 1
+
         center, radius = smallest_enclosing_circle_from_point_set(w_i)
         barycenter = common.barycenter(w_i)
         total_distance += center.distance(barycenter) / radius
 
-    return 1 - (total_distance / g.order())
+    if total_nodes == 0:
+        return 1
+
+    return 1 - (total_distance / total_nodes)

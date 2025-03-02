@@ -43,7 +43,7 @@ class TestEvenNeighborhoodDistribution(unittest.TestCase):
         g.add_node(1, pos=(123, -45))
         symmetry = sym.even_neighborhood_distribution(g)
         print(symmetry)
-        assert symmetry == 1
+        assert symmetry == pytest.approx(1)
 
     def test_single_edge(self):
         g = nx.Graph()
@@ -52,7 +52,7 @@ class TestEvenNeighborhoodDistribution(unittest.TestCase):
         g.add_edge(1, 2)
         symmetry = sym.even_neighborhood_distribution(g)
         print(symmetry)
-        assert symmetry == 1
+        assert symmetry == pytest.approx(1)
 
     def test_star(self):
         g = nx.Graph()
@@ -64,7 +64,19 @@ class TestEvenNeighborhoodDistribution(unittest.TestCase):
 
         symmetry = sym.even_neighborhood_distribution(g)
         print(symmetry)
-        assert symmetry == 1
+        assert symmetry == pytest.approx(1)
+
+    def test_rectangle(self):
+        g = nx.Graph()
+        g.add_node(1, pos=(0, 0))
+        g.add_node(2, pos=(0, 1))
+        g.add_node(3, pos=(1, 1))
+        g.add_node(4, pos=(1, 0))
+        g.add_edges_from([(1, 2), (2, 3), (3, 4), (4, 1)])
+
+        symmetry = sym.even_neighborhood_distribution(g)
+        print(symmetry)
+        assert symmetry == pytest.approx(1 - (1 / 3))
 
     def test_odd_star(self):
         g = nx.Graph()
@@ -80,6 +92,20 @@ class TestEvenNeighborhoodDistribution(unittest.TestCase):
         symmetry = sym.even_neighborhood_distribution(g)
         print(symmetry)
         assert symmetry == pytest.approx(1 - (1 / 6) / math.sqrt(2))
+
+    def test_degree_one_vertices(self):
+        g = nx.Graph()
+        g.add_node(1, pos=(1.4, 2.7))
+        g.add_node(2, pos=(4, 2))
+        g.add_node(3, pos=(-1, 5))
+        g.add_node(4, pos=(1, -5))
+        g.add_node(5, pos=(0, 0))
+        g.add_node(6, pos=(12, -12389))
+        g.add_edges_from([(1, 2), (3, 4), (5, 6)])
+
+        symmetry = sym.even_neighborhood_distribution(g)
+        print(symmetry)
+        assert symmetry == pytest.approx(1)
 
     def test_random_graph_in_range(self):
         random.seed(45345)
