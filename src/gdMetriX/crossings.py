@@ -52,6 +52,7 @@ from typing import List, Optional, Tuple, Union, Set, Dict
 
 import networkx as nx
 from shapely.geometry import LineString
+from bisect import bisect_left
 
 from gdMetriX import crossingDataTypes, common, edge_directions, boundary
 from gdMetriX.common import Numeric
@@ -309,19 +310,17 @@ def get_crossings(
             return
         c.involved_edges = filtered_edges
 
-        # TODO replace with O(log n search)!!!
-        # If we can guarantee the crossings are inserted in order, it might even be enough to just check the last
-        # element
-        for index, existing_crossing in enumerate(crossings):
-            if existing_crossing.pos == c.pos:
-                existing_crossing.involved_edges |= c.involved_edges
+        index = bisect_left(crossings, c)
+
+        if index < len(crossings):
+            if crossings[index].pos == c.pos:
+                crossings[index].involved_edges |= c.involved_edges
+                return
+            if crossings[index-1].pos == c.pos:
+                crossings[index-1].involved_edges |= c.involved_edges
                 return
 
-            if existing_crossing.pos < c.pos:
-                crossings.insert(index, c)
-                return
-
-        crossings.append(c)
+        crossings.insert(index, c)
 
     def __get_extreme_edges__(
         edges: Set[SweepLineEdgeInfo], y: Numeric
