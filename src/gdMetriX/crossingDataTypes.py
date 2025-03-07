@@ -62,7 +62,7 @@ class CrossingPoint(Vector):
     def __eq__(self, other: Vector):
         if other is None or not isinstance(other, CrossingPoint):
             return False
-        return __numeric_eq__(self.distance(other), 0)
+        return _numeric_eq(self.distance(other), 0)
 
     @staticmethod
     def from_point(pos: Tuple[Numeric, Numeric]) -> Self:
@@ -71,8 +71,8 @@ class CrossingPoint(Vector):
 
     def __lt__(self, other):
         if isinstance(other, CrossingPoint):
-            return __greater_than__(self.y, other.y) or (
-                __numeric_eq__(self.y, other.y) and __greater_than__(other.x, self.x)
+            return _greater_than(self.y, other.y) or (
+                    _numeric_eq(self.y, other.y) and _greater_than(other.x, self.x)
             )
         if isinstance(other, CrossingLine):
             return True
@@ -114,14 +114,14 @@ class CrossingLine(LineSegment):
         return f"Line({self.start}, {self.end})"
 
 
-def __greater_than__(a: float, b: float) -> bool:
-    if __numeric_eq__(a, b):
+def _greater_than(a: float, b: float) -> bool:
+    if _numeric_eq(a, b):
         return False
 
     return a > b
 
 
-def __numeric_eq__(a: Numeric, b: Numeric) -> bool:
+def _numeric_eq(a: Numeric, b: Numeric) -> bool:
     return math.isclose(a, b, abs_tol=PRECISION)
 
 
@@ -228,11 +228,11 @@ class ParameterizedBalancedBinarySearchTree:
 
     def __init__(self):
         self.root = None
-        self.__length__ = 0
+        self._length = 0
 
-    def __update_height__(self, root):
+    def _update_height(self, root):
         root.height = 1 + max(
-            self.__get_height__(root.left), self.__get_height__(root.right)
+            self._get_height(root.left), self._get_height(root.right)
         )
 
     def insert(self, item: SortableObject, key_parameter: object) -> None:
@@ -246,41 +246,41 @@ class ParameterizedBalancedBinarySearchTree:
         :rtype: None
         """
 
-        def __insert__(root: BBTNode) -> BBTNode:
+        def _insert_recursive(root: BBTNode) -> BBTNode:
 
             if root is None:
                 root = BBTNode(item)
                 return root
 
             if root.content.less_than(item, key_parameter):
-                root.right = __insert__(root.right)
+                root.right = _insert_recursive(root.right)
             else:
-                root.left = __insert__(root.left)
+                root.left = _insert_recursive(root.left)
 
-            self.__update_height__(root)
+            self._update_height(root)
 
-            balance = self.__get_balance__(root)
+            balance = self._get_balance(root)
             if balance > 1:
                 # Tree is unbalanced with longer side on the left
 
                 if not root.left.content.less_than(item, key_parameter):
-                    return self.__right_rotate__(root)
-                root.left = self.__left_rotate__(root.left)
-                return self.__right_rotate__(root)
+                    return self._right_rotate(root)
+                root.left = self._left_rotate(root.left)
+                return self._right_rotate(root)
             if balance < -1:
                 # Tree is unbalanced with longer side on the right
 
                 if root.right.content.less_than(item, key_parameter):
-                    return self.__left_rotate__(root)
-                root.right = self.__right_rotate__(root.right)
-                return self.__left_rotate__(root)
+                    return self._left_rotate(root)
+                root.right = self._right_rotate(root.right)
+                return self._left_rotate(root)
 
             return root
 
-        self.root = __insert__(self.root)
-        self.__length__ += 1
+        self.root = _insert_recursive(self.root)
+        self._length += 1
 
-    def __left_rotate__(self, node: BBTNode) -> BBTNode:
+    def _left_rotate(self, node: BBTNode) -> BBTNode:
         old_right = node.right
         old_left = old_right.left
 
@@ -290,15 +290,15 @@ class ParameterizedBalancedBinarySearchTree:
 
         # Update changed heights
         node.height = 1 + max(
-            self.__get_height__(node.left), self.__get_height__(node.right)
+            self._get_height(node.left), self._get_height(node.right)
         )
         old_right.height = 1 + max(
-            self.__get_height__(old_right.left), self.__get_height__(old_right.right)
+            self._get_height(old_right.left), self._get_height(old_right.right)
         )
 
         return old_right
 
-    def __right_rotate__(self, node: BBTNode) -> BBTNode:
+    def _right_rotate(self, node: BBTNode) -> BBTNode:
         old_left = node.left
         old_right = old_left.right
 
@@ -308,24 +308,24 @@ class ParameterizedBalancedBinarySearchTree:
 
         # Update changed heights
         node.height = 1 + max(
-            self.__get_height__(node.left), self.__get_height__(node.right)
+            self._get_height(node.left), self._get_height(node.right)
         )
         old_left.height = 1 + max(
-            self.__get_height__(old_left.left), self.__get_height__(old_left.right)
+            self._get_height(old_left.left), self._get_height(old_left.right)
         )
 
         return old_left
 
     @staticmethod
-    def __get_height__(root):
+    def _get_height(root):
         if root is None:
             return 0
         return root.height
 
-    def __get_balance__(self, root):
+    def _get_balance(self, root):
         if root is None:
             return 0
-        return self.__get_height__(root.left) - self.__get_height__(root.right)
+        return self._get_height(root.left) - self._get_height(root.right)
 
     def get_left(
         self, key_value: Numeric, key_parameter: object
@@ -341,16 +341,16 @@ class ParameterizedBalancedBinarySearchTree:
         :rtype: Optional[object]
         """
 
-        def __get_left__(root) -> Optional[BBTNode]:
+        def _get_left_recursive(root) -> Optional[BBTNode]:
 
             if root is None:
                 return None
 
             # Get candidate from children
             if root.content.less_than_key(key_value, key_parameter):
-                candidate = __get_left__(root.right)
+                candidate = _get_left_recursive(root.right)
             else:
-                candidate = __get_left__(root.left)
+                candidate = _get_left_recursive(root.left)
 
             # Check if current root is a better candidate
             if root.content.less_than_key(key_value, key_parameter):
@@ -361,7 +361,7 @@ class ParameterizedBalancedBinarySearchTree:
 
             return candidate
 
-        left_node = __get_left__(self.root)
+        left_node = _get_left_recursive(self.root)
         return None if left_node is None else left_node.content
 
     def get_right(
@@ -378,16 +378,16 @@ class ParameterizedBalancedBinarySearchTree:
         :rtype: Optional[object]
         """
 
-        def __get_right__(root: BBTNode) -> Optional[BBTNode]:
+        def _get_right_recursive(root: BBTNode) -> Optional[BBTNode]:
 
             if root is None:
                 return None
 
             # Get candidate from children
             if not root.content.greater_than_key(key_value, key_parameter):
-                candidate = __get_right__(root.right)
+                candidate = _get_right_recursive(root.right)
             else:
-                candidate = __get_right__(root.left)
+                candidate = _get_right_recursive(root.left)
 
             # Check if current root is a better candidate
             if root.content.greater_than_key(key_value, key_parameter):
@@ -398,13 +398,13 @@ class ParameterizedBalancedBinarySearchTree:
 
             return candidate
 
-        right_node = __get_right__(self.root)
+        right_node = _get_right_recursive(self.root)
         return None if right_node is None else right_node.content
 
-    def __get_min__(self, root: BBTNode) -> Optional[BBTNode]:
+    def _get_min(self, root: BBTNode) -> Optional[BBTNode]:
         if root is None or root.left is None:
             return root
-        return self.__get_min__(root.left)
+        return self._get_min(root.left)
 
     def get_min(self) -> Optional[SortableObject]:
         """
@@ -413,7 +413,7 @@ class ParameterizedBalancedBinarySearchTree:
         :rtype: Optional[SortableObject]
         """
 
-        min_element = self.__get_min__(self.root)
+        min_element = self._get_min(self.root)
         if min_element is None:
             return None
         return min_element.content
@@ -430,7 +430,7 @@ class ParameterizedBalancedBinarySearchTree:
         """
         found_item = False
 
-        def __remove__(root: BBTNode, value: object) -> Optional[BBTNode]:
+        def _remove_recursive(root: BBTNode, value: object) -> Optional[BBTNode]:
             nonlocal found_item
 
             if root is None:
@@ -447,51 +447,51 @@ class ParameterizedBalancedBinarySearchTree:
                     return root.left
 
                 # Move min up and delete min down the road
-                temp = self.__get_min__(root.right)
+                temp = self._get_min(root.right)
                 root.content = temp.content
-                root.right = __remove__(root.right, temp.content)
+                root.right = _remove_recursive(root.right, temp.content)
             else:
                 if not root.content.less_than(value, key_parameter):
-                    root.left = __remove__(root.left, value)
+                    root.left = _remove_recursive(root.left, value)
                 else:
-                    root.right = __remove__(root.right, value)
+                    root.right = _remove_recursive(root.right, value)
 
-            self.__update_height__(root)
+            self._update_height(root)
 
             # Rebalancing
-            balance = self.__get_balance__(root)
+            balance = self._get_balance(root)
 
             if balance > 1:
-                if self.__get_balance__(root.left) >= 0:
-                    return self.__right_rotate__(root)
-                root.left = self.__left_rotate__(root.left)
-                return self.__right_rotate__(root)
+                if self._get_balance(root.left) >= 0:
+                    return self._right_rotate(root)
+                root.left = self._left_rotate(root.left)
+                return self._right_rotate(root)
             if balance < -1:
-                if self.__get_balance__(root.right) <= 0:
-                    return self.__left_rotate__(root)
-                root.right = self.__right_rotate__(root.right)
-                return self.__left_rotate__(root)
+                if self._get_balance(root.right) <= 0:
+                    return self._left_rotate(root)
+                root.right = self._right_rotate(root.right)
+                return self._left_rotate(root)
 
             return root
 
         if found_item:
-            self.__length__ -= 1
+            self._length -= 1
 
-        self.root = __remove__(self.root, item)
+        self.root = _remove_recursive(self.root, item)
 
     def __len__(self) -> int:
-        return self.__length__
+        return self._length
 
     def __iter__(self):
-        def __list__(root):
+        def _list_recursive(root):
             if root is None:
                 return
 
-            yield from __list__(root.left)
+            yield from _list_recursive(root.left)
             yield root.content
-            yield from __list__(root.right)
+            yield from _list_recursive(root.right)
 
-        yield from __list__(self.root)
+        yield from _list_recursive(self.root)
 
     def find(
         self, item: SortableObject, key_parameter: object
@@ -507,7 +507,7 @@ class ParameterizedBalancedBinarySearchTree:
         :rtype: Optional[SortableObject]
         """
 
-        def __find__(root):
+        def _find_recursive(root):
 
             if root is None:
                 return None
@@ -515,10 +515,10 @@ class ParameterizedBalancedBinarySearchTree:
             if root.content == item:
                 return root
             if root.content.less_than(item, key_parameter):
-                return __find__(root.right)
-            return __find__(root.left)
+                return _find_recursive(root.right)
+            return _find_recursive(root.left)
 
-        found_item = __find__(self.root)
+        found_item = _find_recursive(self.root)
         return None if found_item is None else found_item.content
 
     def get_range(
@@ -537,13 +537,13 @@ class ParameterizedBalancedBinarySearchTree:
         """
 
         def _range_overlaps(current_start, current_end) -> bool:
-            if __greater_than__(current_start, current_end):
+            if _greater_than(current_start, current_end):
                 return False
-            return not __greater_than__(
+            return not _greater_than(
                 start_key, current_end
-            ) and not __greater_than__(current_start, end_key)
+            ) and not _greater_than(current_start, end_key)
 
-        def __get_range__(
+        def _get_range_recursive(
             root: BBTNode, current_start, current_end
         ) -> Iterable[SortableObject]:
             if root is None:
@@ -556,7 +556,7 @@ class ParameterizedBalancedBinarySearchTree:
                 new_end = min(current_end, root_key)
 
                 if _range_overlaps(new_start, new_end):
-                    yield from __get_range__(root.left, new_start, new_end)
+                    yield from _get_range_recursive(root.left, new_start, new_end)
 
             if not root.content.less_than_key(
                 start_key, key_parameter
@@ -568,9 +568,9 @@ class ParameterizedBalancedBinarySearchTree:
                 new_end = current_end
 
                 if _range_overlaps(new_start, new_end):
-                    yield from __get_range__(root.right, new_start, new_end)
+                    yield from _get_range_recursive(root.right, new_start, new_end)
 
-        yield from __get_range__(self.root, start_key, end_key)
+        yield from _get_range_recursive(self.root, start_key, end_key)
 
     def empty(self):
         """
@@ -636,29 +636,29 @@ class SweepLineEdgeInfo(SortableObject):
     # region Implementation of SortableObject
 
     def less_than(self, other: Self, key_parameter: Numeric):
-        x_self = __get_x_at_y__(self, key_parameter)
-        x_other = __get_x_at_y__(other, key_parameter)
+        x_self = _get_x_at_y(self, key_parameter)
+        x_other = _get_x_at_y(other, key_parameter)
 
-        if __numeric_eq__(x_self, x_other):
+        if _numeric_eq(x_self, x_other):
             lower_end = min(self.end_position.y, other.end_position.y)
             key_parameter = min(key_parameter - _get_precision(), lower_end)
 
-            x_self = __get_x_at_y__(self, key_parameter)
-            x_other = __get_x_at_y__(other, key_parameter)
+            x_self = _get_x_at_y(self, key_parameter)
+            x_other = _get_x_at_y(other, key_parameter)
 
-        return __greater_than__(x_other, x_self)
+        return _greater_than(x_other, x_self)
 
     def less_than_key(self, key: Numeric, y: Numeric):
-        x_self = __get_x_at_y__(self, y)
+        x_self = _get_x_at_y(self, y)
 
-        return __greater_than__(key, x_self)
+        return _greater_than(key, x_self)
 
     def greater_than_key(self, key: Numeric, y: Numeric):
-        x_self = __get_x_at_y__(self, y)
-        return __greater_than__(x_self, key)
+        x_self = _get_x_at_y(self, y)
+        return _greater_than(x_self, key)
 
     def get_key(self, key_parameter: Numeric) -> Numeric:
-        return __get_x_at_y__(self, key_parameter)
+        return _get_x_at_y(self, key_parameter)
 
     # endregion
 
@@ -686,9 +686,9 @@ class SweepLineEdgeInfo(SortableObject):
         :return:
         :rtype:
         """
-        return __numeric_eq__(
+        return _numeric_eq(
             self.start_position.y, self.end_position.y
-        ) and not __numeric_eq__(self.start_position.x, self.end_position.x)
+        ) and not _numeric_eq(self.start_position.x, self.end_position.x)
 
     def share_endpoint(self, other) -> bool:
         """
@@ -762,12 +762,12 @@ class EventQueue:
         :param edge_info:
         :type edge_info:
         """
-        self.__add(
+        self._add(
             edge_info.start_position,
             edge_info,
             EventType.HORIZONTAL if edge_info.is_horizontal() else EventType.START,
         )
-        self.__add(
+        self._add(
             edge_info.end_position,
             edge_info,
             EventType.HORIZONTAL if edge_info.is_horizontal() else EventType.END,
@@ -791,9 +791,9 @@ class EventQueue:
         for edge in edge_list:
             # If the edge only crosses in an endpoint, it will not be added as an "interior point"
             if crossing not in (edge.start_position, edge.end_position):
-                self.__add(crossing, edge, EventType.CROSSING)
+                self._add(crossing, edge, EventType.CROSSING)
 
-    def __add(
+    def _add(
         self, point: CrossingPoint, edge_info: SweepLineEdgeInfo, event_type: EventType
     ) -> None:
 
@@ -826,13 +826,13 @@ class EventQueue:
         return self.sorted_list.pop()
 
 
-def __get_x_at_y__(edge_info: SweepLineEdgeInfo, y: Numeric):
+def _get_x_at_y(edge_info: SweepLineEdgeInfo, y: Numeric):
     start = edge_info.start_position
     end = edge_info.end_position
 
-    if __numeric_eq__(start.x, end.x):
+    if _numeric_eq(start.x, end.x):
         return start.x
-    if __numeric_eq__(end.y - start.y, 0):
+    if _numeric_eq(end.y - start.y, 0):
         return min(start.x, end.x)
 
     m = (end.y - start.y) / (end.x - start.x)
