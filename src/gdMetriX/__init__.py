@@ -49,6 +49,7 @@ from gdMetriX.distribution import (
     horizontal_balance,
     node_orthogonality,
     vertical_balance,
+    smallest_enclosing_circle,
 )
 from gdMetriX.edge_directions import (
     angular_resolution,

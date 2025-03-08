@@ -54,9 +54,9 @@ import networkx as nx
 from shapely.geometry import LineString
 from bisect import bisect_left
 
-from gdMetriX import crossingDataTypes, common, edge_directions, boundary
+from gdMetriX import crossing_data_types, common, edge_directions, boundary
 from gdMetriX.common import Numeric
-from gdMetriX.crossingDataTypes import (
+from gdMetriX.crossing_data_types import (
     EventQueue,
     SweepLineEdgeInfo,
     SweepLineStatus,
@@ -98,13 +98,13 @@ def _check_lines(
             distance_b_sta = line_seg_a.distance_to_point(line_b.start_position)
             distance_b_end = line_seg_a.distance_to_point(line_b.end_position)
 
-            if crossingDataTypes._numeric_eq(distance_a_sta, 0.0):
+            if crossing_data_types._numeric_eq(distance_a_sta, 0.0):
                 return CrossingPoint(line_a.start_position[0], line_a.start_position[1])
-            if crossingDataTypes._numeric_eq(distance_a_end, 0.0):
+            if crossing_data_types._numeric_eq(distance_a_end, 0.0):
                 return CrossingPoint(line_a.end_position[0], line_a.end_position[1])
-            if crossingDataTypes._numeric_eq(distance_b_sta, 0.0):
+            if crossing_data_types._numeric_eq(distance_b_sta, 0.0):
                 return CrossingPoint(line_b.start_position[0], line_b.start_position[1])
-            if crossingDataTypes._numeric_eq(distance_b_end, 0.0):
+            if crossing_data_types._numeric_eq(distance_b_end, 0.0):
                 return CrossingPoint(line_b.end_position[0], line_b.end_position[1])
 
     return None
@@ -148,16 +148,16 @@ def get_crossings_quadratic(
     :rtype: List[Crossing]
     """
 
-    crossingDataTypes.set_precision(precision)
+    crossing_data_types.set_precision(precision)
     node_positions = _convert_to_crossing_points(g, pos)
     crossings = []
 
     for edge1, edge2 in itertools.combinations(g.edges(), 2):
         crossing_point = _check_lines(
-            crossingDataTypes.SweepLineEdgeInfo(
+            crossing_data_types.SweepLineEdgeInfo(
                 edge1, node_positions[edge1[0]], node_positions[edge1[1]]
             ),
-            crossingDataTypes.SweepLineEdgeInfo(
+            crossing_data_types.SweepLineEdgeInfo(
                 edge2, node_positions[edge2[0]], node_positions[edge2[1]]
             ),
         )
@@ -289,7 +289,7 @@ def get_crossings(
     :rtype: List[Crossing]
     """
 
-    crossingDataTypes.set_precision(precision)
+    crossing_data_types.set_precision(precision)
 
     node_positions = _convert_to_crossing_points(g, pos)
 
@@ -331,7 +331,7 @@ def get_crossings(
         biggest_edge = None
 
         for e in edges:
-            x = crossingDataTypes._get_x_at_y(e, y)
+            x = crossing_data_types._get_x_at_y(e, y)
             if x <= smallest_x:
                 smallest_x = x
                 smallest_edge = e
@@ -347,7 +347,7 @@ def get_crossings(
     ) -> None:
         potential_crossing_point = _check_lines(e1, e2)
         if potential_crossing_point is not None and not isinstance(
-            potential_crossing_point, crossingDataTypes.CrossingLine
+            potential_crossing_point, crossing_data_types.CrossingLine
         ):
             # Crossing lines (i.e. overlapping edges) are checked separately,
             # which is why we skip them here
@@ -378,7 +378,7 @@ def get_crossings(
 
     while (current_event_point := queue.pop()) is not None:
 
-        if previous_y is not None and not crossingDataTypes._numeric_eq(
+        if previous_y is not None and not crossing_data_types._numeric_eq(
             current_event_point.position.y, previous_y
         ):
             horizontal_edges = []
@@ -412,7 +412,7 @@ def get_crossings(
             if not edge.is_horizontal():
                 sweep_line_status.remove(previous_y, edge)
                 sweep_line_status.add(
-                    current_event_point.position.y - crossingDataTypes.PRECISION, edge
+                    current_event_point.position.y - crossing_data_types.PRECISION, edge
                 )
 
         left_edge = sweep_line_status.get_left(current_event_point)
@@ -442,7 +442,7 @@ def get_crossings(
             )
             leftmost, rightmost = _get_extreme_edges(
                 union,
-                current_event_point.position.y - 100 * crossingDataTypes.PRECISION,
+                current_event_point.position.y - 100 * crossing_data_types.PRECISION,
             )
 
             _append_crossing(
@@ -482,13 +482,13 @@ def get_crossings(
         if len(current_event_point.start_list) > 0:
             candidates_sorted = sorted(
                 edges_at_crossing,
-                key=lambda e: crossingDataTypes._get_x_at_y(
+                key=lambda e: crossing_data_types._get_x_at_y(
                     e, current_event_point.position.y - height
                 ),
             )
             start_sorted = sorted(
                 current_event_point.start_list,
-                key=lambda e: crossingDataTypes._get_x_at_y(
+                key=lambda e: crossing_data_types._get_x_at_y(
                     e, current_event_point.position.y - height
                 ),
             )
@@ -550,9 +550,9 @@ def get_crossings(
                         index_candidate += 1
                     elif index_candidate == len(candidates_sorted):
                         index_start += 1
-                    elif crossingDataTypes._get_x_at_y(
+                    elif crossing_data_types._get_x_at_y(
                         start_sorted[index_start], current_event_point.position.y - 1000
-                    ) < crossingDataTypes._get_x_at_y(
+                    ) < crossing_data_types._get_x_at_y(
                         candidates_sorted[index_candidate],
                         current_event_point.position.y - 1000,
                     ):
@@ -590,7 +590,7 @@ def get_crossings(
             # it in the sweepline further down
             if not edge_info.start_position == edge_info.end_position:
                 sweep_line_status.add(
-                    current_event_point.position.y - crossingDataTypes.PRECISION,
+                    current_event_point.position.y - crossing_data_types.PRECISION,
                     edge_info,
                 )
 
@@ -747,6 +747,7 @@ def crossing_angular_resolution(
     pos: Union[str, dict, None] = None,
     include_node_crossings: bool = False,
 ) -> float:
+    # TODO what about crossing lines? Add unit tests
     """
     Returns the deviation from the optimal angle between two edges at crossing points similar to
     :func:`edge_directions.angular_resolution`.
@@ -766,6 +767,7 @@ def crossing_angular_resolution(
     pos = common.get_node_positions(g, pos)
 
     deviation_sum = 0
+    # TODO add boolean flag to choose algorithm
     crs = get_crossings_quadratic(g, pos, include_node_crossings)
 
     if len(crs) == 0:
