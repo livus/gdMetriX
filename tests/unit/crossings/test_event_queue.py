@@ -21,8 +21,8 @@ Unit tests for the event queue data structure used in the crossing detection alg
 import random
 import unittest
 
-from gdMetriX import crossingDataTypes
-from gdMetriX.crossingDataTypes import (
+from gdMetriX import crossing_data_types
+from gdMetriX.crossing_data_types import (
     EventQueue,
     SweepLineEdgeInfo,
     SweepLinePoint,
@@ -346,7 +346,7 @@ class TestEventQueue(unittest.TestCase):
                 assert prev_y > item.position.y or (
                     prev_y == item.position.y and item.position.x >= prev_x
                 )
-            assert -1 <= queue.sorted_list.__get_balance__(queue.sorted_list.root) <= 1
+            assert -1 <= queue.sorted_list._get_balance(queue.sorted_list.root) <= 1
             count += 1
             prev_x, prev_y = item.position.x, item.position.y
             item = queue.pop()
@@ -354,7 +354,7 @@ class TestEventQueue(unittest.TestCase):
         assert count == (width + 1) * (height + 1) - 2
 
     def test_close_points_are_grouped(self):
-        crossingDataTypes.set_precision(0.001)
+        crossing_data_types.set_precision(0.001)
         queue = EventQueue()
 
         edge_list_for_crossing = [
@@ -367,10 +367,10 @@ class TestEventQueue(unittest.TestCase):
 
         assert len(queue) == 1
 
-        crossingDataTypes.set_precision(1e-09)
+        crossing_data_types.set_precision(1e-09)
 
     def test_close_points_are_grouped_2(self):
-        crossingDataTypes.set_precision(0.00142)
+        crossing_data_types.set_precision(0.00142)
         queue = EventQueue()
 
         edge_list_for_crossing = [
@@ -383,10 +383,10 @@ class TestEventQueue(unittest.TestCase):
 
         assert len(queue) == 1
 
-        crossingDataTypes.set_precision(1e-09)
+        crossing_data_types.set_precision(1e-09)
 
     def test_close_points_are_grouped_3(self):
-        crossingDataTypes.set_precision(0.001)
+        crossing_data_types.set_precision(0.001)
         queue = EventQueue()
 
         queue.add_edge(
@@ -398,10 +398,10 @@ class TestEventQueue(unittest.TestCase):
 
         assert len(queue) == 2
 
-        crossingDataTypes.set_precision(1e-09)
+        crossing_data_types.set_precision(1e-09)
 
     def test_close_points_are_grouped_4(self):
-        crossingDataTypes.set_precision(0.00142)
+        crossing_data_types.set_precision(0.00142)
         queue = EventQueue()
 
         queue.add_edge(
@@ -415,4 +415,4 @@ class TestEventQueue(unittest.TestCase):
 
         assert len(queue) == 2
 
-        crossingDataTypes.set_precision(1e-09)
+        crossing_data_types.set_precision(1e-09)

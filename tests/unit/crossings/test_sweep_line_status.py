@@ -21,8 +21,8 @@ Unit tests for the sweep line data structure used in the crossing detection algo
 import random
 import unittest
 
-from gdMetriX import crossingDataTypes
-from gdMetriX.crossingDataTypes import (
+from gdMetriX import crossing_data_types
+from gdMetriX.crossing_data_types import (
     SweepLineStatus,
     SweepLineEdgeInfo,
     SweepLinePoint,
@@ -374,9 +374,9 @@ class TestSweepLineStatus(unittest.TestCase):
             )
             s.add(0, edge)
 
-            if not crossingDataTypes.__greater_than__(
+            if not crossing_data_types._greater_than(
                 range_query[0], x
-            ) and not crossingDataTypes.__greater_than__(x, range_query[1]):
+            ) and not crossing_data_types._greater_than(x, range_query[1]):
                 count += 1
 
         result = list(s.get_range(0, range_query[0], range_query[1]))
@@ -399,9 +399,9 @@ class TestSweepLineStatus(unittest.TestCase):
             )
             s.add(0, edge)
 
-            if not crossingDataTypes.__greater_than__(
+            if not crossing_data_types._greater_than(
                 range_query[0], x
-            ) and not crossingDataTypes.__greater_than__(x, range_query[1]):
+            ) and not crossing_data_types._greater_than(x, range_query[1]):
                 count += 1
 
         result = list(s.get_range(0, range_query[0], range_query[1]))

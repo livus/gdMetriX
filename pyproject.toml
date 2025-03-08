@@ -38,5 +38,12 @@ dependencies = [
     "osfclient>=0.0.5",
     "numpy>=1.24.4",
     "scikit-image>=0.21.0",
-    "matplotlib>=3.7.3"
+    "matplotlib>=3.10"
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-n auto"
+testpaths = [
+    "tests",
 ]

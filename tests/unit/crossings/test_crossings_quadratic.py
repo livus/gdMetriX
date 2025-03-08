@@ -27,7 +27,7 @@ import pytest
 
 import crossing_test_helper
 from gdMetriX import crossings
-from gdMetriX.crossingDataTypes import CrossingPoint, CrossingLine
+from gdMetriX.crossing_data_types import CrossingPoint, CrossingLine
 
 
 def __assert_crossing_equality__(

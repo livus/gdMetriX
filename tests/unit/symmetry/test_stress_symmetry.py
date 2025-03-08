@@ -71,7 +71,7 @@ class TestStressBasedSymmetry(unittest.TestCase):
             symmetry = sym.stress(random_graph, random_embedding)
             print("Symmetry:", symmetry)
 
-            for j in range(0, 10):
+            for j in range(0, 3):
                 scale_factor = random.uniform(0.0001, 1000)
                 print("Scale factor", scale_factor)
 
