@@ -1,6 +1,6 @@
 # gdMetriX
 #
-# Copyright (C) 2024  Martin Nöllenburg, Sebastian Röder, Markus Wallinger
+# Copyright (C) 2025  Martin Nöllenburg, Sebastian Röder, Markus Wallinger
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,9 +17,10 @@
 """
 Unittests for datasets.py
 """
-
-import os
+import itertools
 import unittest
+
+import networkx
 
 # noinspection PyUnresolvedReferences
 import pytest
@@ -30,25 +31,38 @@ import pytest_socket
 from gdMetriX import datasets
 
 
-def __test_graph_list__(graphs):
-    has_elements = False
-    for name, graph in graphs:
-        assert name is not None
-        assert graph is not None
-        assert len(graph.nodes())
-        has_elements = True
+def _test_graph_loaded(graph, test_attributes=False):
+    assert graph is not None
+    assert graph.order() > 0
+    assert len(graph.edges()) > 0
 
-    assert has_elements
+    if test_attributes:
+
+        for attr in networkx.get_edge_attributes(graph, "weight").values():
+            assert attr is None or isinstance(attr, (int, float, complex))
+        for attr in networkx.get_node_attributes(graph, "weight").values():
+            assert attr is None or isinstance(attr, (int, float, complex))
+        for attr in networkx.get_node_attributes(graph, "x").values():
+            assert attr is None or isinstance(attr, (int, float, complex))
+        for attr in networkx.get_node_attributes(graph, "y").values():
+            assert attr is None or isinstance(attr, (int, float, complex))
+        for attr in networkx.get_node_attributes(graph, "pos").values():
+            assert attr is None or (
+                len(attr) == 2
+                and isinstance(attr[0], (int, float, complex))
+                and isinstance(attr[1], (int, float, complex))
+            )
+
+        if len(networkx.get_node_attributes(graph, "x")) > 0 and len(
+            networkx.get_node_attributes(graph, "y")
+        ):
+            assert len(networkx.get_node_attributes(graph, "pos")) > 0
 
 
-class TestBenchmarkDataset(unittest.TestCase):
-
-    # def __init__(self):
-    #    super().__init__()
+class TestDatasetLoading(unittest.TestCase):
 
     @pytest.mark.xdist_group("benchmark_group")
     def test_get_list_of_available_files(self):
-        return
         available_datasets = datasets.get_available_datasets()
         assert len(available_datasets) > 0
 
@@ -58,31 +72,7 @@ class TestBenchmarkDataset(unittest.TestCase):
         assert len(available_datasets) == len(set(available_datasets))
 
     @pytest.mark.xdist_group("benchmark_group")
-    def test_adapt_parameters(self):
-        return
-        available_datasets = datasets.get_available_datasets()
-
-        assert len(available_datasets) > 0
-
-        for dataset_name in available_datasets:
-            print(dataset_name)
-            __test_graph_list__(datasets.iterate_dataset(dataset_name))
-
-    # @pytest.mark.xdist_group("benchmark_group")
-    def test_do_not_adapt_parameters(self):
-        return
-        available_datasets = datasets.get_available_datasets()
-
-        assert len(available_datasets) > 0
-
-        for dataset_name in available_datasets:
-            print(dataset_name)
-            __test_graph_list__(datasets.iterate_dataset(dataset_name))
-
-    @pytest.mark.xdist_group("benchmark_group")
     def test_try_getting_non_existent_dataset(self):
-        return
-
         def _call_non_existent_list():
             for _ in datasets.iterate_dataset("I definitely do not exist"):
                 pass
@@ -90,53 +80,7 @@ class TestBenchmarkDataset(unittest.TestCase):
         self.assertRaises(KeyError, _call_non_existent_list)
 
     @pytest.mark.xdist_group("benchmark_group")
-    def test_clean_cache_same_result(self):
-        return
-        # Make sure it is already preloaded
-        datasets.get_available_datasets()
-
-        available_datasets = datasets.get_available_datasets()
-
-        datasets.clear_cache()
-
-        available_datasets_2 = datasets.get_available_datasets()
-
-        assert available_datasets == available_datasets_2
-
-    @pytest.mark.xdist_group("benchmark_group")
-    def test_clean_cache_empty_folder(self):
-        return
-        datasets.iterate_dataset(datasets.get_available_datasets()[0])
-        assert len(os.listdir(datasets.__get_data_dir__())) > 0
-
-        datasets.clear_cache()
-
-        assert (
-            not datasets.__get_data_dir__().exists()
-            or len(os.listdir(datasets.__get_data_dir__())) == 0
-        )
-
-    @pytest.mark.xdist_group("benchmark_group")
-    def test_get_list_of_graph_fresh_download(self):
-        return
-        datasets.clear_cache()
-        scrape = datasets.iterate_dataset(datasets.get_available_datasets()[0])
-        __test_graph_list__(scrape)
-
-    @pytest.mark.xdist_group("benchmark_group")
-    def test_get_list_of_graph_get_from_cache(self):
-        return
-        datasets.clear_cache()
-
-        first_scrape = datasets.iterate_dataset(datasets.get_available_datasets()[0])
-        __test_graph_list__(first_scrape)
-
-        second_scrape = datasets.iterate_dataset(datasets.get_available_datasets()[0])
-        __test_graph_list__(second_scrape)
-
-    @pytest.mark.xdist_group("benchmark_group")
     def test_disable_sockets_should_not_throw_after_cache(self):
-        return
         pytest_socket.enable_socket()
         datasets.get_available_datasets()
         pytest_socket.disable_socket()
@@ -144,18 +88,164 @@ class TestBenchmarkDataset(unittest.TestCase):
         assert len(available_datasets) > 0
         pytest_socket.enable_socket()
 
+
+class TestDatasetIterateGraphs(unittest.TestCase):
+
     @pytest.mark.xdist_group("benchmark_group")
-    def test_disable_sockets_should_not_throw_after_cache_2(self):
-        return
+    def test_iterate_dataset_adapt_parameters(self):
+        available_datasets = datasets.get_available_datasets()
+        assert len(available_datasets) > 0
+
+        for dataset_name in available_datasets:
+            print(dataset_name)
+            has_elements = False
+            for name, graph in itertools.islice(
+                datasets.iterate_dataset(dataset_name), 5
+            ):
+                assert name is not None
+                assert len(name) > 0
+                _test_graph_loaded(graph, test_attributes=True)
+                has_elements = True
+
+            assert has_elements
+
+    @pytest.mark.xdist_group("benchmark_group")
+    def test_iterate_dataset_do_not_adapt_parameters(self):
+        available_datasets = datasets.get_available_datasets()
+        assert len(available_datasets) > 0
+
+        for dataset_name in available_datasets:
+            print(dataset_name)
+            has_elements = False
+            for name, graph in itertools.islice(
+                datasets.iterate_dataset(dataset_name, adapt_attributes=False), 5
+            ):
+                assert name is not None
+                _test_graph_loaded(graph)
+                has_elements = True
+
+            assert has_elements
+
+    @pytest.mark.xdist_group("benchmark_group")
+    def test_disable_sockets_should_not_throw_after_cache(self):
         pytest_socket.enable_socket()
 
+        dataset_name = datasets.get_available_datasets()[0]
+
         # Make sure all graphs are downloaded from that dataset
-        for _ in datasets.iterate_dataset(datasets.get_available_datasets()[0]):
+        for _ in datasets.iterate_dataset(dataset_name):
             pass
 
         pytest_socket.disable_socket()
 
-        second_scrape = datasets.iterate_dataset(datasets.get_available_datasets()[0])
-        __test_graph_list__(second_scrape)
+        for _, _ in itertools.islice(
+            datasets.iterate_dataset(dataset_name, adapt_attributes=False), 2
+        ):
+            pass
+
+        pytest_socket.enable_socket()
+
+
+class TestAvailableGraphNames(unittest.TestCase):
+
+    @pytest.mark.xdist_group("benchmark_group")
+    def test_existing_dataset(self):
+        dataset_name = datasets.get_available_datasets()[3]
+        graph_names = list(datasets.get_available_graph_names(dataset_name))
+
+        assert graph_names is not None
+        assert len(graph_names) > 0
+
+        for graph_name in graph_names:
+            assert isinstance(graph_name, str)
+            assert len(graph_name) > 0
+
+    @pytest.mark.xdist_group("benchmark_group")
+    def test_non_existent_dataset(self):
+        dataset_name = "I definitely do not exist"
+
+        with pytest.raises(KeyError):
+            list(datasets.get_available_graph_names(dataset_name))
+
+    @pytest.mark.xdist_group("benchmark_group")
+    def test_disable_sockets_should_not_throw_after_cache(self):
+        pytest_socket.enable_socket()
+
+        dataset_name = datasets.get_available_datasets()[3]
+        list(datasets.get_available_graph_names(dataset_name))
+
+        pytest_socket.disable_socket()
+
+        list(datasets.get_available_graph_names(dataset_name))
+
+        pytest_socket.enable_socket()
+
+
+class TestLoadingSpecificGraph(unittest.TestCase):
+
+    @pytest.mark.xdist_group("benchmark_group")
+    def test_existing_dataset_and_graph(self):
+        dataset_name = datasets.get_available_datasets()[2]
+
+        graph_name = None
+        for name in datasets.get_available_graph_names(dataset_name):
+            graph_name = name
+            break
+
+        assert graph_name is not None
+        assert isinstance(graph_name, str)
+        assert len(graph_name) > 0
+
+        graph = datasets.get_specific_graph(
+            dataset_name, graph_name, adapt_attributes=False
+        )
+
+        _test_graph_loaded(graph)
+
+    @pytest.mark.xdist_group("benchmark_group")
+    def test_existing_dataset_and_graph_adapt_attributes(self):
+        dataset_name = datasets.get_available_datasets()[2]
+
+        graph_name = None
+        for name in datasets.get_available_graph_names(dataset_name):
+            graph_name = name
+            break
+
+        assert graph_name is not None
+        assert isinstance(graph_name, str)
+        assert len(graph_name) > 0
+
+        graph = datasets.get_specific_graph(dataset_name, graph_name)
+
+        _test_graph_loaded(graph, True)
+
+    @pytest.mark.xdist_group("benchmark_group")
+    def test_non_existent_database(self):
+        dataset_name = "I definitely do not exist"
+
+        with pytest.raises(KeyError):
+            datasets.get_specific_graph(dataset_name, "graph_name")
+
+    @pytest.mark.xdist_group("benchmark_group")
+    def test_non_existent_graph(self):
+        dataset_name = datasets.get_available_datasets()[1]
+
+        with pytest.raises(KeyError):
+            datasets.get_specific_graph(dataset_name, "I definitely do not exist")
+
+    @pytest.mark.xdist_group("benchmark_group")
+    def test_disable_sockets_should_not_throw_after_cache(self):
+        pytest_socket.enable_socket()
+
+        dataset_name = datasets.get_available_datasets()[1]
+        graph_name = None
+        for name in datasets.get_available_graph_names(dataset_name):
+            graph_name = name
+            break
+
+        pytest_socket.disable_socket()
+
+        graph = datasets.get_specific_graph(dataset_name, graph_name)
+        assert graph is not None
 
         pytest_socket.enable_socket()

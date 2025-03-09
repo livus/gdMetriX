@@ -1,23 +1,30 @@
 import math
-from typing import Union
 
 import pytest
 from numpy import ndarray
+from filelock import FileLock
 
 from gdMetriX import datasets
 import gdMetriX
 import networkx
 import itertools
 
+# TODO own test file for additional dataset tests (caching, deleting cache, adapting parameters, etc.)
+
 
 def generate_test_data():
     """Generator function yielding large test cases one by one."""
+    lock_datasets = FileLock("dataset_download.lock")
+    with lock_datasets:
+        available_datasets = datasets.get_available_datasets()
 
-    for dataset_name in datasets.get_available_datasets():
-        for name in itertools.islice(
-            datasets.get_available_graph_names(dataset_name), 2
-        ):
-            yield dataset_name, name
+    for dataset_name in available_datasets:
+        lock = FileLock(f"{dataset_name}.lock")
+        with lock:
+            for name in itertools.islice(
+                datasets.get_available_graph_names(dataset_name), 2
+            ):
+                yield dataset_name, name
 
 
 test_data = list(generate_test_data())
