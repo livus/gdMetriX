@@ -69,7 +69,7 @@ from gdMetriX.crossing_data_types import (
 def _check_lines(
     line_a: SweepLineEdgeInfo, line_b: SweepLineEdgeInfo
 ) -> Union[CrossingPoint, CrossingLine, None]:
-    # Replace with custom implementation without shapely in the future
+    # TODO Replace with custom implementation without shapely in the future
     if line_a is not None and line_b is not None:
         line1 = LineString((line_a.start_position, line_a.end_position))
         line2 = LineString((line_b.start_position, line_b.end_position))
@@ -86,7 +86,9 @@ def _check_lines(
                         crossing_point.coords[1][0], crossing_point.coords[1][1]
                     ),
                 )
-            if not line_a.share_endpoint(line_b):
+            if isinstance(
+                crossing_point, shapely.geometry.Point
+            ) and not line_a.share_endpoint(line_b):
                 return CrossingPoint(crossing_point.x, crossing_point.y)
         else:
             # Check if an endpoint lies on another edge
@@ -98,6 +100,7 @@ def _check_lines(
             distance_b_sta = line_seg_a.distance_to_point(line_b.start_position)
             distance_b_end = line_seg_a.distance_to_point(line_b.end_position)
 
+            # TODO create numeric helper function with precision in utils
             if crossing_data_types._numeric_eq(distance_a_sta, 0.0):
                 return CrossingPoint(line_a.start_position[0], line_a.start_position[1])
             if crossing_data_types._numeric_eq(distance_a_end, 0.0):
@@ -268,7 +271,7 @@ def get_crossings(
     r"""
     Calculates all crossings occurring in the graph. This uses the Bentley-Ottmann
     algorithm :footcite:p:`bentley_algorithms_1979` - adapted to handle degenerate cases - and runs in
-    :math:`O((n+k) \log n)` time and space, where :math:`k` is the number of reported crossings.
+    :math:`O((n+k) \log (n+k))` time and space, where :math:`k` is the number of reported crossings.
 
     The sweepline approach is susceptible to precision errors. Set the precision parameter to a value big enough but
     smaller than the smallest distance expected between two crossings. In case of issues, use
@@ -316,8 +319,8 @@ def get_crossings(
             if crossings[index].pos == c.pos:
                 crossings[index].involved_edges |= c.involved_edges
                 return
-            if crossings[index-1].pos == c.pos:
-                crossings[index-1].involved_edges |= c.involved_edges
+            if crossings[index - 1].pos == c.pos:
+                crossings[index - 1].involved_edges |= c.involved_edges
                 return
 
         crossings.insert(index, c)
@@ -374,10 +377,11 @@ def get_crossings(
 
     previous_y = None
 
-    horizontal_edges = []
+    horizontal_edges = []  # Contains all horizontal edges at the current event point
 
     while (current_event_point := queue.pop()) is not None:
 
+        # Reset horizontal edges at current event point if we go to a new point
         if previous_y is not None and not crossing_data_types._numeric_eq(
             current_event_point.position.y, previous_y
         ):
@@ -388,32 +392,16 @@ def get_crossings(
         # We save those here to add at the end
         edges_discovered_at_current_event_point = []
 
-        # Start by removing all ends
+        # Start by removing all ends from the sweep line status
         for edge_info in current_event_point.end_list:
             sweep_line_status.remove(previous_y, edge_info)
 
-        # Check all edges at the current point
-        if include_node_crossings:
-            # TODO horizontal edges?
-            for edge_a in current_event_point.end_list | current_event_point.start_list:
-                for edge_b in (
-                    current_event_point.start_list
-                    | current_event_point.end_list
-                    | current_event_point.horizontal_list
-                    | current_event_point.interior_list
-                ):
-                    if edge_a != edge_b:
-                        _append_crossing(
-                            edge_a, edge_b, edges_discovered_at_current_event_point
-                        )
-
         # reverse the order of interior edges
         for edge in current_event_point.interior_list:
-            if not edge.is_horizontal():
-                sweep_line_status.remove(previous_y, edge)
-                sweep_line_status.add(
-                    current_event_point.position.y - crossing_data_types.PRECISION, edge
-                )
+            sweep_line_status.remove(previous_y, edge)
+            sweep_line_status.add(
+                current_event_point.position.y - crossing_data_types.PRECISION, edge
+            )
 
         left_edge = sweep_line_status.get_left(current_event_point)
         right_edge = sweep_line_status.get_right(current_event_point)
@@ -428,18 +416,8 @@ def get_crossings(
                 left_edge, right_edge, edges_discovered_at_current_event_point
             )
         else:
-            # We filter out the horizontal edges that might be at the crossing as we do not care for them for obtaining
-            # leftmost/rightmost member
-            # TODO actually we dont even want the horizontals in the interior_list, right?
-            union = (
-                set(
-                    filter(
-                        lambda e: not e.is_horizontal(),
-                        current_event_point.interior_list,
-                    )
-                )
-                | current_event_point.start_list
-            )
+            union = current_event_point.interior_list | current_event_point.start_list
+
             leftmost, rightmost = _get_extreme_edges(
                 union,
                 current_event_point.position.y - 100 * crossing_data_types.PRECISION,
@@ -452,25 +430,29 @@ def get_crossings(
                 right_edge, rightmost, edges_discovered_at_current_event_point
             )
 
+        # region Check all edges at the current point for intersection
+
+        involved_edges = set()
+
         # Check edges at the actual crossing (this is necessary for vertical edges, which are otherwise not discovered)
-        edges_at_crossing = set(
+        edges_from_sweepline = set(
             sweep_line_status.get_range(
                 current_event_point.position.y,
                 current_event_point.position.x,
                 current_event_point.position.x,
             )
         )
+        involved_edges |= edges_from_sweepline
 
-        if len(edges_at_crossing) > 0:
+        # Potential candidates for node-edge crossings
+        if include_node_crossings:
+            involved_edges |= (
+                current_event_point.start_list
+                | current_event_point.end_list
+                | current_event_point.horizontal_list
+            )
 
-            # Check for crossing points
-            involved_edges = current_event_point.interior_list | edges_at_crossing
-
-            if include_node_crossings:  # TODO combine with above?
-                involved_edges |= (
-                    current_event_point.start_list | current_event_point.end_list
-                )
-
+        if len(involved_edges) > 0:
             crossing = Crossing(
                 current_event_point.position,
                 {edge.edge for edge in involved_edges},
@@ -478,10 +460,12 @@ def get_crossings(
 
             _insert_crossing_into_crossing_list(crossing)
 
-        # Check for crossing lines
+        # endregion
+
+        # region Check for crossing lines
         if len(current_event_point.start_list) > 0:
             candidates_sorted = sorted(
-                edges_at_crossing,
+                edges_from_sweepline,
                 key=lambda e: crossing_data_types._get_x_at_y(
                     e, current_event_point.position.y - height
                 ),
@@ -560,6 +544,8 @@ def get_crossings(
                     else:
                         index_candidate += 1
 
+        # endregion
+
         # Check horizontal edges
         for horizontal in current_event_point.horizontal_list:
             for edge_info in sweep_line_status.get_range(
@@ -574,14 +560,15 @@ def get_crossings(
             if horizontal.start_position == current_event_point.position:
                 for edge_info in horizontal_edges:
                     crossing_line = _check_lines(edge_info, horizontal)
-                    # It might be the case that this returns just a point => we detect that at a later stage
+                    # It might be the case that this returns just a point
+                    # => This is tested in the region called "Check all edges at the current point for intersection"
+                    # We can thus savely ignore crossing points here
                     if isinstance(crossing_line, CrossingLine):
-                        # TODO what about horizontal node/edge crossings, i.e. where we only get a crossing point here?
                         crossing_lines.append(
                             Crossing(crossing_line, {edge_info.edge, horizontal.edge})
                         )
                 horizontal_edges.append(horizontal)
-            else:
+            elif horizontal.end_position == current_event_point.position:
                 horizontal_edges.remove(horizontal)
 
         # Insert start points
@@ -599,23 +586,19 @@ def get_crossings(
             current_event_point.is_crossing
             or len(edges_discovered_at_current_event_point) != 0
         ):
+            relevant_edges = current_event_point.interior_list
+
             if include_node_crossings:
-                relevant_edges = {
-                    edge.edge
-                    for edge in current_event_point.start_list
+                relevant_edges |= (
+                    current_event_point.start_list
                     | current_event_point.end_list
-                    | current_event_point.interior_list
                     | current_event_point.horizontal_list
                     | set(edges_discovered_at_current_event_point)
-                }
-            else:
-                relevant_edges = {
-                    edge.edge for edge in current_event_point.interior_list
-                }
+                )
 
             new_crossing = Crossing(
                 current_event_point.position,
-                relevant_edges,
+                set(list(map(lambda x: x.edge, relevant_edges))),
             )
             _insert_crossing_into_crossing_list(new_crossing)
         else:

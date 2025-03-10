@@ -637,6 +637,71 @@ class TestHorizontalCrossings(unittest.TestCase):
             include_node_crossings=True,
         )
 
+    def test_horizontal_edge_possibly_hiding_leftmost_edge_at_crossing(self):
+        g = nx.Graph()
+
+        g.add_node(1, pos=(0, 10))
+        g.add_node(2, pos=(10, 10))
+        g.add_node(3, pos=(4, 9))
+        g.add_node(4, pos=(6, 11))
+        g.add_node(5, pos=(4, 11))
+        g.add_node(6, pos=(6, 9))
+        g.add_edges_from([(1, 2), (3, 4), (5, 6)])
+
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g, include_node_crossings=False),
+            include_node_crossings=False,
+        )
+
+    def test_horizontal_edges_just_touching(self):
+        g = nx.Graph()
+        g.add_node(1, pos=(2, 2))
+        g.add_node(2, pos=(3, 2))
+        g.add_node(3, pos=(3, 2))
+        g.add_node(4, pos=(4, 2))
+        g.add_edges_from([(1, 2), (3, 4)])
+
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g, include_node_crossings=True),
+            include_node_crossings=True,
+        )
+
+    def test_horizontal_edges_just_touching_2(self):
+        g = nx.Graph()
+        g.add_node(1, pos=(2, 2))
+        g.add_node(2, pos=(3, 2))
+        g.add_node(3, pos=(3, 2))
+        g.add_node(4, pos=(4, 2))
+        g.add_edges_from([(1, 2), (3, 4)])
+
+        _assert_crossing_equality(g, [], include_node_crossings=False)
+
+    def test_horizontal_edges_just_touching_3(self):
+        g = nx.Graph()
+        g.add_node(1, pos=(2, 2))
+        g.add_node(2, pos=(3, 2))
+        g.add_node(3, pos=(3, 2))
+        g.add_node(4, pos=(4, 3))
+        g.add_edges_from([(1, 2), (3, 4)])
+
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g, include_node_crossings=True),
+            include_node_crossings=True,
+        )
+
+    def test_horizontal_edges_just_touching_4(self):
+        g = nx.Graph()
+        g.add_node(1, pos=(2, 2))
+        g.add_node(2, pos=(3, 2))
+        g.add_node(3, pos=(3, 2))
+        g.add_node(4, pos=(4, 3))
+        g.add_edges_from([(1, 2), (3, 4)])
+
+        _assert_crossing_equality(g, [], include_node_crossings=False)
+
 
 class TestOverlappingCrossings(unittest.TestCase):
 

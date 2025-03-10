@@ -178,7 +178,7 @@ class SweepLineEdgeInfo(SortableObject):
         self,
         edge: (object, object),
         position_a: CrossingPoint,
-        position_b: CrossingPoint,  # TODO why is this not a CrossingLine
+        position_b: CrossingPoint,
     ):
         self.edge = edge
         self.crossing_line = CrossingLine(position_a, position_b)
@@ -356,7 +356,10 @@ class EventQueue:
         for edge in edge_list:
             # If the edge only crosses in an endpoint, it will not be added as an "interior point"
             if crossing not in (edge.start_position, edge.end_position):
-                self._add(crossing, edge, EventType.CROSSING)
+                if edge.is_horizontal():
+                    self._add(crossing, edge, EventType.HORIZONTAL)
+                else:
+                    self._add(crossing, edge, EventType.CROSSING)
 
     def _add(
         self, point: CrossingPoint, edge_info: SweepLineEdgeInfo, event_type: EventType
