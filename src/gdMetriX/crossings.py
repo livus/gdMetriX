@@ -721,8 +721,11 @@ def crossing_angles(
         )
     )
 
-    # TODO what about crossing lines?
-    return edge_directions.__edge_angles__(involved_nodes, crossing.pos, pos, deg)
+    crossing_point: CrossingPoint = (
+        crossing.pos.start if isinstance(crossing.pos, CrossingLine) else crossing.pos
+    )
+
+    return edge_directions.__edge_angles__(involved_nodes, crossing_point, pos, deg)
 
 
 def crossing_angular_resolution(
@@ -730,7 +733,6 @@ def crossing_angular_resolution(
     pos: Union[str, dict, None] = None,
     include_node_crossings: bool = False,
 ) -> float:
-    # TODO what about crossing lines? Add unit tests
     """
     Returns the deviation from the optimal angle between two edges at crossing points similar to
     :func:`edge_directions.angular_resolution`.
