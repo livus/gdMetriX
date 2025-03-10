@@ -1,6 +1,6 @@
 # gdMetriX
 #
-# Copyright (C) 2024  Martin Nöllenburg, Sebastian Röder, Markus Wallinger
+# Copyright (C) 2025  Martin Nöllenburg, Sebastian Röder, Markus Wallinger
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -51,6 +51,7 @@ import sys
 from typing import List, Optional, Tuple, Union, Set, Dict
 
 import networkx as nx
+import shapely.geometry
 from shapely.geometry import LineString
 from bisect import bisect_left
 
@@ -118,6 +119,26 @@ def _convert_to_crossing_points(
 ) -> Dict[object, CrossingPoint]:
     pos = common.get_node_positions(g, pos)
     return {key: CrossingPoint.from_point(position) for key, position in pos.items()}
+
+
+def _get_crossings_agnostic(
+    g: nx.Graph,
+    pos: Union[str, dict, None],
+    include_node_crossings: bool,
+    use_quadratic_algorithm: bool,
+    precision: float,
+    crossing_list: List[Crossing],
+):
+    if crossing_list is None:
+        if use_quadratic_algorithm:
+            crossing_list = get_crossings_quadratic(
+                g, pos, include_node_crossings, precision=precision
+            )
+        else:
+            crossing_list = get_crossings(
+                g, pos, include_node_crossings, precision=precision
+            )
+    return crossing_list
 
 
 def get_crossings_quadratic(
@@ -634,6 +655,9 @@ def planarize(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
     include_node_crossings: bool = False,
+    use_quadratic_algorithm: bool = False,
+    precision: float = 1e-09,
+    crossing_list: List[Crossing] = None,
 ) -> None:
     """
     Planarizes the graph by replacing all crossings with nodes.
@@ -643,15 +667,30 @@ def planarize(
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
     :type pos: Union[str, dic, None]
-    :param include_node_crossings: Indicate whether crossings involving vertices should be returned as well. A
+    :param include_node_crossings: Indicate whether crossings involving vertices should be considered as well. A
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
     :type include_node_crossings: bool
+    :param use_quadratic_algorithm: If set to true, the slower quadratic time algorithm is used to obtain crossings.
+        Use this method if you have problems with precision using the default method.
+        See :func:`get_crossings_quadratic()` for details.
+    :type use_quadratic_algorithm: bool
+    :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
+    :type precision: float
+    :param crossing_list: If supplied, these crossings are used to obtain the crossing angles.
+    :type crossing_list: List[Crossings]
     """
 
     pos = common.get_node_positions(g, pos)
 
-    crossings = get_crossings_quadratic(g, pos, include_node_crossings)
+    crossings = _get_crossings_agnostic(
+        g,
+        pos,
+        include_node_crossings,
+        use_quadratic_algorithm,
+        precision,
+        crossing_list,
+    )
 
     # Obtain a list of crossing per edge
     involved_edges = {}
@@ -732,6 +771,9 @@ def crossing_angular_resolution(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
     include_node_crossings: bool = False,
+    use_quadratic_algorithm: bool = False,
+    precision: float = 1e-09,
+    crossing_list: List[Crossing] = None,
 ) -> float:
     """
     Returns the deviation from the optimal angle between two edges at crossing points similar to
@@ -742,29 +784,39 @@ def crossing_angular_resolution(
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
     :type pos: Union[str, dic, None]
-    :param include_node_crossings: Indicate whether crossings involving vertices should be returned as well. A
+    :param include_node_crossings: Indicate whether crossings involving vertices should be considered as well. A
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
     :type include_node_crossings: bool
+    :param use_quadratic_algorithm: If set to true, the slower quadratic time algorithm is used to obtain crossings.
+        Use this method if you have problems with precision using the default method.
+        See :func:`get_crossings_quadratic()` for details.
+    :type use_quadratic_algorithm: bool
+    :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
+    :type precision: float
+    :param crossing_list: If supplied, these crossings are used to obtain the crossing angles.
+    :type crossing_list: List[Crossings]
     :return: The average deviation from the optimal angle between two edges in any of the crossings
     :rtype: float
     """
     pos = common.get_node_positions(g, pos)
-
     deviation_sum = 0
-    # TODO add boolean flag to choose algorithm
-    crs = get_crossings_quadratic(g, pos, include_node_crossings)
+    crossing_list = _get_crossings_agnostic(
+        g,
+        pos,
+        include_node_crossings,
+        use_quadratic_algorithm,
+        precision,
+        crossing_list,
+    )
 
-    if len(crs) == 0:
-        return 1
-
-    for crossing in crs:
+    for crossing in crossing_list:
         optimal_angle = math.pi / len(crossing.involved_edges)
         minimum_angle = min(crossing_angles(crossing, pos))
 
         deviation_sum += abs(((optimal_angle - minimum_angle) / optimal_angle))
 
-    return 1 - deviation_sum / len(crs)
+    return 1 - deviation_sum / len(crossing_list)
 
 
 def _c_max(g: nx.Graph, include_mooney_cases: bool):
@@ -810,7 +862,9 @@ def number_of_crossings(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
     include_node_crossings: bool = False,
+    use_quadratic_algorithm: bool = False,
     precision: float = 1e-09,
+    crossing_list: List[Crossing] = None,
 ) -> int:
     """
     Counts the total number of crossings in the given embedding.
@@ -823,17 +877,32 @@ def number_of_crossings(
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
     :type pos: Union[str, dic, None]
-    :param include_node_crossings: Indicate whether crossings involving vertices should be returned as well. A
+    :param include_node_crossings: Indicate whether crossings involving vertices should be considered as well. A
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
     :type include_node_crossings: bool
+    :param use_quadratic_algorithm: If set to true, the slower quadratic time algorithm is used to obtain crossings.
+        Use this method if you have problems with precision using the default method.
+        See :func:`get_crossings_quadratic()` for details.
+    :type use_quadratic_algorithm: bool
     :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
     :type precision: float
+    :param crossing_list: If supplied, these crossings are used to obtain the crossing angles.
+    :type crossing_list: List[Crossings]
     :return: Number of crossings
     :rtype: int
     """
+    crossing_list = _get_crossings_agnostic(
+        g,
+        pos,
+        include_node_crossings,
+        use_quadratic_algorithm,
+        precision,
+        crossing_list,
+    )
     total = 0
-    for crossing in get_crossings(g, pos, include_node_crossings, precision):
+
+    for crossing in crossing_list:
         involved_edges = len(crossing.involved_edges)
         total += involved_edges * (involved_edges - 1) // 2
 
@@ -843,14 +912,16 @@ def number_of_crossings(
 def crossing_density(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
-    include_node_crossings: bool = False,
     tighter_bound: bool = False,
+    include_node_crossings: bool = False,
+    use_quadratic_algorithm: bool = False,
     precision: float = 1e-09,
+    crossing_list: List[Crossing] = None,
 ) -> float:
     """
     Weighs the number of crossings in the embedding against the estimated maximum number of potential crossings.
 
-    The estimated maximum number of potential crossings is is implemented
+    The estimated maximum number of potential crossings is implemented
     as defined by :footcite:t:`purchase_landscape`.
 
     :param g: A networkX graph
@@ -858,21 +929,36 @@ def crossing_density(
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
     :type pos: Union[str, dic, None]
-    :param include_node_crossings: Indicate whether crossings involving vertices should be returned as well. A
-        crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
-        Singletons will never be considered, even if the vertex lies exactly on another edge.
-    :type include_node_crossings: bool
     :param tighter_bound: If set to true, a tighter bound on the maximum number of potential crossings is calculated,
         which might however lie below the actual maximum number of crossings. See :footcite:t:`purchase_landscape` for
         details. If set to false, the original estimate by :footcite:t:`purchase_metrics_2002` is used.
-    :type tighter_bound:
+    :type tighter_bound: bool
+    :param include_node_crossings: Indicate whether crossings involving vertices should be considered as well. A
+        crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
+        Singletons will never be considered, even if the vertex lies exactly on another edge.
+    :type include_node_crossings: bool
+    :param use_quadratic_algorithm: If set to true, the slower quadratic time algorithm is used to obtain crossings.
+        Use this method if you have problems with precision using the default method.
+        See :func:`get_crossings_quadratic()` for details.
+    :type use_quadratic_algorithm: bool
     :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
     :type precision: float
+    :param crossing_list: If supplied, these crossings are used to obtain the crossing angles.
+    :type crossing_list: List[Crossings]
     :return: A crossing quality metric between 0 and 1
     :rtype: float
     """
     c_max = max(_c_max(g, tighter_bound), 1)
     estimate = (
-        1 - number_of_crossings(g, pos, include_node_crossings, precision) / c_max
+        1
+        - number_of_crossings(
+            g,
+            pos,
+            include_node_crossings,
+            use_quadratic_algorithm,
+            precision,
+            crossing_list,
+        )
+        / c_max
     )
     return max(min(estimate, 1), 0)
