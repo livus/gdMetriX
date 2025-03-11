@@ -29,8 +29,10 @@ from typing import Union, Tuple, Optional, List
 import networkx as nx
 import numpy as np
 
+import gdMetriX.utils.edge_orientations
 from gdMetriX import common
 from gdMetriX.common import Numeric, Vector, Angle
+from gdMetriX.utils.edge_orientations import order_clockwise
 
 
 def upwards_flow(
@@ -148,42 +150,7 @@ def ordered_neighborhood(
 
     neighbors = [edge[0] if edge[0] != node else edge[1] for edge in g.edges(node)]
     neighbors = list(filter(lambda nb: nb != node, neighbors))
-    return __order_clockwise__(neighbors, pos[node], pos)
-
-
-def __order_clockwise__(
-    nodes: List, origin: Tuple[Numeric, Numeric], pos: Union[str, dict, None]
-) -> List:
-    def __get_angle_between_nodes__(pos_a, pos_b) -> float:
-        vector = Vector.from_point(pos_b) - Vector.from_point(pos_a)
-        return Vector(0, 1).angle(vector)
-
-    return sorted(nodes, key=lambda nb: __get_angle_between_nodes__(origin, pos[nb]))
-
-
-def __edge_angles__(
-    nodes: List,
-    origin: Tuple[Numeric, Numeric],
-    pos: Union[str, dict, None],
-    deg: bool = False,
-) -> List:
-    ordered_nodes = __order_clockwise__(nodes, origin, pos)
-
-    angles = []
-    origin = Vector.from_point(origin)
-
-    if len(ordered_nodes) <= 1:
-        angles.append(Angle(math.pi * 2))
-    else:
-        for i, node in enumerate(ordered_nodes):
-            p_nb_a = Vector.from_point(pos[node])
-            p_nb_b = Vector.from_point(pos[ordered_nodes[(i + 1) % len(ordered_nodes)]])
-            vector_nb_a = p_nb_a - origin
-            vector_nb_b = p_nb_b - origin
-            angle = vector_nb_a.angle(vector_nb_b)
-            angles.append(angle)
-
-    return [angle.deg() if deg else angle.rad() for angle in angles]
+    return order_clockwise(neighbors, pos[node], pos)
 
 
 def combinatorial_embedding(g: nx.Graph, pos: Union[str, dict, None] = None) -> dict:
@@ -224,7 +191,7 @@ def edge_angles(
     pos = common.get_node_positions(g, pos)
     neighbors = ordered_neighborhood(g, node, pos)
 
-    return __edge_angles__(neighbors, pos[node], pos, deg)
+    return gdMetriX.utils.edge_orientations.edge_angles(neighbors, pos[node], pos, deg)
 
 
 def minimum_angle(

@@ -18,7 +18,6 @@
 Supporting module for the crossings module containing some datastructures.
 """
 
-import math
 from enum import Enum
 from typing import (
     List,
@@ -37,24 +36,7 @@ from gdMetriX.utils.avl_tree import (
     SortableObject,
     ParameterizedBalancedBinarySearchTree,
 )
-
-PRECISION = 1e-09
-
-
-def set_precision(precision: float) -> None:
-    """
-        Sets the global precision used for all calculation. Any two numbers with a difference smaller than `precision`
-         are considered as equal
-    :param precision: Precision
-    :type precision: float
-    """
-    global PRECISION
-    PRECISION = precision
-
-
-def _get_precision() -> float:
-    global PRECISION
-    return PRECISION
+from gdMetriX.utils.numeric import numeric_eq, greater_than, get_precision
 
 
 class CrossingPoint(Vector):
@@ -66,7 +48,7 @@ class CrossingPoint(Vector):
     def __eq__(self, other: Vector):
         if other is None or not isinstance(other, CrossingPoint):
             return False
-        return _numeric_eq(self.distance(other), 0)
+        return numeric_eq(self.distance(other), 0)
 
     @staticmethod
     def from_point(pos: Tuple[Numeric, Numeric]) -> Self:
@@ -75,8 +57,8 @@ class CrossingPoint(Vector):
 
     def __lt__(self, other):
         if isinstance(other, CrossingPoint):
-            return _greater_than(self.y, other.y) or (
-                _numeric_eq(self.y, other.y) and _greater_than(other.x, self.x)
+            return greater_than(self.y, other.y) or (
+                numeric_eq(self.y, other.y) and greater_than(other.x, self.x)
             )
         if isinstance(other, CrossingLine):
             return True
@@ -116,17 +98,6 @@ class CrossingLine(LineSegment):
 
     def __str__(self):
         return f"Line({self.start}, {self.end})"
-
-
-def _greater_than(a: float, b: float) -> bool:
-    if _numeric_eq(a, b):
-        return False
-
-    return a > b
-
-
-def _numeric_eq(a: Numeric, b: Numeric) -> bool:
-    return math.isclose(a, b, abs_tol=PRECISION)
 
 
 class Crossing:
@@ -189,6 +160,15 @@ class SweepLineEdgeInfo(SortableObject):
     def from_edge(
         edge: Tuple[SupportsIndex, SupportsIndex], pos: Dict[object, CrossingPoint]
     ) -> Self:
+        """
+        Builds the SweepLineEdgeInfo from the given edge tuple
+        :param edge: Edge from the graph
+        :type edge: Tuple[SupportsIndex, SupportsIndex]
+        :param pos: Node position dictionary to look up the endpoints of the edge
+        :type pos: Dict[object, CrossingPoint]
+        :return: The SweepLineEdgeInfo build from the given edge
+        :rtype: SweepLineEdgeInfo
+        """
         point_a = pos[edge[0]]
         point_b = pos[edge[1]]
 
@@ -201,29 +181,29 @@ class SweepLineEdgeInfo(SortableObject):
     # region Implementation of SortableObject
 
     def less_than(self, other: Self, key_parameter: Numeric):
-        x_self = _get_x_at_y(self, key_parameter)
-        x_other = _get_x_at_y(other, key_parameter)
+        x_self = get_x_at_y(self, key_parameter)
+        x_other = get_x_at_y(other, key_parameter)
 
-        if _numeric_eq(x_self, x_other):
+        if numeric_eq(x_self, x_other):
             lower_end = min(self.end_position.y, other.end_position.y)
-            key_parameter = min(key_parameter - _get_precision(), lower_end)
+            key_parameter = min(key_parameter - get_precision(), lower_end)
 
-            x_self = _get_x_at_y(self, key_parameter)
-            x_other = _get_x_at_y(other, key_parameter)
+            x_self = get_x_at_y(self, key_parameter)
+            x_other = get_x_at_y(other, key_parameter)
 
-        return _greater_than(x_other, x_self)
+        return greater_than(x_other, x_self)
 
     def less_than_key(self, key: Numeric, y: Numeric):
-        x_self = _get_x_at_y(self, y)
+        x_self = get_x_at_y(self, y)
 
-        return _greater_than(key, x_self)
+        return greater_than(key, x_self)
 
     def greater_than_key(self, key: Numeric, y: Numeric):
-        x_self = _get_x_at_y(self, y)
-        return _greater_than(x_self, key)
+        x_self = get_x_at_y(self, y)
+        return greater_than(x_self, key)
 
     def get_key(self, key_parameter: Numeric) -> Numeric:
-        return _get_x_at_y(self, key_parameter)
+        return get_x_at_y(self, key_parameter)
 
     # endregion
 
@@ -251,9 +231,9 @@ class SweepLineEdgeInfo(SortableObject):
         :return:
         :rtype:
         """
-        return _numeric_eq(
+        return numeric_eq(
             self.start_position.y, self.end_position.y
-        ) and not _numeric_eq(self.start_position.x, self.end_position.x)
+        ) and not numeric_eq(self.start_position.x, self.end_position.x)
 
     def share_endpoint(self, other) -> bool:
         """
@@ -316,7 +296,7 @@ class EventQueue:
     """
 
     def __init__(self) -> None:
-        self.sorted_list = ParameterizedBalancedBinarySearchTree(_greater_than)
+        self.sorted_list = ParameterizedBalancedBinarySearchTree(greater_than)
 
     def __len__(self) -> int:
         return len(self.sorted_list)
@@ -394,13 +374,22 @@ class EventQueue:
         return self.sorted_list.pop()
 
 
-def _get_x_at_y(edge_info: SweepLineEdgeInfo, y: Numeric):
+def get_x_at_y(edge_info: SweepLineEdgeInfo, y: Numeric) -> Numeric:
+    """
+    Returns the x value at the specified y value for the line build from the edge_info.
+    :param edge_info: Edge that defines the line.
+    :type edge_info: SweepLineEdgeInfo
+    :param y: Height to measure the x value at
+    :type y: Numeric
+    :return: X value
+    :rtype: Numeric
+    """
     start = edge_info.start_position
     end = edge_info.end_position
 
-    if _numeric_eq(start.x, end.x):
+    if numeric_eq(start.x, end.x):
         return start.x
-    if _numeric_eq(end.y - start.y, 0):
+    if numeric_eq(end.y - start.y, 0):
         return min(start.x, end.x)
 
     m = (end.y - start.y) / (end.x - start.x)
@@ -416,7 +405,7 @@ class SweepLineStatus:
     """
 
     def __init__(self):
-        self.sorted_list = ParameterizedBalancedBinarySearchTree(_greater_than)
+        self.sorted_list = ParameterizedBalancedBinarySearchTree(greater_than)
 
     def __str__(self):
         return [edge.edge for edge in self.sorted_list].__str__()

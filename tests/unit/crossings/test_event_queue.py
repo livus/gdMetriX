@@ -28,6 +28,7 @@ from gdMetriX.crossing_data_types import (
     SweepLinePoint,
     CrossingPoint,
 )
+from gdMetriX.utils.numeric import set_precision
 
 
 class TestEventQueue(unittest.TestCase):
@@ -354,7 +355,7 @@ class TestEventQueue(unittest.TestCase):
         assert count == (width + 1) * (height + 1) - 2
 
     def test_close_points_are_grouped(self):
-        crossing_data_types.set_precision(0.001)
+        set_precision(0.001)
         queue = EventQueue()
 
         edge_list_for_crossing = [
@@ -367,10 +368,10 @@ class TestEventQueue(unittest.TestCase):
 
         assert len(queue) == 1
 
-        crossing_data_types.set_precision(1e-09)
+        set_precision(1e-09)
 
     def test_close_points_are_grouped_2(self):
-        crossing_data_types.set_precision(0.00142)
+        set_precision(0.00142)
         queue = EventQueue()
 
         edge_list_for_crossing = [
@@ -383,10 +384,10 @@ class TestEventQueue(unittest.TestCase):
 
         assert len(queue) == 1
 
-        crossing_data_types.set_precision(1e-09)
+        set_precision(1e-09)
 
     def test_close_points_are_grouped_3(self):
-        crossing_data_types.set_precision(0.001)
+        set_precision(0.001)
         queue = EventQueue()
 
         queue.add_edge(
@@ -398,10 +399,10 @@ class TestEventQueue(unittest.TestCase):
 
         assert len(queue) == 2
 
-        crossing_data_types.set_precision(1e-09)
+        set_precision(1e-09)
 
     def test_close_points_are_grouped_4(self):
-        crossing_data_types.set_precision(0.00142)
+        set_precision(0.00142)
         queue = EventQueue()
 
         queue.add_edge(
@@ -415,4 +416,4 @@ class TestEventQueue(unittest.TestCase):
 
         assert len(queue) == 2
 
-        crossing_data_types.set_precision(1e-09)
+        set_precision(1e-09)

@@ -78,7 +78,7 @@ def center_of_mass(
     return total_sum
 
 
-def __get_grid_distribution(
+def _get_grid_distribution(
     g: nx.Graph,
     pos: Union[str, dict, None],
     grid_size: int,
@@ -116,7 +116,7 @@ def heatmap(
     :rtype: np.ndarray
     """
 
-    def __get_grid_cell__(min_bound, max_bound, v):
+    def _get_grid_cell(min_bound, max_bound, v):
         return int(
             min(((v - min_bound) / (max_bound - min_bound)) * grid_size, grid_size - 1)
         )
@@ -142,8 +142,8 @@ def heatmap(
     # Iterate through the values, x positions, and y positions
     for value, x, y in zip(values, x_positions, y_positions):
         # Determine grid indices
-        grid_x = __get_grid_cell__(x_min, x_max, x)
-        grid_y = __get_grid_cell__(y_min, y_max, y)
+        grid_x = _get_grid_cell(x_min, x_max, x)
+        grid_y = _get_grid_cell(y_min, y_max, y)
 
         # Add value to grid cell
         grid[grid_y, grid_x] += value
@@ -272,7 +272,7 @@ def homogeneity(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     # Sum up the number of nodes in each quadrant
     pos = common.get_node_positions(g, pos)
 
-    quadrants = __get_grid_distribution(g, pos, 2)
+    quadrants = _get_grid_distribution(g, pos, 2)
     multiply = []
     divide = []
     for n_quadrant in quadrants.flatten():
@@ -340,7 +340,7 @@ def concentration(
     else:
         expected_per_cell = g.order() / math.pow(grid_size, 2)
 
-    grid = __get_grid_distribution(g, pos, grid_size, bounding_box)
+    grid = _get_grid_distribution(g, pos, grid_size, bounding_box)
     return (np.sum(np.maximum(grid - expected_per_cell, 0))) / (g.order() - 1)
 
 
@@ -461,11 +461,8 @@ def _closest_pair_recursion(x_sorted, y_sorted):
 
 def _edge_node_distance(edge: Tuple[object, object], node: object, pos) -> float:
     return common.LineSegment(
-        Vector.from_point(pos[edge[0]]),
-        Vector.from_point(pos[edge[1]])
-    ).distance_to_point(
-        Vector.from_point(pos[node])
-    )
+        Vector.from_point(pos[edge[0]]), Vector.from_point(pos[edge[1]])
+    ).distance_to_point(Vector.from_point(pos[node]))
 
 
 def closest_pair_of_elements(

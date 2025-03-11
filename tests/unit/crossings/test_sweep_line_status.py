@@ -28,6 +28,7 @@ from gdMetriX.crossing_data_types import (
     SweepLinePoint,
     CrossingPoint,
 )
+from gdMetriX.utils.numeric import greater_than
 
 
 class TestSweepLineStatus(unittest.TestCase):
@@ -374,9 +375,9 @@ class TestSweepLineStatus(unittest.TestCase):
             )
             s.add(0, edge)
 
-            if not crossing_data_types._greater_than(
-                range_query[0], x
-            ) and not crossing_data_types._greater_than(x, range_query[1]):
+            if not greater_than(range_query[0], x) and not greater_than(
+                x, range_query[1]
+            ):
                 count += 1
 
         result = list(s.get_range(0, range_query[0], range_query[1]))
@@ -399,9 +400,9 @@ class TestSweepLineStatus(unittest.TestCase):
             )
             s.add(0, edge)
 
-            if not crossing_data_types._greater_than(
-                range_query[0], x
-            ) and not crossing_data_types._greater_than(x, range_query[1]):
+            if not greater_than(range_query[0], x) and not greater_than(
+                x, range_query[1]
+            ):
                 count += 1
 
         result = list(s.get_range(0, range_query[0], range_query[1]))

@@ -32,8 +32,7 @@ import networkx as nx
 import pytest
 
 import crossing_test_helper
-import gdMetriX
-from gdMetriX import crossings, datasets
+from gdMetriX import crossings
 from gdMetriX.crossing_data_types import CrossingPoint
 
 
@@ -973,8 +972,10 @@ class TestComplexCrossingScenarios(unittest.TestCase):
 
     def test_random_graph(self):
         random.seed(9018098129039)
+        success_count = 0
         for i in range(0, 25):
             for j in range(0, 10):
+                print(f"Current graph: {success_count}")
                 random_graph = nx.fast_gnp_random_graph(
                     i, random.uniform(0.1, 1), random.randint(1, 10000000)
                 )
@@ -988,11 +989,14 @@ class TestComplexCrossingScenarios(unittest.TestCase):
                     crossings.get_crossings_quadratic(random_graph),
                     include_node_crossings=True,
                 )
+                success_count += 1
 
     def test_random_graph_2(self):
         random.seed(9018098129039)
+        success_count = 0
         for i in range(0, 25):
             for j in range(0, 10):
+                print(f"Current graph: {success_count}")
                 random_graph = nx.fast_gnp_random_graph(
                     i, random.uniform(0.1, 1), random.randint(1, 10000000)
                 )
@@ -1004,6 +1008,7 @@ class TestComplexCrossingScenarios(unittest.TestCase):
                 _assert_crossing_equality(
                     random_graph, crossings.get_crossings_quadratic(random_graph)
                 )
+                success_count += 1
 
     def test_edge_with_length_0(self):
         g = nx.Graph()
@@ -1083,8 +1088,9 @@ class TestComplexCrossingScenarios(unittest.TestCase):
             - Vertices on edges (we count those as crossings as well)
         """
         random.seed(19031023901923)
-
+        success_count = 0
         for i in range(0, 25):
+            print(f"Current graph: {success_count}")
             random_graph = nx.fast_gnp_random_graph(
                 i, random.uniform(0.1, 1), random.randint(1, 1000000)
             )
@@ -1100,6 +1106,7 @@ class TestComplexCrossingScenarios(unittest.TestCase):
                 ),
                 include_node_crossings=True,
             )
+            success_count += 1
 
     def test_random_graph_small_grid_2(self):
         """
@@ -1109,8 +1116,9 @@ class TestComplexCrossingScenarios(unittest.TestCase):
             - Vertices on edges (we count those as crossings as well)
         """
         random.seed(19031023901923)
-
+        success_count = 0
         for i in range(0, 25):
+            print(f"Current graph: {success_count}")
             random_graph = nx.fast_gnp_random_graph(
                 i, random.uniform(0.1, 1), random.randint(1, 1000000)
             )
@@ -1122,6 +1130,7 @@ class TestComplexCrossingScenarios(unittest.TestCase):
             _assert_crossing_equality(
                 random_graph, crossings.get_crossings_quadratic(random_graph)
             )
+            success_count += 1
 
     def test_overlapping_edges_crossing_another_at_vertex(self):
         g = nx.Graph()

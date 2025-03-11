@@ -25,7 +25,7 @@ import networkx as nx
 # noinspection PyUnresolvedReferences
 import pytest
 
-from gdMetriX import crossings, crossing_angular_resolution
+from gdMetriX import crossings
 
 
 class TestCrossingAngles(unittest.TestCase):
