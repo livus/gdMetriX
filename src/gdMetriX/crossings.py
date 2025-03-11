@@ -750,21 +750,21 @@ def crossing_angles(
     :rtype: List[float]
     """
 
-    involved_nodes = {node for edge in crossing.involved_edges for node in edge}
+    if isinstance(crossing.pos, CrossingLine):
+        return [0.0]*(len(crossing.involved_edges)-1) + [180.0] + [0.0]*(len(crossing.involved_edges)-1) + [180.0]
+    else:
+        involved_nodes = {node for edge in crossing.involved_edges for node in edge}
+        crossing_point: CrossingPoint = crossing.pos
 
-    # Filter out nodes that are at the crossing itself
-    involved_nodes = list(
-        filter(
-            lambda node: not CrossingPoint.from_point(pos[node]) == crossing.pos,
-            involved_nodes,
+        # Filter out nodes that are at the crossing itself
+        involved_nodes = list(
+            filter(
+                lambda node: not CrossingPoint.from_point(pos[node]) == crossing_point,
+                involved_nodes,
+            )
         )
-    )
 
-    crossing_point: CrossingPoint = (
-        crossing.pos.start if isinstance(crossing.pos, CrossingLine) else crossing.pos
-    )
-
-    return edge_directions.__edge_angles__(involved_nodes, crossing_point, pos, deg)
+        return edge_directions.__edge_angles__(involved_nodes, crossing_point, pos, deg)
 
 
 def crossing_angular_resolution(
