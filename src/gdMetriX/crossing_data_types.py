@@ -40,6 +40,7 @@ from gdMetriX.utils.numeric import numeric_eq, greater_than, get_precision
 
 
 class CrossingPoint(Vector):
+    # TODO make this also a tuble type or provide cast method
     """
     Represents a point used during the crossing detection algorithm, not necessarely an actuall crossing.
     Supports total ordering according to sweep line direction.

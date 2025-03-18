@@ -100,10 +100,11 @@ def _draw_graph(g: nx.Graph, title: str, crossings_a, crossings_b):
 def _equal_crossings(crossings_a, crossings_b, g, title):
     crossings_a_sorted = sorted(crossings_a)
     crossings_b_sorted = sorted(crossings_b)
-    print("Expected {}".format(crossings_b_sorted))
-    print("Actual   {}".format(crossings_a_sorted))
 
     if crossings_a_sorted != crossings_b_sorted:
+        print("Expected {}".format(crossings_b_sorted))
+        print("Actual   {}".format(crossings_a_sorted))
+
         _draw_graph(g, title, crossings_a, crossings_b)
 
     assert crossings_a_sorted == crossings_b_sorted

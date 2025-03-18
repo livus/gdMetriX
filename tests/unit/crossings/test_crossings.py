@@ -1010,6 +1010,33 @@ class TestComplexCrossingScenarios(unittest.TestCase):
                 )
                 success_count += 1
 
+    def test_random_line_graph(self):
+        # Random graph that should be in normal position
+
+        random.seed(38528349829348)
+        success_count = 0
+        for i in range(0, 50):
+            for j in range(0, 2):
+                print(f"Current graph: {success_count}")
+                random_graph = nx.Graph()
+
+                for node in range(i):
+                    random_graph.add_nodes_from([f"{i}a", f"{j}b"])
+                    random_graph.add_edge(f"{i}a", f"{j}b")
+
+                random_embedding = {
+                    node: [random.randint(-1000, 1000), random.randint(-1000, 1000)]
+                    for node in random_graph.nodes()
+                }
+                nx.set_node_attributes(random_graph, random_embedding, "pos")
+
+                _assert_crossing_equality(
+                    random_graph,
+                    crossings.get_crossings_quadratic(random_graph),
+                    include_node_crossings=True,
+                )
+                success_count += 1
+
     def test_edge_with_length_0(self):
         g = nx.Graph()
         g.add_node(0, pos=(0, 0))

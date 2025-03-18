@@ -104,13 +104,13 @@ def _check_lines(
             distance_b_end = line_seg_a.distance_to_point(line_b.end_position)
 
             # TODO create numeric helper function with precision in utils
-            if crossing_data_types.numeric_eq(distance_a_sta, 0.0):
+            if numeric.numeric_eq(distance_a_sta, 0.0):
                 return CrossingPoint(line_a.start_position[0], line_a.start_position[1])
-            if crossing_data_types.numeric_eq(distance_a_end, 0.0):
+            if numeric.numeric_eq(distance_a_end, 0.0):
                 return CrossingPoint(line_a.end_position[0], line_a.end_position[1])
-            if crossing_data_types.numeric_eq(distance_b_sta, 0.0):
+            if numeric.numeric_eq(distance_b_sta, 0.0):
                 return CrossingPoint(line_b.start_position[0], line_b.start_position[1])
-            if crossing_data_types.numeric_eq(distance_b_end, 0.0):
+            if numeric.numeric_eq(distance_b_end, 0.0):
                 return CrossingPoint(line_b.end_position[0], line_b.end_position[1])
 
     return None
