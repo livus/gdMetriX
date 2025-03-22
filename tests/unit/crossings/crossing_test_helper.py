@@ -66,7 +66,8 @@ def _draw_graph(g: nx.Graph, title: str, crossings_a, crossings_b):
     pos = gdMetriX.common.get_node_positions(g)
 
     nx.draw_networkx_edges(g, pos, ax=ax)
-    nx.draw_networkx_nodes(g, pos, ax=ax, node_size=20)
+    nx.draw_networkx_nodes(g, pos, ax=ax, node_size=180)
+    nx.draw_networkx_labels(g, pos, ax=ax, font_color="white")
     ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
     plt.axis("on")
 
@@ -104,6 +105,10 @@ def _equal_crossings(crossings_a, crossings_b, g, title):
     if crossings_a_sorted != crossings_b_sorted:
         print("Expected {}".format(crossings_b_sorted))
         print("Actual   {}".format(crossings_a_sorted))
+        print(g.order())
+        print(list(g.edges()))
+        print(dict(g.nodes(data=True)))
+        print(nx.get_node_attributes(g, "pos"))
 
         _draw_graph(g, title, crossings_a, crossings_b)
 

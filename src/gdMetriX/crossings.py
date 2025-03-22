@@ -417,11 +417,25 @@ def get_crossings(
 
         # Start by removing all ends from the sweep line status
         for edge_info in current_event_point.end_list:
+            sl_size_before = len(sweep_line_status)
             sweep_line_status.remove(previous_y, edge_info)
+
+            # TODO Investigate why the normal remove sometimes does not catch the edge
+            if len(sweep_line_status) == sl_size_before:
+                sweep_line_status.force_remove(edge_info)
 
         # reverse the order of interior edges
         for edge in current_event_point.interior_list:
+            sl_size_before = len(sweep_line_status)
+
             sweep_line_status.remove(previous_y, edge)
+
+            # TODO Investigate why the normal remove sometimes does not catch the edge
+            if len(sweep_line_status) == sl_size_before:
+                sweep_line_status.remove(current_event_point.position.y, edge)
+                if len(sweep_line_status) == sl_size_before:
+                    sweep_line_status.force_remove(edge)
+
             sweep_line_status.add(
                 current_event_point.position.y - numeric.get_precision(), edge
             )

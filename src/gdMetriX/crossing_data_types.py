@@ -374,6 +374,12 @@ class EventQueue:
         """
         return self.sorted_list.pop()
 
+    def __str__(self) -> str:
+        return f"Queue[{','.join(map(str, self.sorted_list))}]"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 
 def get_x_at_y(edge_info: SweepLineEdgeInfo, y: Numeric) -> Numeric:
     """
@@ -411,6 +417,9 @@ class SweepLineStatus:
     def __str__(self):
         return [edge.edge for edge in self.sorted_list].__str__()
 
+    def __len__(self):
+        return len(self.sorted_list)
+
     def add(self, y_value: Numeric, edge_info: SweepLineEdgeInfo) -> None:
         """Adds a new edge to the sweep line. It will be added next to its neighboring edges at height y_value.
         :param y_value: Current height of the sweep line
@@ -420,7 +429,7 @@ class SweepLineStatus:
         """
         self.sorted_list.insert(edge_info, y_value)
 
-    def remove(self, y_value: Numeric, edge_info: SweepLineEdgeInfo):
+    def remove(self, y_value: Numeric, edge_info: SweepLineEdgeInfo) -> None:
         """
         Removes an edge from the sweep line.
         :param y_value:
@@ -429,6 +438,14 @@ class SweepLineStatus:
         :type edge_info: :class:`SweepLineEdgeInfo`
         """
         self.sorted_list.remove(edge_info, y_value)
+
+    def force_remove(self, edge_info: SweepLineEdgeInfo) -> None:
+        """
+        Remove all instances of the given edge from the sweep line.
+        :param edge_info: Edge that should be removed
+        :type edge_info: :class:`SweepLineEdgeInfo`
+        """
+        self.sorted_list.force_remove(edge_info)
 
     def get_left(self, point: SweepLinePoint) -> Optional[SweepLineEdgeInfo]:
         """

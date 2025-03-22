@@ -41,8 +41,12 @@ class TestLargerGraphs(object):
                     for n in range(0, i + 1)
                 }
 
-                crossings_a = sorted(crossings.get_crossings(random_graph, random_embedding))
-                crossings_b = sorted(crossings.get_crossings_quadratic(random_graph, random_embedding))
+                crossings_a = sorted(
+                    crossings.get_crossings(random_graph, random_embedding)
+                )
+                crossings_b = sorted(
+                    crossings.get_crossings_quadratic(random_graph, random_embedding)
+                )
                 assert crossings_a == crossings_b
 
                 success_count += 1
@@ -61,8 +65,12 @@ class TestLargerGraphs(object):
                     for n in range(0, i + 1)
                 }
 
-                crossings_a = sorted(crossings.get_crossings(random_graph, random_embedding))
-                crossings_b = sorted(crossings.get_crossings_quadratic(random_graph, random_embedding))
+                crossings_a = sorted(
+                    crossings.get_crossings(random_graph, random_embedding)
+                )
+                crossings_b = sorted(
+                    crossings.get_crossings_quadratic(random_graph, random_embedding)
+                )
                 assert crossings_a == crossings_b
                 success_count += 1
 
@@ -85,8 +93,12 @@ class TestLargerGraphs(object):
                     for node in random_graph.nodes()
                 }
 
-                crossings_a = sorted(crossings.get_crossings(random_graph, random_embedding))
-                crossings_b = sorted(crossings.get_crossings_quadratic(random_graph, random_embedding))
+                crossings_a = sorted(
+                    crossings.get_crossings(random_graph, random_embedding)
+                )
+                crossings_b = sorted(
+                    crossings.get_crossings_quadratic(random_graph, random_embedding)
+                )
                 assert crossings_a == crossings_b
 
                 success_count += 1

@@ -21,6 +21,7 @@ Unit tests for crossing detection.
 import math
 import random
 import unittest
+from itertools import combinations
 
 from libpysal import weights
 from libpysal.cg import voronoi_frames
@@ -990,6 +991,332 @@ class TestComplexCrossingScenarios(unittest.TestCase):
                     include_node_crossings=True,
                 )
                 success_count += 1
+
+    def test_intertwined_crossings_1(self):
+        g = nx.Graph()
+        g.add_nodes_from(range(0, 8))
+        nx.set_node_attributes(
+            g,
+            {
+                0: {"pos": [374, 427]},
+                1: {"pos": [-214, -668]},
+                2: {"pos": [605, 60]},
+                3: {"pos": [439, 832]},
+                4: {"pos": [910, 706]},
+                5: {"pos": [338, 772]},
+                6: {"pos": [-974, -948]},
+                7: {"pos": [282, 760]},
+            },
+        )
+        g.add_edges_from(
+            [(0, 7), (0, 2), (1, 3), (1, 4), (2, 5), (2, 6), (5, 6), (5, 7)]
+        )
+
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g),
+            include_node_crossings=True,
+        )
+
+    def test_intertwined_crossings_2(self):
+        g = nx.Graph()
+        g.add_nodes_from(range(0, 15))
+        nx.set_node_attributes(
+            g,
+            {
+                0: {"pos": [-704, -795]},
+                1: {"pos": [-616, 80]},
+                2: {"pos": [376, -400]},
+                3: {"pos": [-613, -542]},
+                4: {"pos": [-261, 256]},
+                5: {"pos": [-304, 721]},
+                6: {"pos": [475, -560]},
+                7: {"pos": [152, -854]},
+                8: {"pos": [-487, 347]},
+                9: {"pos": [207, -340]},
+                10: {"pos": [-406, 122]},
+                11: {"pos": [-102, 528]},
+                12: {"pos": [199, -795]},
+                13: {"pos": [309, -924]},
+                14: {"pos": [59, -355]},
+            },
+        )
+        g.add_edges_from([(6, 7), (1, 13), (4, 12), (7, 12), (0, 9), (10, 12)])
+
+        # Remove empty nodes
+        nodes_to_remove = [
+            node for node, degree in dict(g.degree()).items() if degree == 0
+        ]
+        g.remove_nodes_from(nodes_to_remove)
+
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g),
+            include_node_crossings=False,
+        )
+
+    def test_intertwined_crossings_3(self):
+        g = nx.Graph()
+        g.add_nodes_from([1, 2, 3, 4, 6, 8, 9])
+        g.add_edges_from([(1, 8), (2, 9), (3, 6), (4, 9)])
+        nx.set_node_attributes(
+            g,
+            {
+                1: {"pos": [62, 170]},
+                2: {"pos": [679, 196]},
+                3: {"pos": [20, -674]},
+                4: {"pos": [800, 375]},
+                6: {"pos": [-841, 91]},
+                8: {"pos": [-865, -969]},
+                9: {"pos": [317, 170]},
+            },
+        )
+
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g),
+            include_node_crossings=False,
+        )
+
+    def test_intertwined_crossings_4(self):
+        g = nx.Graph()
+        g.add_nodes_from([0, 1, 2, 3, 4, 5, 6])
+        g.add_edges_from([(0, 5), (1, 4), (2, 3), (5, 6)])
+        nx.set_node_attributes(
+            g,
+            {
+                0: {"pos": [-524, 438]},
+                1: {"pos": [-150, -984]},
+                2: {"pos": [149, -584]},
+                3: {"pos": [-917, -284]},
+                4: {"pos": [54, -459]},
+                5: {"pos": [-812, -284]},
+                6: {"pos": [850, 971]},
+            },
+        )
+
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g),
+            include_node_crossings=False,
+        )
+
+    def test_intertwined_crossings_5(self):
+        g = nx.Graph()
+        g.add_nodes_from([0, 1, 2, 3, 4, 5, 6])
+        g.add_edges_from([(0, 5), (0, 6), (1, 6), (2, 3), (4, 6)])
+        nx.set_node_attributes(
+            g,
+            {
+                0: {"pos": [-392, -371]},
+                1: {"pos": [671, 736]},
+                2: {"pos": [-575, 85]},
+                3: {"pos": [148, -927]},
+                4: {"pos": [308, 654]},
+                5: {"pos": [-28, 624]},
+                6: {"pos": [29, 85]},
+            },
+        )
+
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g),
+            include_node_crossings=False,
+        )
+
+    def test_intertwined_crossings_6(self):
+        g = nx.Graph()
+        g.add_nodes_from([4, 9, 12, 13, 14, 15, 18])
+        g.add_edges_from([(4, 15), (9, 15), (12, 14), (13, 18)])
+        nx.set_node_attributes(
+            g,
+            {
+                4: {"pos": [209, 838]},
+                9: {"pos": [-635, 780]},
+                12: {"pos": [-486, -89]},
+                13: {"pos": [-274, -553]},
+                14: {"pos": [-402, -880]},
+                15: {"pos": [-210, -89]},
+                18: {"pos": [-433, -754]},
+            },
+        )
+
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g),
+            include_node_crossings=False,
+        )
+
+    def test_intertwined_crossings_7(self):
+        g = nx.Graph()
+        g.add_nodes_from([0, 1, 2, 4, 5, 6, 7])
+        g.add_edges_from([(0, 2), (1, 6), (1, 4), (5, 7)])
+        nx.set_node_attributes(
+            g,
+            {
+                0: {"pos": [-429, -575]},
+                1: {"pos": [81, 603]},
+                2: {"pos": [-148, 585]},
+                4: {"pos": [892, 710]},
+                5: {"pos": [-132, -434]},
+                6: {"pos": [589, 626]},
+                7: {"pos": [-964, 603]},
+            },
+        )
+
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g),
+            include_node_crossings=False,
+        )
+
+    def test_intertwined_crossings_8(self):
+        g = nx.Graph()
+        g.add_nodes_from([1, 3, 6, 9, 10, 11, 12, 13, 15, 16, 17, 18])
+        g.add_edges_from(
+            [(1, 15), (3, 10), (6, 17), (9, 18), (9, 10), (11, 16), (12, 13)]
+        )
+        # g.add_edges_from([(1, 4), (1, 15), (7, 10), (9, 10), (9, 18), (11, 16), (12, 13)])
+        # g.add_edges_from([(1, 15), (1, 5), (3, 10), (6, 17), (9, 10), (9, 18), (11, 16)])
+        nx.set_node_attributes(
+            g,
+            {
+                1: {"pos": [-871, -865]},
+                3: {"pos": [-464, -669]},
+                6: {"pos": [-601, -346]},
+                9: {"pos": [143, 59]},
+                10: {"pos": [-32, 94]},
+                11: {"pos": [530, 785]},
+                12: {"pos": [-14, 434]},
+                13: {"pos": [-474, -702]},
+                15: {"pos": [162, 267]},
+                16: {"pos": [-494, -559]},
+                17: {"pos": [802, 318]},
+                18: {"pos": [-372, 162]},
+            },
+        )
+
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g),
+            include_node_crossings=False,
+        )
+
+    def test_intertwined_crossings_9(self):
+        g = nx.Graph()
+        g.add_nodes_from([0, 1, 2, 3, 5, 7, 9, 10, 11, 12, 13, 14, 15, 16])
+        g.add_edges_from(
+            [
+                (0, 12),
+                (0, 14),
+                (1, 15),
+                (2, 16),
+                (2, 5),
+                (3, 15),
+                (5, 7),
+                (9, 15),
+                (9, 13),
+                (10, 15),
+                (10, 11),
+                (11, 15),
+            ]
+        )
+        nx.set_node_attributes(
+            g,
+            {
+                0: {"pos": [-459, -324]},
+                1: {"pos": [-758, 851]},
+                2: {"pos": [825, -608]},
+                3: {"pos": [774, 530]},
+                5: {"pos": [-370, 713]},
+                7: {"pos": [-859, -552]},
+                9: {"pos": [566, -144]},
+                10: {"pos": [742, -259]},
+                11: {"pos": [36, -151]},
+                12: {"pos": [495, -571]},
+                13: {"pos": [151, -780]},
+                14: {"pos": [-314, 159]},
+                15: {"pos": [4, -324]},
+                16: {"pos": [-216, -292]},
+            },
+        )
+
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g),
+            include_node_crossings=False,
+        )
+
+    """
+    def test_graph_minimizer(self):
+
+        edges = [(0, 4), (0, 11), (0, 13), (0, 8), (0, 12), (0, 14), (0, 10), (0, 16), (0, 5), (0, 7), (0, 3), (0, 1),
+                 (0, 15), (0, 9), (1, 10), (1, 5), (1, 4), (1, 13), (1, 9), (1, 14), (1, 12), (1, 16), (1, 15), (1, 8),
+                 (1, 6), (1, 7), (1, 11), (2, 9), (2, 4), (2, 7), (2, 8), (2, 6), (2, 10), (2, 5), (2, 3), (2, 15),
+                 (2, 12), (2, 16), (2, 14), (3, 11), (3, 9), (3, 14), (3, 15), (3, 12), (3, 8), (3, 13), (3, 7),
+                 (3, 16), (3, 4), (3, 6), (3, 10), (4, 7), (4, 12), (4, 6), (4, 13), (4, 15), (4, 14), (4, 5), (4, 9),
+                 (4, 10), (5, 7), (5, 6), (5, 16), (5, 11), (5, 13), (5, 15), (5, 10), (5, 9), (5, 14), (6, 7), (6, 15),
+                 (6, 11), (6, 13), (6, 16), (6, 14), (6, 9), (6, 10), (6, 8), (7, 15), (7, 14), (7, 12), (7, 11),
+                 (7, 13), (7, 16), (7, 9), (7, 8), (8, 10), (8, 13), (8, 14), (8, 12), (8, 9), (8, 11), (9, 10),
+                 (9, 12), (9, 11), (9, 14), (9, 15), (9, 16), (9, 13), (10, 15), (10, 11), (10, 13), (10, 14), (10, 16),
+                 (10, 12), (11, 16), (11, 13), (11, 12), (11, 15), (11, 14), (12, 14), (12, 13), (12, 15), (12, 16),
+                 (13, 16), (13, 14), (13, 15), (14, 16), (15, 16)]
+
+        while True:
+            random.shuffle(edges)
+            count = 0
+
+            found_any = False
+
+            for subset in combinations(edges, len(edges) - 1):
+                count += 1
+                g = nx.Graph()
+                g.add_nodes_from(range(0, 17))
+                nx.set_node_attributes(g,
+                                       {0: {'pos': [-459, -324]}, 1: {'pos': [-758, 851]}, 2: {'pos': [825, -608]},
+                                        3: {'pos': [774, 530]}, 4: {'pos': [-421, -529]}, 5: {'pos': [-370, 713]},
+                                        6: {'pos': [720, 856]}, 7: {'pos': [-859, -552]}, 8: {'pos': [-660, -745]},
+                                        9: {'pos': [566, -144]}, 10: {'pos': [742, -259]}, 11: {'pos': [36, -151]},
+                                        12: {'pos': [495, -571]}, 13: {'pos': [151, -780]}, 14: {'pos': [-314, 159]},
+                                        15: {'pos': [4, -324]}, 16: {'pos': [-216, -292]}}
+                                       )
+                g.add_edges_from(subset)
+
+                crossings_a = sorted(crossings.get_crossings(g))
+                crossings_b = sorted(crossings.get_crossings_quadratic(g))
+
+                if crossings_a != crossings_b:
+                    min_length = len(subset)
+                    min_edges = subset
+                    edges = list(subset)
+                    found_any = True
+
+                    print(f"Min edge size: {min_length}")
+                    print(f"Edges: {min_edges}")
+                    print(f"Graphs tested: {count}")
+
+                    with open("./test_results.txt", "w") as file:
+                        g_copy = g.copy()
+
+                        nodes_to_remove = [node for node, degree in dict(g.degree()).items() if degree == 0]
+                        g_copy.remove_nodes_from(nodes_to_remove)
+
+                        print(g_copy.order())
+                        print(list(g_copy.edges()))
+                        print(dict(g_copy.nodes(data=True)))
+                        print(nx.get_node_attributes(g, "pos"))
+
+                        file.write(f"\n\ng = nx.Graph()")
+                        file.write(f"\ng.add_nodes_from({str(list(g_copy.nodes()))})")
+                        file.write(f"\ng.add_edges_from({g_copy.edges()})")
+                        file.write(f"\nnx.set_node_attributes(g, {str(dict(g_copy.nodes(data=True)))})\n")
+
+                    break
+            if not found_any:
+                print(f"{len(edges)}: {count}")
+                assert False
+            print(f"{len(edges)}: {count}")
+    """
 
     def test_random_graph_2(self):
         random.seed(9018098129039)

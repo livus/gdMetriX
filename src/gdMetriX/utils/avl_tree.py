@@ -277,6 +277,63 @@ class ParameterizedBalancedBinarySearchTree:
             return None
         return min_element.content
 
+    def force_remove(self, item: SortableObject) -> None:
+        """
+        Iterates over all objects in the tree and removes all that are equal to the given item.
+        :param item: Item that shall be deleted
+        :type item: SortableObject
+        :return: None
+        :rtype: None
+        """
+        found_item = False
+
+        def _remove_recursive(root: BBTNode, value: object) -> Optional[BBTNode]:
+            nonlocal found_item
+
+            if root is None:
+                return None
+
+            if value == root.content:
+                # We have found the actual root that should be deleted
+                found_item = True
+
+                # If either the left or right is None, we can simply move the node one up
+                if root.left is None:
+                    return root.right
+                if root.right is None:
+                    return root.left
+
+                # Move min up and delete min down the road
+                temp = self._get_min(root.right)
+                root.content = temp.content
+                root.right = _remove_recursive(root.right, temp.content)
+            else:
+                root.left = _remove_recursive(root.left, value)
+                root.right = _remove_recursive(root.right, value)
+
+            self._update_height(root)
+
+            # Re-balancing
+            balance = self._get_balance(root)
+
+            if balance > 1:
+                if self._get_balance(root.left) >= 0:
+                    return self._right_rotate(root)
+                root.left = self._left_rotate(root.left)
+                return self._right_rotate(root)
+            if balance < -1:
+                if self._get_balance(root.right) <= 0:
+                    return self._left_rotate(root)
+                root.right = self._right_rotate(root.right)
+                return self._left_rotate(root)
+
+            return root
+
+        if found_item:
+            self._length -= 1
+
+        self.root = _remove_recursive(self.root, item)
+
     def remove(self, item: SortableObject, key_parameter: object) -> None:
         """
             Removes the item from the tree - if it is present.
