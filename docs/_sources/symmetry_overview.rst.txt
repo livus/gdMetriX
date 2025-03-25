@@ -27,6 +27,10 @@ An overview of all identified symmetry metrics can be seen in the table below, m
 Comparison
 ----------
 
+.. note::
+    For a more in-depth theoretical comparison of different symmetry metrics refer to :download:`this guide<_static/symmetry_guide.pdf>`.
+
+
 A more in-depth comparison between the node-, edge-, and stress-based approaches can be seen in the corresponding study by :cite:t:`welch_measuring_2017`.
 They concluded, that the node-based metric agreed with human perception
 of symmetry slightly more often compared to the edge-based metric. The stress-based metric

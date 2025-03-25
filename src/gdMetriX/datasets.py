@@ -285,6 +285,7 @@ def get_available_graph_names(dataset: str) -> List[str]:
     """
     Returns a list of all graphs available in the given dataset.
     Use :func:`get_available_datasets()` to obtain a list of available datasets.
+
     :param dataset: Name of the dataset
     :type dataset: str
     :return: List of available graphs

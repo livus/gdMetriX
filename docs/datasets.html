@@ -344,10 +344,12 @@
 <p>This module makes graphs collected by the
 ‘<a class="reference external" href="https://visdunneright.github.io/gd_benchmark_sets/">Graph Layout Benchmark Datasets</a>’
 project from the Northeastern University Visualization Lab easily accessible for networkX.</p>
-<p>The project aims to collect datasets used for graph layout algorithms and make them available for long-term access.
+<p>The project aims to collect datasets used for graph layout algorithms and make them available for
+long-term access.
 The graphs are stored on the <a class="reference external" href="https://osf.io/j7ucv/">Open Science Foundation platform</a></p>
 <p>Information about the individual datasets can be found at the
-<a class="reference external" href="https://visdunneright.github.io/gd_benchmark_sets/">project homepage</a>. For more information refer to the
+<a class="reference external" href="https://visdunneright.github.io/gd_benchmark_sets/">project homepage</a>.
+For more information refer to the
 corresponding <a class="reference external" href="https://osf.io/preprints/osf/yftju">short paper</a>
 <a class="footnote-reference brackets" href="#footcite-dibartolomeo2023collectionbenchmarkdatasets" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
 <section id="usage">
@@ -363,8 +365,9 @@ corresponding <a class="reference external" href="https://osf.io/preprints/osf/y
 <span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">{name}</span><span class="s2">&#39; has </span><span class="si">{n}</span><span class="s2"> vertices and </span><span class="si">{m}</span><span class="s2"> edges&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">order</span><span class="p">(),</span> <span class="n">m</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">edges</span><span class="p">()))</span>
 </pre></div>
 </div>
-<p>The module takes care of downloading, caching, maintaining and updating the graphs automatically. In case there are
-any problems or you want to free up disc space, you can clean all saved data with the following command:</p>
+<p>The module takes care of downloading, caching, maintaining and updating the graphs automatically.
+In case there are any problems or you want to free up disc space, you can clean all saved data
+with the following command:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">clear_cache</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -375,16 +378,18 @@ any problems or you want to free up disc space, you can clean all saved data wit
 <dl class="py function">
 <dt class="sig sig-object py" id="datasets.clear_cache">
 <span class="sig-prename descclassname"><span class="pre">datasets.</span></span><span class="sig-name descname"><span class="pre">clear_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#datasets.clear_cache" title="Link to this definition">#</a></dt>
-<dd><p>In case that there any issues with corrupted data, call this method to clear all graphs saved to the disk.</p>
+<dd><p>In case that there any issues with corrupted data, call this method
+to clear all graphs saved to the disk.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="datasets.get_available_datasets">
 <span class="sig-prename descclassname"><span class="pre">datasets.</span></span><span class="sig-name descname"><span class="pre">get_available_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#datasets.get_available_datasets" title="Link to this definition">#</a></dt>
 <dd><blockquote>
-<div><p>Returns a list of all available datasets as a list of their identifying names. To get more information on a
-specific dataset,  refer to the homepage of the
-‘<a class="reference external" href="https://visdunneright.github.io/gd_benchmark_sets/">Graph Layout Benchmark Datasets</a>’ project.</p>
+<div><p>Returns a list of all available datasets as a list of their identifying names.
+To get more information on a specific dataset,  refer to the homepage of the
+‘<a class="reference external" href="https://visdunneright.github.io/gd_benchmark_sets/">Graph Layout Benchmark Datasets</a>’
+project.</p>
 <p>Example:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">available_datasets</span> <span class="o">=</span> <span class="n">get_available_datasets</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">available_datasets</span><span class="p">)</span>
@@ -403,6 +408,53 @@ specific dataset,  refer to the homepage of the
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="datasets.get_available_graph_names">
+<span class="sig-prename descclassname"><span class="pre">datasets.</span></span><span class="sig-name descname"><span class="pre">get_available_graph_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#datasets.get_available_graph_names" title="Link to this definition">#</a></dt>
+<dd><p>Returns a list of all graphs available in the given dataset.
+Use <a class="reference internal" href="#datasets.get_available_datasets" title="datasets.get_available_datasets"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_available_datasets()</span></code></a> to obtain a list of available datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>str</em>) – Name of the dataset</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of available graphs</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datasets.get_specific_graph">
+<span class="sig-prename descclassname"><span class="pre">datasets.</span></span><span class="sig-name descname"><span class="pre">get_specific_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_attributes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Graph</span></span></span><a class="headerlink" href="#datasets.get_specific_graph" title="Link to this definition">#</a></dt>
+<dd><p>Use this function if you only want to retrieve a single graph from a dataset
+instead of iterating over the whole dataset using <a class="reference internal" href="#datasets.iterate_dataset" title="datasets.iterate_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">iterate_dataset()</span></code></a>.</p>
+<p><strong>Note</strong>: Do not use this function to iterate over the whole dataset. You might run
+into a ‘429 Too Many Requests’ HTTP Error, as the connection to OSF is reestablished
+on each call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>str</em>) – Name of the dataset</p></li>
+<li><p><strong>graph_name</strong> (<em>str</em>) – Name of the graph in the dataset</p></li>
+<li><p><strong>adapt_attributes</strong> (<em>bool</em>) – If true, “weight”, “x” and “y” are converted to float (if present),
+and a “pos” attribute is calculated from “x” and “y”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The graph in question as a networkX graph</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>nx.Graph</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if the given graph is not available in the dataset</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="datasets.iterate_dataset">
 <span class="sig-prename descclassname"><span class="pre">datasets.</span></span><span class="sig-name descname"><span class="pre">iterate_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adapt_attributes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Graph</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#datasets.iterate_dataset" title="Link to this definition">#</a></dt>
 <dd><p>Generates an iterator of all graphs in the specified data set.</p>
@@ -416,8 +468,8 @@ specific dataset,  refer to the homepage of the
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dataset</strong> (<em>str</em>) – name of the dataset.</p></li>
-<li><p><strong>adapt_attributes</strong> (<em>bool</em>) – If true, “weight”, “x” and “y” are converted to float (if present), and a “pos” attribute
-is calculated from “x” and “y”</p></li>
+<li><p><strong>adapt_attributes</strong> (<em>bool</em>) – If true, “weight”, “x” and “y” are converted to float (if present),
+and a “pos” attribute is calculated from “x” and “y”</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -469,6 +521,8 @@ is calculated from “x” and “y”</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#methods">Methods</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datasets.clear_cache"><code class="docutils literal notranslate"><span class="pre">clear_cache()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datasets.get_available_datasets"><code class="docutils literal notranslate"><span class="pre">get_available_datasets()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datasets.get_available_graph_names"><code class="docutils literal notranslate"><span class="pre">get_available_graph_names()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datasets.get_specific_graph"><code class="docutils literal notranslate"><span class="pre">get_specific_graph()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datasets.iterate_dataset"><code class="docutils literal notranslate"><span class="pre">iterate_dataset()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bibliography">Bibliography</a></li>
 </ul>
@@ -508,7 +562,7 @@ is calculated from “x” and “y”</p></li>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>
