@@ -110,7 +110,7 @@ def _equal_crossings(crossings_a, crossings_b, g, title):
         print(dict(g.nodes(data=True)))
         print(nx.get_node_attributes(g, "pos"))
 
-        _draw_graph(g, title, crossings_a, crossings_b)
+        # _draw_graph(g, title, crossings_a, crossings_b)
 
     assert crossings_a_sorted == crossings_b_sorted
 
@@ -121,6 +121,7 @@ def assert_crossing_equality(
     crossing_function,
     include_rotation: bool = False,
     include_node_crossings: bool = False,
+    consider_singletons: bool = False,
     title=None,
 ):
     """
@@ -139,7 +140,11 @@ def assert_crossing_equality(
     if title is None:
         title = inspect.getouterframes(inspect.currentframe(), 2)[1][3]
     _equal_crossings(
-        crossing_function(g, include_node_crossings=include_node_crossings),
+        crossing_function(
+            g,
+            include_node_crossings=include_node_crossings,
+            consider_singletons=consider_singletons,
+        ),
         crossing_list,
         g,
         title,
@@ -151,7 +156,7 @@ def assert_crossing_equality(
             crossing_list = _rotate_crossings(crossing_list, 10)
             print(nx.get_node_attributes(g, "pos"))
             _equal_crossings(
-                crossing_function(g, include_node_crossings=include_node_crossings),
+                crossing_function(g, include_node_crossings=include_node_crossings, consider_singletons=consider_singletons),
                 crossing_list,
                 g,
                 title,

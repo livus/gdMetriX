@@ -73,46 +73,50 @@ def _check_lines(
     line_a: SweepLineEdgeInfo, line_b: SweepLineEdgeInfo
 ) -> Union[CrossingPoint, CrossingLine, None]:
     # TODO Replace with custom implementation without shapely in the future
-    if line_a is not None and line_b is not None:
-        line1 = LineString((line_a.start_position, line_a.end_position))
-        line2 = LineString((line_b.start_position, line_b.end_position))
+    if line_a is None or line_b is None:
+        return None
 
-        crossing_point = line1.intersection(line2)
+    line1 = LineString((line_a.start_position, line_a.end_position))
+    line2 = LineString((line_b.start_position, line_b.end_position))
 
-        if not crossing_point.is_empty:
-            if isinstance(crossing_point, LineString):
-                return CrossingLine(
-                    CrossingPoint(
-                        crossing_point.coords[0][0], crossing_point.coords[0][1]
-                    ),
-                    CrossingPoint(
-                        crossing_point.coords[1][0], crossing_point.coords[1][1]
-                    ),
-                )
-            if isinstance(
-                crossing_point, shapely.geometry.Point
-            ) and not line_a.share_endpoint(line_b):
-                return CrossingPoint(crossing_point.x, crossing_point.y)
-        else:
-            # Check if an endpoint lies on another edge
-            line_seg_a = CrossingLine(line_a.start_position, line_a.end_position)
-            line_seg_b = CrossingLine(line_b.start_position, line_b.end_position)
+    crossing_point = line1.intersection(line2)
 
-            distance_a_sta = line_seg_b.distance_to_point(line_a.start_position)
-            distance_a_end = line_seg_b.distance_to_point(line_a.end_position)
-            distance_b_sta = line_seg_a.distance_to_point(line_b.start_position)
-            distance_b_end = line_seg_a.distance_to_point(line_b.end_position)
+    if not crossing_point.is_empty:
+        if isinstance(crossing_point, LineString):
+            return CrossingLine(
+                CrossingPoint(crossing_point.coords[0][0], crossing_point.coords[0][1]),
+                CrossingPoint(crossing_point.coords[1][0], crossing_point.coords[1][1]),
+            )
+        if isinstance(
+            crossing_point, shapely.geometry.Point
+        ) and not line_a.share_endpoint(line_b):
+            return CrossingPoint(crossing_point.x, crossing_point.y)
+    else:
+        # Check if an endpoint lies on another edge
+        potential_crossing_a = _check_point_and_line(line_a.start_position, line_b)
+        potential_crossing_b = _check_point_and_line(line_a.end_position, line_b)
+        potential_crossing_c = _check_point_and_line(line_b.start_position, line_a)
+        potential_crossing_d = _check_point_and_line(line_b.end_position, line_a)
 
-            # TODO create numeric helper function with precision in utils
-            if numeric.numeric_eq(distance_a_sta, 0.0):
-                return CrossingPoint(line_a.start_position[0], line_a.start_position[1])
-            if numeric.numeric_eq(distance_a_end, 0.0):
-                return CrossingPoint(line_a.end_position[0], line_a.end_position[1])
-            if numeric.numeric_eq(distance_b_sta, 0.0):
-                return CrossingPoint(line_b.start_position[0], line_b.start_position[1])
-            if numeric.numeric_eq(distance_b_end, 0.0):
-                return CrossingPoint(line_b.end_position[0], line_b.end_position[1])
+        if potential_crossing_a is not None:
+            return potential_crossing_a
+        if potential_crossing_b is not None:
+            return potential_crossing_b
+        if potential_crossing_c is not None:
+            return potential_crossing_c
+        if potential_crossing_d is not None:
+            return potential_crossing_d
 
+    return None
+
+
+def _check_point_and_line(
+    point: CrossingPoint, line: SweepLineEdgeInfo
+) -> Union[CrossingPoint, None]:
+    line_seg = CrossingLine(line.start_position, line.end_position)
+
+    if numeric.numeric_eq(line_seg.distance_to_point(point), 0.0):
+        return CrossingPoint(point.x, point.y)
     return None
 
 
@@ -147,6 +151,7 @@ def get_crossings_quadratic(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
     include_node_crossings: bool = False,
+    consider_singletons: bool = False,
     precision: float = 1e-09,
 ) -> List[Crossing]:
     r"""
@@ -168,11 +173,23 @@ def get_crossings_quadratic(
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
     :type include_node_crossings: bool
+    :param consider_singletons: If true, singletons that lie on an edge or other vertices will be reported as well.
+    :type consider_singletons: bool
     :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
     :type precision: float
     :return: A list of crossings, with a list of involved edges per crossing.
     :rtype: List[Crossing]
     """
+
+    if g is None:
+        raise ValueError(g)
+    if isinstance(g, (nx.MultiGraph, nx.MultiDiGraph)):
+        raise ValueError("Multi graphs are not supported")
+
+    if consider_singletons and not include_node_crossings:
+        raise ValueError(
+            f"Invalid parameter combinations: cannot consider singletons if node crossings are disabled as behaviour is undefined."
+        )
 
     numeric.set_precision(precision)
     node_positions = _convert_to_crossing_points(g, pos)
@@ -180,27 +197,56 @@ def get_crossings_quadratic(
 
     for edge1, edge2 in itertools.combinations(g.edges(), 2):
         crossing_point = _check_lines(
-            crossing_data_types.SweepLineEdgeInfo(
-                edge1, node_positions[edge1[0]], node_positions[edge1[1]]
-            ),
-            crossing_data_types.SweepLineEdgeInfo(
-                edge2, node_positions[edge2[0]], node_positions[edge2[1]]
-            ),
+            crossing_data_types.SweepLineEdgeInfo.from_edge(edge1, node_positions),
+            crossing_data_types.SweepLineEdgeInfo.from_edge(edge2, node_positions),
         )
 
         if crossing_point is not None:
             crossings.append(Crossing(crossing_point, {edge1, edge2}))
 
+    if consider_singletons:
+        singletons = list(sorted(nx.isolates(g), key=lambda x: node_positions[x]))
+
+        previous_singleton = None
+        prev_pos = None
+
+        for singleton in singletons:
+            current_pos = node_positions[singleton]
+
+            if current_pos == prev_pos:
+                crossings.append(
+                    Crossing(current_pos, set(), {singleton, previous_singleton})
+                )
+            else:
+                # Check all edges for overlap
+                for edge in g.edges():
+                    crossing_point = _check_point_and_line(
+                        current_pos,
+                        crossing_data_types.SweepLineEdgeInfo.from_edge(
+                            edge, node_positions
+                        ),
+                    )
+
+                    if crossing_point is not None:
+                        crossings.append(Crossing(current_pos, {edge}, {singleton}))
+                        break
+
+            print(f"Singleton: {singleton}")
+
+            previous_singleton = singleton
+            prev_pos = node_positions[previous_singleton]
+
     crossings.sort()
 
+    # Group together crossings
     previous_crossing = None
 
-    # Group together crossings
     i = 0
     while i < len(crossings):
         crossing = crossings[i]
         if previous_crossing is not None and previous_crossing.pos == crossing.pos:
             previous_crossing.involved_edges.update(crossing.involved_edges)
+            previous_crossing.involved_singletons.update(crossing.involved_singletons)
             crossings.pop(i)
         else:
             i += 1
@@ -208,12 +254,12 @@ def get_crossings_quadratic(
 
     def _filter_node_crossings(cr: Crossing):
         if isinstance(cr.pos, CrossingPoint):
-            cr.involved_edges = _filter_crossing_edges(cr, node_positions, False)
-        return len(cr.involved_edges) > 1
+            cr.involved_edges = _filter_crossing_edges(
+                cr, node_positions, include_node_crossings
+            )
+        return len(cr.involved_edges) + len(cr.involved_singletons) > 1
 
-    if not include_node_crossings:
-        return list(filter(_filter_node_crossings, crossings))
-    return crossings
+    return list(filter(_filter_node_crossings, crossings))
 
 
 def _build_event_queue(g, node_positions: Dict[object, CrossingPoint]):
@@ -229,31 +275,26 @@ def _build_event_queue(g, node_positions: Dict[object, CrossingPoint]):
     return queue
 
 
+def _share_common_endpoint(edges: set) -> bool:
+    if edges is None or len(edges) <= 1:
+        return False
+
+    common_elements = set(next(iter(edges)))
+
+    for edge in edges:
+        common_elements &= set(edge)
+
+    return len(common_elements) > 0
+
+
 def _filter_crossing_edges(
     cr: Crossing, pos: Dict[object, CrossingPoint], include_node_crossings: bool
 ) -> set:
-    if include_node_crossings:
-        edges = cr.involved_edges
+    # TODO make sure that this method is only called on crossing points, not crossing lines
 
-        # If all share an endpoint it is actually not a valid crossing
-        if len(edges) > 0:
-            edge_list = list(edges)
-            endpoint_a = edge_list[0][0]
-            endpoint_b = edge_list[0][1]
-            contains_non_incident = False
-            for index in range(1, len(edge_list)):
-                if (
-                    edge_list[index][0] != endpoint_a
-                    and edge_list[index][1] != endpoint_a
-                    and edge_list[index][0] != endpoint_b
-                    and edge_list[index][1] != endpoint_b
-                ):
-                    contains_non_incident = True
-                    break
+    edges = cr.involved_edges
 
-            if not contains_non_incident:
-                return set()
-    else:
+    if not include_node_crossings:
         # Only add those edges which actually cross and not those just ending in that point
         edges = []
         for edge in cr.involved_edges:
@@ -262,25 +303,40 @@ def _filter_crossing_edges(
 
         edges = set(edges)
 
-    if len(edges) <= 1:
+    # Check if all edges share a common endpoint
+    if len(cr.involved_singletons) == 0 and _share_common_endpoint(edges):
+
+        # If there are edges with length 0 (i.e. the second endpoint is still in the crossing point)
+        # we actually still consider this a crossing
+        if not any(
+            edge[0] != edge[1]
+            and numeric.numeric_eq(pos[edge[0]].distance(pos[edge[1]]), 0)
+            for edge in edges
+        ):
+            return set()
+
+    # If only one element is left, this is not actually a crossing
+    if len(edges) + len(cr.involved_singletons) <= 1:
         return set()
 
     # It might be the case that we have removed all actual crossings and what remains are just crossing lines
-    just_lines = True
-    edge_list = list(edges)
-    for index in range(1, len(edge_list)):
-        if not isinstance(
-            _check_lines(
-                SweepLineEdgeInfo.from_edge(edge_list[0], pos),
-                SweepLineEdgeInfo.from_edge(edge_list[index], pos),
-            ),
-            CrossingLine,
-        ):
-            just_lines = False
-            break
+    # TODO I think we can remove this
+    if len(edges) > 1:
+        just_lines = True
+        edge_list = list(edges)
+        for index in range(1, len(edge_list)):
+            if not isinstance(
+                _check_lines(
+                    SweepLineEdgeInfo.from_edge(edge_list[0], pos),
+                    SweepLineEdgeInfo.from_edge(edge_list[index], pos),
+                ),
+                CrossingLine,
+            ):
+                just_lines = False
+                break
 
-    if just_lines:
-        return set()
+        if just_lines:
+            return set()
 
     return edges
 
@@ -289,6 +345,7 @@ def get_crossings(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
     include_node_crossings: bool = False,
+    consider_singletons: bool = False,
     precision: float = 1e-09,
 ) -> List[Crossing]:
     r"""
@@ -309,11 +366,18 @@ def get_crossings(
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
     :type include_node_crossings: bool
+    :param consider_singletons: If true, singletons that lie on an edge or other vertices will be reported as well.
+    :type consider_singletons: bool
     :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
     :type precision: float
     :return: A list of crossings, with a list of involved edges per crossing.
     :rtype: List[Crossing]
     """
+
+    if g is None:
+        raise ValueError(g)
+    if isinstance(g, (nx.MultiGraph, nx.MultiDiGraph)):
+        raise ValueError("Multi graphs are not supported")
 
     numeric.set_precision(precision)
 

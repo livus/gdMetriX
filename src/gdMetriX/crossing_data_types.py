@@ -106,19 +106,32 @@ class Crossing:
     Represents a single crossing point
     """
 
-    def __init__(self, pos: Union[CrossingPoint, CrossingLine], involved_edges: set):
+    def __init__(
+        self,
+        pos: Union[CrossingPoint, CrossingLine],
+        involved_edges: set,
+        involved_singletons: set = None,
+    ):
+        if involved_singletons is None:
+            involved_singletons = set()
+
         self.pos = pos
         self.involved_edges = involved_edges
+        self.involved_singletons = involved_singletons
 
     def __str__(self):
-        return f"[{self.pos}, edges: {sorted(self.involved_edges)}]"
+        return f"[{self.pos}, edges: {sorted(self.involved_edges)}, singletons: {sorted(self.involved_singletons)}]"
 
     def __repr__(self):
         return self.__str__()
 
     def __eq__(self, other):
         if isinstance(other, Crossing):
-            return self.pos == other.pos and self.involved_edges == other.involved_edges
+            return (
+                self.pos == other.pos
+                and self.involved_edges == other.involved_edges
+                and self.involved_singletons == other.involved_singletons
+            )
         return False
 
     def __lt__(self, other):
