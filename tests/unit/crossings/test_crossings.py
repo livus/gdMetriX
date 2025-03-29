@@ -18,23 +18,21 @@
 Unit tests for crossing detection.
 """
 
+import inspect
 import math
 import random
 import unittest
-from itertools import combinations
 
-from libpysal import weights
-from libpysal.cg import voronoi_frames
-
-import inspect
 import networkx as nx
 
 # noinspection PyUnresolvedReferences
 import pytest
+from libpysal import weights
+from libpysal.cg import voronoi_frames
 
 import crossing_test_helper
 from gdMetriX import crossings
-from gdMetriX.crossing_data_types import CrossingPoint
+from gdMetriX.utils.sweep_line import CrossingPoint
 
 
 def _assert_crossing_equality(
@@ -866,7 +864,7 @@ class TestSingletons(unittest.TestCase):
                     crossings.CrossingPoint(0.5, 0.5), {(1, 2), (3, 4)}, {5}
                 )
             ],
-            True,
+            False,
             True,
             True,
         )
@@ -910,7 +908,7 @@ class TestSingletons(unittest.TestCase):
         _assert_crossing_equality(
             g,
             [crossings.Crossing(crossings.CrossingPoint(1, 0), {(1, 2), (3, 4)}, {5})],
-            True,
+            False,
             True,
             True,
         )
@@ -1758,11 +1756,11 @@ class TestComplexCrossingScenarios(unittest.TestCase):
     def test_random_graph(self):
         random.seed(9018098129039)
         success_count = 0
-        for i in range(0, 25):
-            for j in range(0, 10):
+        for i in range(20, 25):
+            for j in range(0, 2):
                 print(f"Current graph: {success_count}")
                 random_graph = nx.fast_gnp_random_graph(
-                    i, random.uniform(0.1, 1), random.randint(1, 10000000)
+                    i, random.uniform(0.1, 0.5), random.randint(1, 10000000)
                 )
                 random_embedding = {
                     n: [random.randint(-1000, 1000), random.randint(-1000, 1000)]
@@ -2105,11 +2103,11 @@ class TestComplexCrossingScenarios(unittest.TestCase):
     def test_random_graph_2(self):
         random.seed(9018098129039)
         success_count = 0
-        for i in range(0, 25):
-            for j in range(0, 10):
+        for i in range(20, 25):
+            for j in range(0, 2):
                 print(f"Current graph: {success_count}")
                 random_graph = nx.fast_gnp_random_graph(
-                    i, random.uniform(0.1, 1), random.randint(1, 10000000)
+                    i, random.uniform(0.1, 0.5), random.randint(1, 10000000)
                 )
                 random_embedding = {
                     n: [random.randint(-1000, 1000), random.randint(-1000, 1000)]

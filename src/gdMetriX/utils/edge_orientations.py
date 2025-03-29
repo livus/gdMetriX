@@ -38,6 +38,7 @@ def order_clockwise(
     :return: Sorted list of nodes
     :rtype: List
     """
+
     def _get_angle_between_nodes(pos_a, pos_b) -> float:
         vector = Vector.from_point(pos_b) - Vector.from_point(pos_a)
         return Vector(0, 1).angle(vector)

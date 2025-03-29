@@ -1,6 +1,6 @@
 # gdMetriX
 #
-# Copyright (C) 2024  Martin Nöllenburg, Sebastian Röder, Markus Wallinger
+# Copyright (C) 2025  Martin Nöllenburg, Sebastian Röder, Markus Wallinger
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,29 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Supporting module for the crossings module containing some datastructures.
-"""
-
 from enum import Enum
-from typing import (
-    List,
-    Optional,
-    Iterable,
-    Union,
-    Self,
-    Tuple,
-    SupportsIndex,
-    Set,
-    Dict,
-)
+from typing import Tuple, Self, Set, SupportsIndex, Dict, List, Optional, Iterable
 
-from gdMetriX.common import Numeric, Vector, LineSegment
+from gdMetriX.common import Vector, Numeric, LineSegment
 from gdMetriX.utils.avl_tree import (
     SortableObject,
     ParameterizedBalancedBinarySearchTree,
 )
-from gdMetriX.utils.numeric import numeric_eq, greater_than, get_precision
+from gdMetriX.utils.numeric import numeric_eq, get_precision, greater_than
 
 
 class CrossingPoint(Vector):
@@ -99,53 +85,6 @@ class CrossingLine(LineSegment):
 
     def __str__(self):
         return f"Line({self.start}, {self.end})"
-
-
-class Crossing:
-    """
-    Represents a single crossing point
-    """
-
-    def __init__(
-        self,
-        pos: Union[CrossingPoint, CrossingLine],
-        involved_edges: set,
-        involved_singletons: set = None,
-    ):
-        if involved_singletons is None:
-            involved_singletons = set()
-
-        self.pos = pos
-        self.involved_edges = involved_edges
-        self.involved_singletons = involved_singletons
-
-    def __str__(self):
-        return f"[{self.pos}, edges: {sorted(self.involved_edges)}, singletons: {sorted(self.involved_singletons)}]"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __eq__(self, other):
-        if isinstance(other, Crossing):
-            return (
-                self.pos == other.pos
-                and self.involved_edges == other.involved_edges
-                and self.involved_singletons == other.involved_singletons
-            )
-        return False
-
-    def __lt__(self, other):
-        # Comparison purely based on CrPoint/CrLineSegment
-        return self.pos < other.pos
-
-
-class EventType(Enum):
-    """Simple enum for distinguishing in which scenario an edge is introduced"""
-
-    START = 1
-    END = 2
-    CROSSING = 3
-    HORIZONTAL = 4
 
 
 # region Edge and point classes for insertion into AVL tree
@@ -275,6 +214,7 @@ class SweepLinePoint(SortableObject):
         self.start_list: Set[SweepLineEdgeInfo] = set()
         self.interior_list: Set[SweepLineEdgeInfo] = set()
         self.horizontal_list: Set[SweepLineEdgeInfo] = set()
+        self.singletons: Set[object] = set()
         self.position: CrossingPoint = position
         self.is_crossing: bool = False
 
@@ -303,6 +243,15 @@ class SweepLinePoint(SortableObject):
 # region Event queue and sweep line status
 
 
+class _EventType(Enum):
+    """Simple enum for distinguishing in which scenario an edge is introduced"""
+
+    START = 1
+    END = 2
+    CROSSING = 3
+    HORIZONTAL = 4
+
+
 class EventQueue:
     """
     An event queue ordering SweepLinePoints by their total order.
@@ -324,12 +273,12 @@ class EventQueue:
         self._add(
             edge_info.start_position,
             edge_info,
-            EventType.HORIZONTAL if edge_info.is_horizontal() else EventType.START,
+            _EventType.HORIZONTAL if edge_info.is_horizontal() else _EventType.START,
         )
         self._add(
             edge_info.end_position,
             edge_info,
-            EventType.HORIZONTAL if edge_info.is_horizontal() else EventType.END,
+            _EventType.HORIZONTAL if edge_info.is_horizontal() else _EventType.END,
         )
 
     def add_crossing(
@@ -351,12 +300,30 @@ class EventQueue:
             # If the edge only crosses in an endpoint, it will not be added as an "interior point"
             if crossing not in (edge.start_position, edge.end_position):
                 if edge.is_horizontal():
-                    self._add(crossing, edge, EventType.HORIZONTAL)
+                    self._add(crossing, edge, _EventType.HORIZONTAL)
                 else:
-                    self._add(crossing, edge, EventType.CROSSING)
+                    self._add(crossing, edge, _EventType.CROSSING)
+
+    def add_singleton(self, point: CrossingPoint, node: object) -> None:
+        """
+        Adds a singleton to the queue. If there is already an event point with the same position,
+        the new event point will be added to the existing event point.
+        :param point: Position of the singleton
+        :type point: CrossingPoint
+        :param node: Index of the node of the networkX graph
+        :type node: object
+        :return: None
+        :rtype: None
+        """
+        new_point_to_add = SweepLinePoint(point)
+        sweep_line_point = self.sorted_list.find(new_point_to_add, None)
+        if sweep_line_point is None:
+            sweep_line_point = new_point_to_add
+            self.sorted_list.insert(sweep_line_point, None)
+        sweep_line_point.singletons.add(node)
 
     def _add(
-        self, point: CrossingPoint, edge_info: SweepLineEdgeInfo, event_type: EventType
+        self, point: CrossingPoint, edge_info: SweepLineEdgeInfo, event_type: _EventType
     ) -> None:
 
         new_point_to_add = SweepLinePoint(point)
@@ -367,14 +334,14 @@ class EventQueue:
             self.sorted_list.insert(sweep_line_point, None)
 
         list_to_add_to = None
-        if event_type == EventType.START:
+        if event_type == _EventType.START:
             list_to_add_to = sweep_line_point.start_list
-        elif event_type == EventType.END:
+        elif event_type == _EventType.END:
             list_to_add_to = sweep_line_point.end_list
-        elif event_type == EventType.CROSSING:
+        elif event_type == _EventType.CROSSING:
             list_to_add_to = sweep_line_point.interior_list
             sweep_line_point.is_crossing = True
-        elif event_type == EventType.HORIZONTAL:
+        elif event_type == _EventType.HORIZONTAL:
             list_to_add_to = sweep_line_point.horizontal_list
 
         list_to_add_to.add(edge_info)
@@ -392,30 +359,6 @@ class EventQueue:
 
     def __repr__(self) -> str:
         return self.__str__()
-
-
-def get_x_at_y(edge_info: SweepLineEdgeInfo, y: Numeric) -> Numeric:
-    """
-    Returns the x value at the specified y value for the line build from the edge_info.
-    :param edge_info: Edge that defines the line.
-    :type edge_info: SweepLineEdgeInfo
-    :param y: Height to measure the x value at
-    :type y: Numeric
-    :return: X value
-    :rtype: Numeric
-    """
-    start = edge_info.start_position
-    end = edge_info.end_position
-
-    if numeric_eq(start.x, end.x):
-        return start.x
-    if numeric_eq(end.y - start.y, 0):
-        return min(start.x, end.x)
-
-    m = (end.y - start.y) / (end.x - start.x)
-    b = start.y - m * start.x
-
-    return (y - b) / m
 
 
 class SweepLineStatus:
@@ -494,3 +437,27 @@ class SweepLineStatus:
 
 
 # endregion
+
+
+def get_x_at_y(edge_info: SweepLineEdgeInfo, y: Numeric) -> Numeric:
+    """
+    Returns the x value at the specified y value for the line build from the edge_info.
+    :param edge_info: Edge that defines the line.
+    :type edge_info: SweepLineEdgeInfo
+    :param y: Height to measure the x value at
+    :type y: Numeric
+    :return: X value
+    :rtype: Numeric
+    """
+    start = edge_info.start_position
+    end = edge_info.end_position
+
+    if numeric_eq(start.x, end.x):
+        return start.x
+    if numeric_eq(end.y - start.y, 0):
+        return min(start.x, end.x)
+
+    m = (end.y - start.y) / (end.x - start.x)
+    b = start.y - m * start.x
+
+    return (y - b) / m

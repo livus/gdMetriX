@@ -21,14 +21,13 @@ Unit tests for the sweep line data structure used in the crossing detection algo
 import random
 import unittest
 
-from gdMetriX import crossing_data_types
-from gdMetriX.crossing_data_types import (
-    SweepLineStatus,
-    SweepLineEdgeInfo,
-    SweepLinePoint,
-    CrossingPoint,
-)
 from gdMetriX.utils.numeric import greater_than
+from gdMetriX.utils.sweep_line import (
+    SweepLineEdgeInfo,
+    CrossingPoint,
+    SweepLineStatus,
+    SweepLinePoint,
+)
 
 
 class TestSweepLineStatus(unittest.TestCase):

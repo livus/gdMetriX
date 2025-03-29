@@ -103,7 +103,7 @@ def _equal_crossings(crossings_a, crossings_b, g, title):
     crossings_b_sorted = sorted(crossings_b)
 
     if crossings_a_sorted != crossings_b_sorted:
-        print("Expected {}".format(crossings_b_sorted))
+        print("\nExpected {}".format(crossings_b_sorted))
         print("Actual   {}".format(crossings_a_sorted))
         print(g.order())
         print(list(g.edges()))
@@ -156,7 +156,11 @@ def assert_crossing_equality(
             crossing_list = _rotate_crossings(crossing_list, 10)
             print(nx.get_node_attributes(g, "pos"))
             _equal_crossings(
-                crossing_function(g, include_node_crossings=include_node_crossings, consider_singletons=consider_singletons),
+                crossing_function(
+                    g,
+                    include_node_crossings=include_node_crossings,
+                    consider_singletons=consider_singletons,
+                ),
                 crossing_list,
                 g,
                 title,

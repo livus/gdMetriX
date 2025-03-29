@@ -21,14 +21,13 @@ Unit tests for the event queue data structure used in the crossing detection alg
 import random
 import unittest
 
-from gdMetriX import crossing_data_types
-from gdMetriX.crossing_data_types import (
+from gdMetriX.utils.numeric import set_precision
+from gdMetriX.utils.sweep_line import (
     EventQueue,
     SweepLineEdgeInfo,
-    SweepLinePoint,
     CrossingPoint,
+    SweepLinePoint,
 )
-from gdMetriX.utils.numeric import set_precision
 
 
 class TestEventQueue(unittest.TestCase):
