@@ -790,6 +790,9 @@ def crossing_angular_resolution(
         crossing_list,
     )
 
+    if len(crossing_list) == 0:
+        return 0
+
     for crossing in crossing_list:
         optimal_angle = math.pi / len(crossing.involved_edges)
         minimum_angle = min(crossing_angles(crossing, pos))
