@@ -6,15 +6,15 @@
 
 
 [![PyPI](https://img.shields.io/pypi/v/gdMetriX.svg)](https://pypi.org/project/gdMetriX/)
-![Python](https://img.shields.io/pypi/pyversions/gdMetriX.svg)
+[![Python](https://img.shields.io/pypi/pyversions/gdMetriX.svg)](https://pypi.org/project/gdMetriX/)
 [![NumPy](https://img.shields.io/badge/works%20with-networkX-013243?logo=python)](https://github.com/networkx/networkx)
-![Downloads](https://img.shields.io/pypi/dm/gdMetriX)
-![Coverage](https://codecov.io/gh/livus/gdMetriX/branch/main/graph/badge.svg)
-![License](https://img.shields.io/github/license/livus/gdMetriX.svg)
+[![Downloads](https://img.shields.io/pypi/dm/gdMetriX)](https://pypistats.org/packages/gdmetrix)
+[![Coverage](https://codecov.io/gh/livus/gdMetriX/branch/main/graph/badge.svg)](https://app.codecov.io/gh/livus/gdMetriX)
+[![License](https://img.shields.io/github/license/livus/gdMetriX.svg)](https://github.com/livus/gdMetriX?tab=GPL-3.0-1-ov-file)
 [![GitHub Pages](https://img.shields.io/badge/docs-github.io-blue.svg)](https://livus.github.io/gdMetriX/)
 [![Paper](https://img.shields.io/badge/DOI-10.4230%2FLIPIcs.GD.2024.45-blue)](https://doi.org/10.4230/LIPIcs.GD.2024.45)
-![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+[![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://black.readthedocs.io/en/stable/index.html)
+[![PRs Welcome](https://img.shields.io/badge/contribute-good%20first%20issues-brightgreen.svg)](https://github.com/livus/gdMetriX/issues?q=is%3Apr+is%3Aopen+label%3A%22good+first+issue%22)
 
 
 gdMetriX is an extension to [networkX](https://github.com/networkx/networkx) providing commonly used quality measures in
