@@ -52,10 +52,8 @@ def brute_force_closest(pos):
 def assert_matches_bruteforce(testcase, g):
     """ Assert that the closest pair of points found by the efficient algorithm is the same as the brute-force one """
     a, b, d = distribution.closest_pair_of_points(g)
-    print(a, b, d)
     pos = {n: g.nodes[n]["pos"] for n in g.nodes}
     (p, q), ref = brute_force_closest(pos)
-    print(p, q, ref)
     testcase.assertAlmostEqual(d, ref, places=9)
 
 
@@ -191,9 +189,16 @@ class TestClosestPairOfPoints(unittest.TestCase):
         g.add_node(2, pos=(1, 1))
         assert_matches_bruteforce(self, g)
 
-    def test_random(self):
-        for _ in range(100):
+    def test_random_small(self):
+        for _ in range(1000):
             g = nx.Graph()
-            for i in range(30):
+            for i in range(25):
+                g.add_node(i, pos=(random.random(), random.random()))
+            assert_matches_bruteforce(self, g)
+
+    def test_random_big(self):
+        for _ in range(20):
+            g = nx.Graph()
+            for i in range(100):
                 g.add_node(i, pos=(random.random(), random.random()))
             assert_matches_bruteforce(self, g)

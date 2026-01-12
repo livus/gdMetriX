@@ -371,91 +371,81 @@ def closest_pair_of_points(g: nx.Graph, pos: Union[str, dict, None] = None):
         return None, None, None
     pos = common.get_node_positions(g, pos)
 
-    p_list = list(_EmbeddedPoint(p, Vector.from_point(pos[p])) for p in pos)
+    points = [(key, pos[key][0], pos[key][1]) for key in pos]
 
-    x_sorted = sorted(p_list, key=lambda p: p.vec.x)
-    y_sorted = sorted(p_list, key=lambda p: p.vec.y)
+    x_sorted = sorted(points, key=lambda p: p[1])
+    y_sorted = sorted(points, key=lambda p: p[2])
 
-    a, b, distance = _closest_pair_recursion(x_sorted, y_sorted)
+    p, q, d_sq = _cpop_recursion(x_sorted, y_sorted)
+    return p[0], q[0], d_sq ** 0.5
 
-    return a.key, b.key, distance
+
+def _sq_dist(p, q):
+    dx = p[1] - q[1]
+    dy = p[2] - q[2]
+    return dx * dx + dy * dy
 
 
-def _closest_pair_recursion(x_sorted, y_sorted):
-    def _bruteforce_distance(
-        points: List[_EmbeddedPoint],
-    ) -> Tuple[_EmbeddedPoint, _EmbeddedPoint, float]:
-        mi = points[0].vec.distance(points[1].vec)
-        p1 = points[0]
-        p2 = points[1]
-        ln_ax = len(points)
-        if ln_ax == 2:
-            return p1, p2, mi
-        for i in range(ln_ax - 1):
-            for j in range(i + 1, ln_ax):
-                d = points[i].vec.distance(points[j].vec)
-                if d < mi:  # Update min_dist and points
-                    mi = d
-                    p1, p2 = points[i], points[j]
-        return p1, p2, mi
+def _cpop_brute_force(points):
+    mi = _sq_dist(points[0], points[1])
+    pair = (points[0], points[1])
+    n = len(points)
+    if n == 2:
+        return pair[0], pair[1], mi
+    for i in range(n - 1):
+        for j in range(i + 1, n):
+            d = _sq_dist(points[i], points[j])
+            if d < mi:
+                mi = d
+                pair = (points[i], points[j])
+    return pair[0], pair[1], mi
 
-    def _closest_split_pair(
-        x_sorted_list: List[_EmbeddedPoint],
-        y_sorted_list: List[_EmbeddedPoint],
-        old_min: float,
-        old_min_pair: Tuple[_EmbeddedPoint, _EmbeddedPoint],
-    ) -> Tuple[_EmbeddedPoint, _EmbeddedPoint, float]:
-        x_med = x_sorted_list[len(x_sorted_list) // 2].vec.x
 
-        close_y = [
-            p for p in y_sorted_list if x_med - old_min <= p.vec.x <= x_med + old_min
-        ]
-        new_min = old_min
-        for i in range(len(close_y) - 1):
-            for j in range(i + 1, min(i + 7, len(close_y))):
-                p, q = close_y[i], close_y[j]
-                dst = p.vec.distance(q.vec)
-                if dst < new_min:
-                    old_min_pair = p, q
-                    new_min = dst
-        return old_min_pair[0], old_min_pair[1], new_min
+def _cpop_closest_split_pair(x_sorted_list, y_sorted_list, delta_sq, best_pair):
+    mid_x = x_sorted_list[len(x_sorted_list) // 2][1]
 
+    # Only points within delta in x
+    strip = [p for p in y_sorted_list if (mid_x - p[1]) ** 2 < delta_sq]
+
+    n = len(strip)
+    for i in range(n - 1):
+        for j in range(i + 1, min(i + 7, n)):
+            d = _sq_dist(strip[i], strip[j])
+            if d < delta_sq:
+                delta_sq = d
+                best_pair = (strip[i], strip[j])
+    return best_pair[0], best_pair[1], delta_sq
+
+
+def _cpop_recursion(x_sorted, y_sorted):
     if len(x_sorted) <= 3:
-        return _bruteforce_distance(x_sorted)
+        return _cpop_brute_force(x_sorted)
 
     mid = len(x_sorted) // 2
-    x_median = x_sorted[mid].vec.x
-    # Split by x into two even halves
     left_x = x_sorted[:mid]
     right_x = x_sorted[mid:]
 
-    left_y, right_y = [], []
+    mid_x = x_sorted[mid][1]
 
-    # Do the same for y
-    for point in y_sorted:
-        if point.vec.x <= x_median:
-            left_y.append(point)
-        else:
-            right_y.append(point)
+    left_y = [p for p in y_sorted if p[1] <= mid_x]
+    right_y = [p for p in y_sorted if p[1] > mid_x]
 
-    (p_left, q_left, min_left) = _closest_pair_recursion(left_x, left_y)
-    (p_right, q_right, min_right) = _closest_pair_recursion(right_x, right_y)
+    p_l, q_l, d_l = _cpop_recursion(left_x, left_y)
+    p_r, q_r, d_r = _cpop_recursion(right_x, right_y)
 
-    # Combine the two halves
-    if min_left <= min_right:
-        min_total = min_left
-        min_pair = (p_left, q_left)
+    if d_l <= d_r:
+        min_total = d_l
+        min_pair = (p_l, q_l)
     else:
-        min_total = min_right
-        min_pair = (p_right, q_right)
+        min_total = d_r
+        min_pair = (p_r, q_r)
 
-    (p_split, q_split, min_split) = _closest_split_pair(
-        x_sorted, y_sorted, min_total, min_pair
-    )
+    # check split
+    p_s, q_s, d_s = _cpop_closest_split_pair(x_sorted, y_sorted, min_total, min_pair)
 
-    if min_total <= min_split:
+    if min_total <= d_s:
         return min_pair[0], min_pair[1], min_total
-    return p_split, q_split, min_split
+    return p_s, q_s, d_s
 
 
 def _edge_node_distance(edge: Tuple[object, object], node: object, pos) -> float:
