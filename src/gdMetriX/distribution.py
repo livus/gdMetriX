@@ -30,7 +30,8 @@ import networkx as nx
 import numpy as np
 
 from gdMetriX import common, boundary, crossings
-from gdMetriX.common import Numeric, Vector
+from gdMetriX.common import Numeric, Vector, circle_from_two_points, circle_from_three_points
+from gdMetriX.utils import numeric
 
 
 def center_of_mass(
@@ -344,17 +345,6 @@ def concentration(
     return (np.sum(np.maximum(grid - expected_per_cell, 0))) / (g.order() - 1)
 
 
-@dataclass
-class _EmbeddedPoint:
-    """Represents a vertex with position"""
-
-    key: object
-    vec: Vector
-
-    def __str__(self):
-        return f"[{self.key}, {self.vec}]"
-
-
 def closest_pair_of_points(g: nx.Graph, pos: Union[str, dict, None] = None):
     """
     Returns the two closest points a, b together with their euclidean distance in the form (a,b, distance)
@@ -583,9 +573,8 @@ def gabriel_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     return 1 - (violations / max_estimate)
 
 
-def _smallest_enclosing_circle_iteratively(
-    points: List[common.Vector],
-) -> common.Circle:
+
+def _smallest_enclosing_circle_iteratively(points: List[Vector]) -> common.Circle:
     class _SecStages(Enum):
         """Stages between all recursive calls"""
 
@@ -595,33 +584,32 @@ def _smallest_enclosing_circle_iteratively(
 
     stack = [(_SecStages.FIRST_CALL, None)]
     results = []
-    point_boundary = []
+    point_boundary: List[Vector] = []
 
-    while len(stack) > 0:
+    while stack:
         stage, point = stack.pop()
 
         if stage == _SecStages.FIRST_CALL:
-            if len(points) == 0 or len(point_boundary) == 3:
+            if not points or len(point_boundary) == 3:
                 # Trivial cases
                 if len(point_boundary) == 0:
-                    circle = common.Vector(0, 0), 0
+                    circle = Vector(0, 0), 0.0
                 elif len(point_boundary) == 1:
-                    circle = point_boundary[0], 0
+                    circle = point_boundary[0], 0.0
                 elif len(point_boundary) == 2:
-                    circle = common.circle_from_two_points(
-                        point_boundary[0], point_boundary[1]
-                    )
+                    circle = circle_from_two_points(point_boundary[0], point_boundary[1])
                 elif len(point_boundary) == 3:
-                    circle = common.circle_from_three_points(
+                    circle = circle_from_three_points(
                         point_boundary[0], point_boundary[1], point_boundary[2]
                     )
                 else:
                     raise ValueError()
                 results.append(circle)
             else:
-                point = points.pop()
-                stack.append((_SecStages.SECOND_CALL, point))
+                p = points.pop()
+                stack.append((_SecStages.SECOND_CALL, p))
                 stack.append((_SecStages.FIRST_CALL, None))
+
         elif stage == _SecStages.SECOND_CALL:
             center, radius = results.pop()
 
@@ -632,11 +620,12 @@ def _smallest_enclosing_circle_iteratively(
                 point_boundary.append(point)
                 stack.append((_SecStages.TRAIL, point))
                 stack.append((_SecStages.FIRST_CALL, None))
+
         elif stage == _SecStages.TRAIL:
-            result = results.pop()
+            circle = results.pop()
             point_boundary.pop()
             points.append(point)
-            results.append(result)
+            results.append(circle)
 
     return results.pop()
 
