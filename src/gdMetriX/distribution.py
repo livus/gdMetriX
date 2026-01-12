@@ -20,7 +20,6 @@ This module collects some metrics on the distribution of nodes.
 Methods
 -------
 """
-from dataclasses import dataclass
 import math
 import random
 from enum import Enum
@@ -28,6 +27,7 @@ from typing import Union, List, Tuple, Optional, Iterable
 
 import networkx as nx
 import numpy as np
+from scipy.spatial import KDTree
 
 from gdMetriX import common, boundary, crossings
 from gdMetriX.common import Numeric, Vector, circle_from_two_points, circle_from_three_points
@@ -523,7 +523,7 @@ def node_orthogonality(
 
 def gabriel_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     """
-    The Gabriel ratio is the ratio of all number of nodes falling within a minimum circle covering an edge for any edge.
+    The Gabriel ratio is the ratio of the number of nodes falling within a minimum circle covering an edge for any edge.
 
     This measure was first defined by :footcite:t:`purchase_landscape`.
 
@@ -535,43 +535,74 @@ def gabriel_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     :return: The Gabriel ratio between 0 and 1
     :rtype: float
     """
-
-    def _within_circle(v, e):
-        a_pos, b_pos = Vector.from_point(pos[e[0]]), Vector.from_point(pos[e[1]])
-        n_pos = Vector.from_point(pos[v])
-
-        mid_point = a_pos.mid(b_pos)
-
-        edge_radius = mid_point.distance(a_pos)
-        mid_distance = mid_point.distance(n_pos)
-
-        return mid_distance < edge_radius
-
     pos = common.get_node_positions(g, pos)
 
-    max_estimate = (g.order() - 2) * (len(g.edges()))
-    if max_estimate <= 0:
-        return 1
+    nodes = list(g.nodes())
+    edges = list(g.edges())
+    n = g.order()
 
-    violations = 0
+    if len(edges) == 0 or len(nodes) <= 2:
+        return 1.0
 
-    for node in g.nodes():
-        for edge in g.edges():
-            if node in edge:
+    # Neighbors for each node to count candidates
+    neighbors = {v: set(g.neighbors(v)) for v in nodes}
+
+    # KD tree to find violations faster
+    vecs = {v: Vector.from_point(pos[v]) for v in nodes}
+    points = [(vecs[v].x, vecs[v].y) for v in nodes]
+    tree = KDTree(points)
+
+    # Pre-convert to vectors
+    vecs = {v: Vector.from_point(pos[v]) for v in nodes}
+
+    total_candidates = 0
+    total_violations = 0
+
+    for u, v in edges:
+        if u == v:
+            continue
+
+        u_pos = vecs[u]
+        v_pos = vecs[v]
+
+        midpoint = u_pos.mid(v_pos)
+        radius = midpoint.distance(u_pos)
+
+        # eligible nodes for this edge
+        violations = 0
+
+        # ---- Count candidates ----
+        neighbors_u = neighbors[u] - {u, v}
+        neighbors_v = neighbors[v] - {u, v}
+
+        both = len(neighbors_u & neighbors_v)
+        one = len(neighbors_u) + len(neighbors_v) - 2 * both
+        none = n - 2 - one - both
+
+        # Weighted counting (scaled by 6)
+        total_candidates += 6 * none + 3 * one + 2 * both
+
+        # ---- Count violations ----
+        indices = tree.query_ball_point((midpoint.x, midpoint.y), radius)
+
+        for idx in indices:
+            w = nodes[idx]
+            if w == u or w == v:
                 continue
 
-            if _within_circle(node, edge):
-                if g.has_edge(node, edge[0]):
-                    max_estimate -= 1
-                if g.has_edge(node, edge[1]):
-                    max_estimate -= 1
-                violations += 1
+            # Strict interior test
+            if numeric.greater_than(
+                    radius, midpoint.distance(vecs[w])
+            ):
+                total_violations += 1
 
-    if max_estimate <= 0:
-        return 1
+    # We counted every violation times 6 to keep everything integer
+    total_candidates /= 6
 
-    return 1 - (violations / max_estimate)
+    if total_candidates == 0 or total_violations == 0:
+        return 1.0
 
+    return 1.0 - (total_violations / total_candidates)
 
 
 def _smallest_enclosing_circle_iteratively(points: List[Vector]) -> common.Circle:

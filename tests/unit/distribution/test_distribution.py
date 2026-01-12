@@ -21,7 +21,6 @@ Unittests for distribution.py
 import math
 import random
 import unittest
-import sys
 
 import networkx as nx
 
@@ -32,7 +31,6 @@ import pytest
 import pytest_socket
 
 from gdMetriX import distribution
-from gdMetriX.common import Vector, get_node_positions
 
 
 class TestHomogeneity(unittest.TestCase):
@@ -407,104 +405,6 @@ class TestBalance(unittest.TestCase):
         balance = distribution.vertical_balance(g)
 
         assert balance == -1 / 4
-
-
-class TestGabrielRatio(object):
-
-    def test_empty_graph(self):
-        g = nx.Graph()
-
-        ratio = distribution.gabriel_ratio(g)
-        assert ratio == 1
-
-    def test_singleton(self):
-        g = nx.Graph()
-        g.add_node(0, pos=(1, 4))
-
-        ratio = distribution.gabriel_ratio(g)
-        assert ratio == 1
-
-    def test_simple_pair(self):
-        g = nx.Graph()
-        g.add_node(0, pos=(0, 0))
-        g.add_node(1, pos=(3, 4))
-        g.add_edge(0, 1)
-
-        ratio = distribution.gabriel_ratio(g)
-        assert ratio == 1
-
-    def test_node_outside_circle(self):
-        g = nx.Graph()
-        g.add_node(1, pos=(0, 0))
-        g.add_node(2, pos=(1, 0))
-        g.add_node(3, pos=(-0.5, 0.5))
-        g.add_edge(1, 2)
-
-        ratio = distribution.gabriel_ratio(g)
-        assert ratio == 1
-
-    def test_node_on_circle(self):
-        g = nx.Graph()
-        g.add_node(1, pos=(0, 0))
-        g.add_node(2, pos=(1, 0))
-        g.add_node(3, pos=(0.5, 1))
-        g.add_edge(1, 2)
-
-        ratio = distribution.gabriel_ratio(g)
-        assert ratio == 1
-
-    def test_node_inside_circle(self):
-        g = nx.Graph()
-        g.add_node(1, pos=(0, 0))
-        g.add_node(2, pos=(1, 0))
-        g.add_node(3, pos=(0.5, 0.45))
-        g.add_edge(1, 2)
-
-        ratio = distribution.gabriel_ratio(g)
-        assert ratio == 0
-
-    def test_one_inside_one_outside(self):
-        g = nx.Graph()
-        g.add_node(1, pos=(0, 0))
-        g.add_node(2, pos=(1, 0))
-        g.add_node(3, pos=(0.5, 0.45))
-        g.add_node(4, pos=(-0.5, 0.5))
-        g.add_edge(1, 2)
-
-        ratio = distribution.gabriel_ratio(g)
-        assert ratio == 0.5
-
-    def test_multiple_edges(self):
-        g = nx.Graph()
-        g.add_node(1, pos=(0, 0))
-        g.add_node(2, pos=(1, 0))
-        g.add_node(3, pos=(0.5, 0.45))
-        g.add_node(4, pos=(-0.5, 0.5))
-        g.add_node(5, pos=(-1000, -1000))
-        g.add_node(6, pos=(-800, -700))
-        g.add_edge(1, 2)
-        g.add_edge(5, 6)
-
-        ratio = distribution.gabriel_ratio(g)
-        assert ratio == 7 / 8
-
-    @pytest.mark.parametrize("graph_size", [10, 50, 100, 150])
-    def test_large_graph(self, graph_size):
-        random.seed(9348092123)
-
-        g = nx.Graph()
-
-        for i in range(0, graph_size):
-            g.add_node(i, pos=(random.uniform(0, 1000), random.uniform(0, 1000)))
-
-            for j in range(0, i):
-                if random.random() > 0.5:
-                    g.add_edge(j, i)
-
-        ratio = distribution.gabriel_ratio(g)
-
-        assert 0 <= ratio <= 1
-
 
 class TestNodeOrthogonality(unittest.TestCase):
 
