@@ -406,6 +406,7 @@ class TestBalance(unittest.TestCase):
 
         assert balance == -1 / 4
 
+
 class TestNodeOrthogonality(unittest.TestCase):
 
     def test_empty_graph(self):
