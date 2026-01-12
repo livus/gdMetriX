@@ -393,11 +393,10 @@ def _closest_pair_recursion(x_sorted, y_sorted):
             return p1, p2, mi
         for i in range(ln_ax - 1):
             for j in range(i + 1, ln_ax):
-                if i != 0 and j != 1:
-                    d = points[i].vec.distance(points[j].vec)
-                    if d < mi:  # Update min_dist and points
-                        mi = d
-                        p1, p2 = points[i], points[j]
+                d = points[i].vec.distance(points[j].vec)
+                if d < mi:  # Update min_dist and points
+                    mi = d
+                    p1, p2 = points[i], points[j]
         return p1, p2, mi
 
     def _closest_split_pair(
@@ -447,7 +446,7 @@ def _closest_pair_recursion(x_sorted, y_sorted):
         min_total = min_left
         min_pair = (p_left, q_left)
     else:
-        min_total = min_left
+        min_total = min_right
         min_pair = (p_right, q_right)
 
     (p_split, q_split, min_split) = _closest_split_pair(
