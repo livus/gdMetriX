@@ -2029,6 +2029,15 @@ class TestComplexCrossingScenarios(unittest.TestCase):
             include_node_crossings=False,
         )
 
+    def test_crossing_line_crossed_by_two_edges(self):
+        g = nx.Graph()
+        g.add_nodes_from([0, 1, 2, 4, 5, 6, 7])
+        g.add_edges_from([(0, 4), (0, 6), (1, 4), (2, 5), (5, 7)])
+        nx.set_node_attributes(g, {0: {'pos': [0, 1]}, 1: {'pos': [0, 0]}, 2: {'pos': [0, -1]}, 4: {'pos': [-1, -1]}, 5: {'pos': [-1, 0]}, 6: {'pos': [-1, -1]}, 7: {'pos': [0, -1]}})
+
+        _assert_crossing_equality(g, crossings.get_crossings_quadratic(g))
+
+
     """
     def test_graph_minimizer(self):
 
