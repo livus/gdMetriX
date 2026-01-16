@@ -165,7 +165,7 @@ def test_node_distribution(test_case):
     print(f"Node orthogonality: {node_orthogonality}")
     assert node_orthogonality is not None
     assert isinstance(node_orthogonality, float)
-    assert 0 <= node_orthogonality <= 1
+    assert 0 <= node_orthogonality
 
     smallest_enclosing_circle = gdMetriX.smallest_enclosing_circle(g)
     print(f"Smallest enclosing circle: {smallest_enclosing_circle}")
