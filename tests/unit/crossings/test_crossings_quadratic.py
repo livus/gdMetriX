@@ -25,7 +25,7 @@ import networkx as nx
 # noinspection PyUnresolvedReferences
 import pytest
 
-import crossing_test_helper
+from . import crossing_test_helper
 from gdMetriX import crossings
 from gdMetriX.utils.sweep_line import CrossingPoint, CrossingLine
 
