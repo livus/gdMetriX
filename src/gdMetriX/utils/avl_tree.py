@@ -265,6 +265,35 @@ class ParameterizedBalancedBinarySearchTree:
             return root
         return self._get_min(root.left)
 
+    def _remove_min(self, root: BBTNode) -> Optional[BBTNode]:
+        """
+        Removes the structurally minimum node from the given subtree and returns the new,
+        rebalanced subtree root. Purely structural (follows .left pointers, like _get_min) -
+        unlike an equality-based removal, this is unaffected by ties or duplicates under == or
+        less_than(), which makes it the safe way to remove the specific node that get_min just
+        found, rather than "every node equal to its content".
+        """
+        if root.left is None:
+            return root.right
+
+        root.left = self._remove_min(root.left)
+
+        self._update_height(root)
+        balance = self._get_balance(root)
+
+        if balance > 1:
+            if self._get_balance(root.left) >= 0:
+                return self._right_rotate(root)
+            root.left = self._left_rotate(root.left)
+            return self._right_rotate(root)
+        if balance < -1:
+            if self._get_balance(root.right) <= 0:
+                return self._left_rotate(root)
+            root.right = self._right_rotate(root.right)
+            return self._left_rotate(root)
+
+        return root
+
     def get_min(self) -> Optional[SortableObject]:
         """
             Finds the minimum element present.
@@ -285,17 +314,23 @@ class ParameterizedBalancedBinarySearchTree:
         :return: None
         :rtype: None
         """
-        found_item = False
+        removed_count = 0
 
         def _remove_recursive(root: BBTNode, value: object) -> Optional[BBTNode]:
-            nonlocal found_item
+            nonlocal removed_count
 
             if root is None:
                 return None
 
+            # Recurse into both children unconditionally, regardless of whether this node
+            # matches. Items that are == to value can still be tied (not less_than in either
+            # direction) with this node, so further occurrences of value can live on either
+            # side - force_remove must find all of them, not just the first one encountered.
+            root.left = _remove_recursive(root.left, value)
+            root.right = _remove_recursive(root.right, value)
+
             if value == root.content:
-                # We have found the actual root that should be deleted
-                found_item = True
+                removed_count += 1
 
                 # If either the left or right is None, we can simply move the node one up
                 if root.left is None:
@@ -303,13 +338,12 @@ class ParameterizedBalancedBinarySearchTree:
                 if root.right is None:
                     return root.left
 
-                # Move min up and delete min down the road
+                # Move min up structurally. root.right has already been fully cleaned of
+                # occurrences of value by the recursive call above, so the new minimum cannot
+                # itself be a match - a plain structural removal (no equality search) is safe.
                 temp = self._get_min(root.right)
                 root.content = temp.content
-                root.right = _remove_recursive(root.right, temp.content)
-            else:
-                root.left = _remove_recursive(root.left, value)
-                root.right = _remove_recursive(root.right, value)
+                root.right = self._remove_min(root.right)
 
             self._update_height(root)
 
@@ -329,10 +363,9 @@ class ParameterizedBalancedBinarySearchTree:
 
             return root
 
-        if found_item:
-            self._length -= 1
-
         self.root = _remove_recursive(self.root, item)
+
+        self._length -= removed_count
 
     def remove(self, item: SortableObject, key_parameter: object) -> None:
         """
@@ -362,15 +395,33 @@ class ParameterizedBalancedBinarySearchTree:
                 if root.right is None:
                     return root.left
 
-                # Move min up and delete min down the road
+                # Move min up structurally - a plain structural removal (no equality/tie
+                # search) is correct here since we're removing the exact node _get_min just
+                # found, not "every node equal to it".
                 temp = self._get_min(root.right)
                 root.content = temp.content
-                root.right = _remove_recursive(root.right, temp.content)
+                root.right = self._remove_min(root.right)
             else:
-                if not root.content.less_than(value, key_parameter):
+                root_less_than_value = root.content.less_than(value, key_parameter)
+                value_less_than_root = value.less_than(root.content, key_parameter)
+
+                if root_less_than_value and not value_less_than_root:
+                    # root is unambiguously less than value: value can only be on the right
+                    root.right = _remove_recursive(root.right, value)
+                elif value_less_than_root and not root_less_than_value:
+                    # value is unambiguously less than root: value can only be on the left
                     root.left = _remove_recursive(root.left, value)
                 else:
-                    root.right = _remove_recursive(root.right, value)
+                    # Neither side is unambiguously "less than" the other (a tie under
+                    # less_than(), even though they are != via __eq__). insert()'s rebalancing
+                    # can relocate a tied item to either side of another tied item already in
+                    # the tree (see SortableObject's docstring: the comparison does not have to
+                    # build a total order), so both subtrees must be searched. Stop as soon as
+                    # one side finds it, so a single remove() call still only removes one item
+                    # even if true duplicates exist elsewhere in the tree.
+                    root.left = _remove_recursive(root.left, value)
+                    if not found_item:
+                        root.right = _remove_recursive(root.right, value)
 
             self._update_height(root)
 
@@ -390,10 +441,10 @@ class ParameterizedBalancedBinarySearchTree:
 
             return root
 
+        self.root = _remove_recursive(self.root, item)
+
         if found_item:
             self._length -= 1
-
-        self.root = _remove_recursive(self.root, item)
 
     def __len__(self) -> int:
         return self._length
@@ -430,9 +481,20 @@ class ParameterizedBalancedBinarySearchTree:
 
             if root.content == item:
                 return root
-            if root.content.less_than(item, key_parameter):
+
+            root_less_than_item = root.content.less_than(item, key_parameter)
+            item_less_than_root = item.less_than(root.content, key_parameter)
+
+            if root_less_than_item and not item_less_than_root:
                 return _find_recursive(root.right)
-            return _find_recursive(root.left)
+            if item_less_than_root and not root_less_than_item:
+                return _find_recursive(root.left)
+
+            # Tied under less_than() despite being != - see the analogous comment in remove().
+            found = _find_recursive(root.left)
+            if found is not None:
+                return found
+            return _find_recursive(root.right)
 
         found_item = _find_recursive(self.root)
         return None if found_item is None else found_item.content
