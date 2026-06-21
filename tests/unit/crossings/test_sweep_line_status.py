@@ -21,6 +21,7 @@ Unit tests for the sweep line data structure used in the crossing detection algo
 import random
 import unittest
 
+from gdMetriX.utils import numeric
 from gdMetriX.utils.numeric import greater_than
 from gdMetriX.utils.sweep_line import (
     SweepLineEdgeInfo,
@@ -558,3 +559,258 @@ class TestSweepLineStatus(unittest.TestCase):
         s.add(0, edge4)
 
         assert s.get_left(SweepLinePoint(CrossingPoint(2, 0))) == edge3
+
+    # region Edges sharing an endpoint (regression tests for the less_than() tie-break)
+    #
+    # SweepLineEdgeInfo.less_than() has to disambiguate two edges that compare equal at the
+    # queried height by looking slightly off that height. Two straight, non-identical edges
+    # only ever tie at a single height: either the height where they actually cross, or a
+    # shared endpoint where neither line "crosses" the other but they still happen to meet.
+    # In the latter case, both edges may end exactly at the queried height, leaving no valid
+    # spot below to probe - probing there anyway extrapolates past where the edges end and
+    # can report the wrong order (see test_less_than_at_shared_endpoint_is_consistent below).
+
+    def test_less_than_at_shared_endpoint_is_consistent(self):
+        # A approaches (0, -1) from the left, B is the vertical line through x=0. Both end
+        # at exactly the same point, so comparing them there ties and needs disambiguation.
+        a = SweepLineEdgeInfo((0, 1), CrossingPoint(-1, 0), CrossingPoint(0, -1))
+        b = SweepLineEdgeInfo((2, 3), CrossingPoint(0, 1), CrossingPoint(0, -1))
+
+        self.assertTrue(a.less_than(b, -1))
+        self.assertFalse(b.less_than(a, -1))
+
+    def test_less_than_at_shared_endpoint_is_consistent_reversed(self):
+        # Same as above, but with A approaching from the right instead.
+        a = SweepLineEdgeInfo((0, 1), CrossingPoint(1, 0), CrossingPoint(0, -1))
+        b = SweepLineEdgeInfo((2, 3), CrossingPoint(0, 1), CrossingPoint(0, -1))
+
+        self.assertFalse(a.less_than(b, -1))
+        self.assertTrue(b.less_than(a, -1))
+
+    def test_less_than_never_mutually_true(self):
+        random.seed(31415926535)
+
+        for _ in range(0, 2000):
+            a = SweepLineEdgeInfo(
+                (0, 1),
+                CrossingPoint(random.uniform(-10, 10), random.uniform(-10, 10)),
+                CrossingPoint(random.uniform(-10, 10), random.uniform(-10, 10)),
+            )
+            b = SweepLineEdgeInfo(
+                (2, 3),
+                CrossingPoint(random.uniform(-10, 10), random.uniform(-10, 10)),
+                CrossingPoint(random.uniform(-10, 10), random.uniform(-10, 10)),
+            )
+            y = random.uniform(-10, 10)
+
+            self.assertFalse(
+                a.less_than(b, y) and b.less_than(a, y),
+                f"a={a}, b={b}, y={y} were reported as mutually less than each other",
+            )
+
+    def test_less_than_never_mutually_true_shared_endpoint(self):
+        # Same as above, but every pair is forced to share its lower endpoint, which is
+        # exactly the scenario that triggers the problematic tie-break.
+        random.seed(271828182)
+
+        shared_end = CrossingPoint(0, -1)
+        for _ in range(0, 2000):
+            a = SweepLineEdgeInfo(
+                (0, 1),
+                CrossingPoint(random.uniform(-10, 10), random.uniform(0, 10)),
+                shared_end,
+            )
+            b = SweepLineEdgeInfo(
+                (2, 3),
+                CrossingPoint(random.uniform(-10, 10), random.uniform(0, 10)),
+                shared_end,
+            )
+
+            self.assertFalse(
+                a.less_than(b, -1) and b.less_than(a, -1),
+                f"a={a}, b={b} were reported as mutually less than each other at the shared endpoint",
+            )
+
+    def test_remove_edges_sharing_endpoint_no_force_remove_needed(self):
+        # A "fan" of edges all converging on the same point from various angles - a common
+        # situation at the bottom of a sweep when several edges end at the same node.
+        # Removing each of them exactly at that shared endpoint must always succeed without
+        # falling back to force_remove.
+        shared_end = CrossingPoint(0, -1)
+        edges = [
+            SweepLineEdgeInfo((i, i + 1), CrossingPoint(x, 1), shared_end)
+            for i, x in enumerate([-5, -2, -1, -0.5, 0, 0.5, 1, 2, 5])
+        ]
+
+        s = SweepLineStatus()
+        for edge in edges:
+            s.add(1, edge)
+
+        random.seed(112358132134)
+        random.shuffle(edges)
+
+        for edge in edges:
+            size_before = len(s)
+            s.remove(-1, edge)
+            self.assertEqual(
+                len(s),
+                size_before - 1,
+                f"remove() failed to find {edge} sharing the endpoint with its siblings",
+            )
+
+    def test_remove_edges_sharing_endpoint_stress(self):
+        random.seed(998244353)
+
+        for _ in range(0, 50):
+            shared_end = CrossingPoint(
+                random.uniform(-10, 10), random.uniform(-10, 10)
+            )
+            fan_size = random.randint(2, 20)
+            edges = [
+                SweepLineEdgeInfo(
+                    (i, i + fan_size),
+                    CrossingPoint(
+                        random.uniform(-10, 10), shared_end.y + random.uniform(0, 10)
+                    ),
+                    shared_end,
+                )
+                for i in range(fan_size)
+            ]
+
+            s = SweepLineStatus()
+            for edge in edges:
+                s.add(shared_end.y + 1, edge)
+
+            random.shuffle(edges)
+
+            for edge in edges:
+                size_before = len(s)
+                s.remove(shared_end.y, edge)
+                self.assertEqual(
+                    len(s),
+                    size_before - 1,
+                    f"remove() failed for {edge} in a fan of size {fan_size} "
+                    f"converging at {shared_end}",
+                )
+
+    # endregion
+
+    def test_minimal_repro_no_force_remove_needed(self):
+        # Regression test distilled from a real Bentley-Ottmann run (8-node graph with
+        # several coincident nodes) where SweepLineStatus.remove() silently failed to find
+        # edges that were genuinely still present, requiring force_remove as a workaround.
+        # The root cause was the less_than() tie-break extrapolating past a shared endpoint
+        # (see test_less_than_at_shared_endpoint_is_consistent): (2, 5) and (5, 7) end at the
+        # exact same point, and the original tie-break gave their order incorrectly once the
+        # sweep reached that point. This replays the add()/remove() calls observed during
+        # that run, with every edge reordered at each crossing it takes part in (the caller's
+        # responsibility per the SweepLineStatus contract - a separate, still-open gap in
+        # crossings.py currently only reorders one edge per crossing, which is not exercised
+        # here).
+        edge_defs = {
+            (0, 4): (0, 1, -1, -1),
+            (0, 6): (0, 1, -1, -1),
+            (0, 3): (0, 1, -1, -1),
+            (0, 7): (0, 1, 0, -1),
+            (0, 2): (0, 1, 0, -1),
+            (2, 5): (-1, 0, 0, -1),
+            (5, 7): (-1, 0, 0, -1),
+            (4, 5): (-1, 0, -1, -1),
+            (5, 6): (-1, 0, -1, -1),
+            (1, 6): (0, 0, -1, -1),
+            (1, 4): (0, 0, -1, -1),
+            (1, 2): (0, 0, 0, -1),
+            (1, 3): (0, 0, -1, -1),
+            (1, 7): (0, 0, 0, -1),
+        }
+        ops = [
+            ("add", 0.999999999, (0, 4)),
+            ("add", 0.999999999, (0, 6)),
+            ("add", 0.999999999, (0, 3)),
+            ("add", 0.999999999, (0, 7)),
+            ("add", 0.999999999, (0, 2)),
+            ("add", -1e-09, (2, 5)),
+            ("add", -1e-09, (5, 7)),
+            ("add", -1e-09, (4, 5)),
+            ("add", -1e-09, (5, 6)),
+            ("remove", 0, (0, 4)),
+            ("add", -1e-09, (0, 4)),
+            ("remove", 0, (0, 6)),
+            ("add", -1e-09, (0, 6)),
+            ("remove", 0, (0, 3)),
+            ("add", -1e-09, (0, 3)),
+            ("remove", 0.0, (0, 7)),
+            ("add", -1e-09, (0, 7)),
+            ("remove", 0.0, (0, 2)),
+            ("add", -1e-09, (0, 2)),
+            ("add", -1e-09, (1, 6)),
+            ("add", -1e-09, (1, 4)),
+            ("add", -1e-09, (1, 2)),
+            ("add", -1e-09, (1, 3)),
+            ("add", -1e-09, (1, 7)),
+            # Crossing at y=-1/3 between the (0,3)/(0,4)/(0,6) and (2,5)/(5,7) line groups -
+            # every member on both sides has to be reordered.
+            ("remove", 0, (2, 5)),
+            ("remove", 0, (5, 7)),
+            ("remove", 0, (0, 3)),
+            ("remove", 0, (0, 4)),
+            ("remove", 0, (0, 6)),
+            ("add", -0.33333333433333334, (2, 5)),
+            ("add", -0.33333333433333334, (5, 7)),
+            ("add", -0.33333333433333334, (0, 3)),
+            ("add", -0.33333333433333334, (0, 4)),
+            ("add", -0.33333333433333334, (0, 6)),
+            # Crossing at y=-0.5 between the (1,3)/(1,4)/(1,6) and (2,5)/(5,7) line groups.
+            ("remove", -0.3333333333333333, (2, 5)),
+            ("remove", -0.3333333333333333, (5, 7)),
+            ("remove", -0.3333333333333333, (1, 3)),
+            ("remove", -0.3333333333333333, (1, 4)),
+            ("remove", -0.3333333333333333, (1, 6)),
+            ("add", -0.500000001, (2, 5)),
+            ("add", -0.500000001, (5, 7)),
+            ("add", -0.500000001, (1, 3)),
+            ("add", -0.500000001, (1, 4)),
+            ("add", -0.500000001, (1, 6)),
+            # Final endpoint removals.
+            ("remove", -0.5, (1, 6)),
+            ("remove", -0.5, (1, 4)),
+            ("remove", -0.5, (0, 4)),
+            ("remove", -0.5, (0, 6)),
+            ("remove", -0.5, (0, 3)),
+            ("remove", -0.5, (5, 6)),
+            ("remove", -0.5, (4, 5)),
+            ("remove", -0.5, (1, 3)),
+            ("remove", -1, (0, 2)),
+            ("remove", -1, (2, 5)),
+            ("remove", -1, (1, 2)),
+            ("remove", -1, (5, 7)),
+            ("remove", -1, (0, 7)),
+            ("remove", -1, (1, 7)),
+        ]
+
+        previous_precision = numeric.get_precision()
+        numeric.set_precision(1e-09)
+        try:
+            edges = {
+                key: SweepLineEdgeInfo(
+                    key, CrossingPoint(ax, ay), CrossingPoint(bx, by)
+                )
+                for key, (ax, ay, bx, by) in edge_defs.items()
+            }
+
+            s = SweepLineStatus()
+            for op, y, key in ops:
+                if op == "add":
+                    s.add(y, edges[key])
+                else:
+                    size_before = len(s)
+                    s.remove(y, edges[key])
+                    self.assertEqual(
+                        len(s),
+                        size_before - 1,
+                        f"remove({y}, {key}) needed force_remove",
+                    )
+
+            self.assertEqual(len(s), 0)
+        finally:
+            numeric.set_precision(previous_precision)

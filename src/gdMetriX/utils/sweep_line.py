@@ -150,11 +150,24 @@ class SweepLineEdgeInfo(SortableObject):
         x_other = get_x_at_y(other, key_parameter)
 
         if numeric_eq(x_self, x_other):
+            # Break the tie by looking at the order slightly off key_parameter. For two
+            # straight, non-identical lines the sign of (x_self - x_other) is constant on
+            # either side of their unique intersection, so jumping all the way down to
+            # the shorter of the two segment ends is a safe (and numerically robust) way
+            # to escape the tie - as long as that point still lies on or below both lines.
+            # If both lines already end at (or before) key_parameter - e.g. two edges
+            # sharing an endpoint, compared exactly at that shared point - there is no
+            # valid spot below to probe, so look slightly above instead, where both lines
+            # are guaranteed to still exist.
             lower_end = min(self.end_position.y, other.end_position.y)
-            key_parameter = min(key_parameter - get_precision(), lower_end)
 
-            x_self = get_x_at_y(self, key_parameter)
-            x_other = get_x_at_y(other, key_parameter)
+            if greater_than(key_parameter, lower_end):
+                probe = lower_end
+            else:
+                probe = key_parameter + 100 * get_precision()
+
+            x_self = get_x_at_y(self, probe)
+            x_other = get_x_at_y(other, probe)
 
         return greater_than(x_other, x_self)
 
