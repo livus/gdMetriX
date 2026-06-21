@@ -14,8 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Tuple, Self, Set, SupportsIndex, Dict, List, Optional, Iterable
+from typing import (
+    Tuple,
+    Self,
+    Set,
+    SupportsIndex,
+    Dict,
+    List,
+    Optional,
+    Iterable,
+    Generic,
+    TypeVar,
+)
 
 from gdMetriX.common import Vector, Numeric, LineSegment
 from gdMetriX.utils.avl_tree import (
@@ -434,6 +446,70 @@ class SweepLineStatus:
         :type right_x:
         """
         return self.sorted_list.get_range(left_x, right_x, y)
+
+
+# endregion
+
+
+# region Generic sweep line algorithm runner
+
+
+TEvent = TypeVar("TEvent")
+TResult = TypeVar("TResult")
+
+
+class SweepLineAlgorithm(Generic[TEvent, TResult], ABC):
+    """
+    Base class for sweep line algorithms.
+
+    Encapsulates the part that is genuinely shared between sweep line algorithms:
+    a :class:`SweepLineStatus` holding the elements currently intersecting the
+    sweep line, and the driving loop that repeatedly pops the next event and
+    hands it to the subclass.
+
+    Subclasses are deliberately free to choose their own event source (e.g. a
+    dynamic :class:`EventQueue` for algorithms that discover new events while
+    running, or a simple pre-sorted sequence for algorithms whose events are
+    all known upfront) - only ``status`` and the loop itself are shared.
+    """
+
+    def __init__(self):
+        self.status = SweepLineStatus()
+
+    def run(self) -> TResult:
+        """
+            Runs the sweep line algorithm to completion and returns its result.
+        :return: The result of the algorithm, as produced by :meth:`_finalize`.
+        :rtype: TResult
+        """
+        self._build_events()
+
+        event = self._pop_event()
+        while event is not None:
+            self._handle_event(event)
+            event = self._pop_event()
+
+        return self._finalize()
+
+    @abstractmethod
+    def _build_events(self) -> None:
+        """Populates the initial event source."""
+
+    @abstractmethod
+    def _pop_event(self) -> Optional[TEvent]:
+        """
+            Returns and removes the next event in sweep order.
+        :return: The next event, or None if no events remain.
+        :rtype: Optional[TEvent]
+        """
+
+    @abstractmethod
+    def _handle_event(self, event: TEvent) -> None:
+        """Processes a single event against ``self.status``."""
+
+    def _finalize(self) -> TResult:
+        """Returns the final result once all events have been processed."""
+        return None
 
 
 # endregion

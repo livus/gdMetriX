@@ -68,7 +68,8 @@ from gdMetriX.utils.sweep_line import (
     CrossingPoint,
     EventQueue,
     SweepLineEdgeInfo,
-    SweepLineStatus,
+    SweepLineAlgorithm,
+    SweepLinePoint,
     CrossingLine,
 )
 
@@ -237,76 +238,96 @@ def get_crossings_quadratic(
     return list(filter(_filter_node_crossings, crossings))
 
 
-def get_crossings(
-    g: nx.Graph,
-    pos: Union[str, dict, None] = None,
-    include_node_crossings: bool = False,
-    consider_singletons: bool = False,
-    precision: float = 1e-09,
-) -> List[Crossing]:
-    r"""
-    Calculates all crossings occurring in the graph. This uses the Bentley-Ottmann
-    algorithm :footcite:p:`bentley_algorithms_1979` - adapted to handle degenerate cases - and runs in
-    :math:`O((n+k) \log (n+k))` time and space, where :math:`k` is the number of reported crossings.
-
-    The sweepline approach is susceptible to precision errors. Set the precision parameter to a value big enough but
-    smaller than the smallest distance expected between two crossings. In case of issues, use
-    :func:`get_crossings_quadratic` instead.
-
-    :param g: A networkX graph
-    :type g: nx.Graph
-    :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
-        If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
-    :param include_node_crossings: Indicate whether crossings involving vertices should be returned as well. A
-        crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
-        Singletons will never be considered, even if the vertex lies exactly on another edge.
-    :type include_node_crossings: bool
-    :param consider_singletons: If true, singletons that lie on an edge or other vertices will be reported as well.
-    :type consider_singletons: bool
-    :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
-    :type precision: float
-    :return: A list of crossings, with a list of involved edges per crossing.
-    :rtype: List[Crossing]
+class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
+    """
+    Implements the Bentley-Ottmann sweep used by :func:`get_crossings`.
     """
 
-    if g is None:
-        raise ValueError(g)
-    if isinstance(g, (nx.MultiGraph, nx.MultiDiGraph)):
-        raise ValueError("Multi graphs are not supported")
+    def __init__(
+        self,
+        g: nx.Graph,
+        pos: Union[str, dict, None],
+        include_node_crossings: bool,
+        consider_singletons: bool,
+        precision: float,
+    ):
+        super().__init__()
 
-    numeric.set_precision(precision)
+        self.g = g
+        self.include_node_crossings = include_node_crossings
+        self.consider_singletons = consider_singletons
 
-    node_positions = _convert_to_crossing_points(g, pos)
+        numeric.set_precision(precision)
 
-    height = boundary.height(g, pos)
+        self.node_positions = _convert_to_crossing_points(g, pos)
+        self.height = boundary.height(g, pos)
 
-    crossings: List[Crossing] = []
-    crossing_lines = []
-    sweep_line_status = SweepLineStatus()
+        self.crossings: List[Crossing] = []
+        self.crossing_lines: List[Crossing] = []
 
-    # Initialize event points
-    queue = _build_event_queue(g, node_positions, consider_singletons)
+        self.previous_y = None
+        self.horizontal_edges = (
+            []
+        )  # Contains all horizontal edges at the current event point
 
-    def _insert_crossing_directly(c: Crossing) -> None:
-        c.prune(node_positions, include_node_crossings)
+        self.queue: Optional[EventQueue] = None
+
+    # region SweepLineAlgorithm implementation
+
+    def _build_events(self) -> None:
+        self.queue = _build_event_queue(
+            self.g, self.node_positions, self.consider_singletons
+        )
+
+    def _pop_event(self) -> Optional[SweepLinePoint]:
+        return self.queue.pop()
+
+    def _finalize(self) -> List[Crossing]:
+        # Join crossing lines with completely identical regions
+        crossing_lines = sorted(self.crossing_lines)
+
+        crossing_lines_consolidated = []
+        for i in range(0, len(crossing_lines) - 1):
+            if crossing_lines[i].pos == crossing_lines[i + 1].pos:
+                crossing_lines[i + 1].involved_edges |= crossing_lines[i].involved_edges
+            else:
+                crossing_lines_consolidated.append(crossing_lines[i])
+        if len(crossing_lines) > 0:
+            crossing_lines_consolidated.append(crossing_lines[len(crossing_lines) - 1])
+
+        # Remove false positives
+        crossing_points_consolidated = []
+        for cr in self.crossings:
+            cr.prune(self.node_positions, self.include_node_crossings)
+            if len(cr) > 1:
+                crossing_points_consolidated.append(cr)
+
+        return crossing_points_consolidated + crossing_lines_consolidated
+
+    # endregion
+
+    # region Crossing-specific helper methods
+
+    def _insert_crossing_directly(self, c: Crossing) -> None:
+        c.prune(self.node_positions, self.include_node_crossings)
         if len(c) <= 1:
             return
 
-        index = bisect_left(crossings, c)
+        index = bisect_left(self.crossings, c)
 
-        if index < len(crossings):
-            if crossings[index].pos == c.pos:
-                crossings[index].involved_edges |= c.involved_edges
-                crossings[index].involved_singletons |= c.involved_singletons
+        if index < len(self.crossings):
+            if self.crossings[index].pos == c.pos:
+                self.crossings[index].involved_edges |= c.involved_edges
+                self.crossings[index].involved_singletons |= c.involved_singletons
                 return
-            if crossings[index - 1].pos == c.pos:
-                crossings[index - 1].involved_edges |= c.involved_edges
-                crossings[index - 1].involved_singletons |= c.involved_singletons
+            if self.crossings[index - 1].pos == c.pos:
+                self.crossings[index - 1].involved_edges |= c.involved_edges
+                self.crossings[index - 1].involved_singletons |= c.involved_singletons
                 return
 
-        crossings.insert(index, c)
+        self.crossings.insert(index, c)
 
+    @staticmethod
     def _get_extreme_edges(
         edges: Set[SweepLineEdgeInfo], y: Numeric
     ) -> Tuple[Optional[SweepLineEdgeInfo], Optional[SweepLineEdgeInfo]]:
@@ -326,8 +347,10 @@ def get_crossings(
         return smallest_edge, biggest_edge
 
     def _append_crossing_to_queue(
+        self,
         e1: SweepLineEdgeInfo,
         e2: SweepLineEdgeInfo,
+        current_event_point: SweepLinePoint,
         edges_involved_at_current_event_point: List[SweepLineEdgeInfo],
     ) -> None:
         potential_crossing_point = check_lines(e1, e2)
@@ -339,35 +362,35 @@ def get_crossings(
 
             if current_event_point.position < potential_crossing_point:
                 # Add to the queue to process later
-                queue.add_crossing(potential_crossing_point, [e1, e2])
+                self.queue.add_crossing(potential_crossing_point, [e1, e2])
 
             elif current_event_point.position == potential_crossing_point:
                 # This can only be the case if this is a crossing involving a vertex (i.e. check via bool flag)
                 # We add the involved edges to the current crossing instead of adding a new event point
-                if include_node_crossings:
+                if self.include_node_crossings:
                     edges_involved_at_current_event_point.append(e1)
                     edges_involved_at_current_event_point.append(e2)
 
             elif e1.is_horizontal() or e2.is_horizontal():
                 # Horizontal edges are inserted right away
-                _insert_crossing_directly(
+                self._insert_crossing_directly(
                     Crossing(potential_crossing_point, {e1.edge, e2.edge})
                 )
             else:
                 # In case the crossing came before, we assume it is already discovered
                 pass
 
-    previous_y = None
+    # endregion
 
-    horizontal_edges = []  # Contains all horizontal edges at the current event point
-
-    while (current_event_point := queue.pop()) is not None:
+    def _handle_event(self, event: SweepLinePoint) -> None:
+        current_event_point = event
+        sweep_line_status = self.status
 
         # Reset horizontal edges at current event point if we go to a new point
-        if previous_y is not None and not numeric_eq(
-            current_event_point.position.y, previous_y
+        if self.previous_y is not None and not numeric_eq(
+            current_event_point.position.y, self.previous_y
         ):
-            horizontal_edges = []
+            self.horizontal_edges = []
 
         # In some cases (for example if an edge is horizontal or if the vertex itself is involved in the crossing)
         # we only discover crossings at the current point.
@@ -377,7 +400,7 @@ def get_crossings(
         # Start by removing all ends from the sweep line status
         for edge_info in current_event_point.end_list:
             sl_size_before = len(sweep_line_status)
-            sweep_line_status.remove(previous_y, edge_info)
+            sweep_line_status.remove(self.previous_y, edge_info)
 
             # TODO Investigate why the normal remove sometimes does not catch the edge
             if len(sweep_line_status) == sl_size_before:
@@ -387,7 +410,7 @@ def get_crossings(
         for edge in current_event_point.interior_list:
             sl_size_before = len(sweep_line_status)
 
-            sweep_line_status.remove(previous_y, edge)
+            sweep_line_status.remove(self.previous_y, edge)
 
             # TODO Investigate why the normal remove sometimes does not catch the edge
             if len(sweep_line_status) == sl_size_before:
@@ -408,22 +431,31 @@ def get_crossings(
         ):
             # Nothing comes below that is connected to the current event point
             # So we check the above and below neighbour for crossings
-            _append_crossing_to_queue(
-                left_edge, right_edge, edges_discovered_at_current_event_point
+            self._append_crossing_to_queue(
+                left_edge,
+                right_edge,
+                current_event_point,
+                edges_discovered_at_current_event_point,
             )
         else:
             union = current_event_point.interior_list | current_event_point.start_list
 
-            leftmost, rightmost = _get_extreme_edges(
+            leftmost, rightmost = self._get_extreme_edges(
                 union,
                 current_event_point.position.y - 100 * numeric.get_precision(),
             )
 
-            _append_crossing_to_queue(
-                left_edge, leftmost, edges_discovered_at_current_event_point
+            self._append_crossing_to_queue(
+                left_edge,
+                leftmost,
+                current_event_point,
+                edges_discovered_at_current_event_point,
             )
-            _append_crossing_to_queue(
-                right_edge, rightmost, edges_discovered_at_current_event_point
+            self._append_crossing_to_queue(
+                right_edge,
+                rightmost,
+                current_event_point,
+                edges_discovered_at_current_event_point,
             )
 
         # region Check all edges at the current point for intersection
@@ -441,7 +473,7 @@ def get_crossings(
         involved_edges |= edges_from_sweepline
 
         # Potential candidates for node-edge crossings
-        if include_node_crossings:
+        if self.include_node_crossings:
             involved_edges |= (
                 current_event_point.start_list
                 | current_event_point.end_list
@@ -449,17 +481,17 @@ def get_crossings(
             )
 
         involved_singletons = set()
-        if consider_singletons:
+        if self.consider_singletons:
             involved_singletons |= current_event_point.singletons
 
         if len(involved_edges) + len(involved_singletons) > 0:
-            involved_edges |= set(horizontal_edges)
+            involved_edges |= set(self.horizontal_edges)
             crossing = Crossing(
                 current_event_point.position,
                 {edge.edge for edge in involved_edges},
                 involved_singletons,
             )
-            _insert_crossing_directly(crossing)
+            self._insert_crossing_directly(crossing)
 
         # endregion
 
@@ -467,11 +499,11 @@ def get_crossings(
         if len(current_event_point.start_list) > 0:
             candidates_sorted = sorted(
                 edges_from_sweepline,
-                key=lambda e: get_x_at_y(e, current_event_point.position.y - height),
+                key=lambda e: get_x_at_y(e, current_event_point.position.y - self.height),
             )
             start_sorted = sorted(
                 current_event_point.start_list,
-                key=lambda e: get_x_at_y(e, current_event_point.position.y - height),
+                key=lambda e: get_x_at_y(e, current_event_point.position.y - self.height),
             )
 
             index_candidate = index_start = 0
@@ -513,14 +545,16 @@ def get_crossings(
                         crossing = check_lines(a, b)
 
                         if isinstance(crossing, CrossingLine):
-                            crossing_lines.append(Crossing(crossing, {a.edge, b.edge}))
+                            self.crossing_lines.append(
+                                Crossing(crossing, {a.edge, b.edge})
+                            )
 
                     for a in start_group:
                         for b in candidate_group:
 
                             crossing = check_lines(a, b)
                             if isinstance(crossing, CrossingLine):
-                                crossing_lines.append(
+                                self.crossing_lines.append(
                                     Crossing(crossing, {a.edge, b.edge})
                                 )
 
@@ -550,23 +584,26 @@ def get_crossings(
                 horizontal.start_position[0],
                 horizontal.end_position[0],
             ):
-                _append_crossing_to_queue(
-                    horizontal, edge_info, edges_discovered_at_current_event_point
+                self._append_crossing_to_queue(
+                    horizontal,
+                    edge_info,
+                    current_event_point,
+                    edges_discovered_at_current_event_point,
                 )
 
             if horizontal.start_position == current_event_point.position:
-                for edge_info in horizontal_edges:
+                for edge_info in self.horizontal_edges:
                     crossing_line = check_lines(edge_info, horizontal)
                     # It might be the case that this returns just a point
                     # => This is tested in the region called "Check all edges at the current point for intersection"
                     # We can thus safely ignore crossing points here
                     if isinstance(crossing_line, CrossingLine):
-                        crossing_lines.append(
+                        self.crossing_lines.append(
                             Crossing(crossing_line, {edge_info.edge, horizontal.edge})
                         )
-                horizontal_edges.append(horizontal)
+                self.horizontal_edges.append(horizontal)
             elif horizontal.end_position == current_event_point.position:
-                horizontal_edges.remove(horizontal)
+                self.horizontal_edges.remove(horizontal)
 
         # Insert start points
         for edge_info in current_event_point.start_list:
@@ -585,7 +622,7 @@ def get_crossings(
         ):
             relevant_edges = current_event_point.interior_list
 
-            if include_node_crossings:
+            if self.include_node_crossings:
                 relevant_edges |= (
                     current_event_point.start_list
                     | current_event_point.end_list
@@ -598,32 +635,54 @@ def get_crossings(
                 set(list(map(lambda x: x.edge, relevant_edges))),
                 current_event_point.singletons,
             )
-            _insert_crossing_directly(new_crossing)
+            self._insert_crossing_directly(new_crossing)
         else:
             pass
 
-        previous_y = current_event_point.position.y
+        self.previous_y = current_event_point.position.y
 
-    # Join crossing lines with completely identical regions
-    crossing_lines = sorted(crossing_lines)
 
-    crossing_lines_consolidated = []
-    for i in range(0, len(crossing_lines) - 1):
-        if crossing_lines[i].pos == crossing_lines[i + 1].pos:
-            crossing_lines[i + 1].involved_edges |= crossing_lines[i].involved_edges
-        else:
-            crossing_lines_consolidated.append(crossing_lines[i])
-    if len(crossing_lines) > 0:
-        crossing_lines_consolidated.append(crossing_lines[len(crossing_lines) - 1])
+def get_crossings(
+    g: nx.Graph,
+    pos: Union[str, dict, None] = None,
+    include_node_crossings: bool = False,
+    consider_singletons: bool = False,
+    precision: float = 1e-09,
+) -> List[Crossing]:
+    r"""
+    Calculates all crossings occurring in the graph. This uses the Bentley-Ottmann
+    algorithm :footcite:p:`bentley_algorithms_1979` - adapted to handle degenerate cases - and runs in
+    :math:`O((n+k) \log (n+k))` time and space, where :math:`k` is the number of reported crossings.
 
-    # Remove false positives
-    crossing_points_consolidated = []
-    for cr in crossings:
-        cr.prune(node_positions, include_node_crossings)
-        if len(cr) > 1:
-            crossing_points_consolidated.append(cr)
+    The sweepline approach is susceptible to precision errors. Set the precision parameter to a value big enough but
+    smaller than the smallest distance expected between two crossings. In case of issues, use
+    :func:`get_crossings_quadratic` instead.
 
-    return crossing_points_consolidated + crossing_lines_consolidated
+    :param g: A networkX graph
+    :type g: nx.Graph
+    :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+        If given as a string, the property under the given name in the networkX graph is used.
+    :type pos: Union[str, dic, None]
+    :param include_node_crossings: Indicate whether crossings involving vertices should be returned as well. A
+        crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
+        Singletons will never be considered, even if the vertex lies exactly on another edge.
+    :type include_node_crossings: bool
+    :param consider_singletons: If true, singletons that lie on an edge or other vertices will be reported as well.
+    :type consider_singletons: bool
+    :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
+    :type precision: float
+    :return: A list of crossings, with a list of involved edges per crossing.
+    :rtype: List[Crossing]
+    """
+
+    if g is None:
+        raise ValueError(g)
+    if isinstance(g, (nx.MultiGraph, nx.MultiDiGraph)):
+        raise ValueError("Multi graphs are not supported")
+
+    return _CrossingSweep(
+        g, pos, include_node_crossings, consider_singletons, precision
+    ).run()
 
 
 def planarize(

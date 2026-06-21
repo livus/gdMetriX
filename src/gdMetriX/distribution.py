@@ -32,6 +32,7 @@ from scipy.spatial import KDTree
 from gdMetriX import common, boundary, crossings
 from gdMetriX.common import Numeric, Vector, circle_from_two_points, circle_from_three_points
 from gdMetriX.utils import numeric
+from gdMetriX.utils.sweep_line import SweepLineAlgorithm
 
 
 def center_of_mass(
@@ -438,10 +439,126 @@ def _cpop_recursion(x_sorted, y_sorted):
     return p_s, q_s, d_s
 
 
-def _edge_node_distance(edge: Tuple[object, object], node: object, pos) -> float:
-    return common.LineSegment(
-        Vector.from_point(pos[edge[0]]), Vector.from_point(pos[edge[1]])
-    ).distance_to_point(Vector.from_point(pos[node]))
+class _ClosestPairSweep(SweepLineAlgorithm):
+    """
+    Finds the closest node-to-edge pair using a left-to-right sweep over the x-axis, reusing the generic
+    driving loop from :class:`SweepLineAlgorithm` (the same base class used by the crossing detection sweep,
+    see :class:`gdMetriX.crossings._CrossingSweep`).
+
+    Unlike the crossing detection sweep, this does *not* reuse the AVL-backed SweepLineStatus for its active
+    set. A single "position at the current sweep coordinate" key (such as x-at-y, or its mirror y-at-x) is only
+    a sound proxy for an *exact* intersection test - for a "closest within distance d" query it is unsound for
+    steep segments, since the vertical gap to a steep line can be arbitrarily larger than the true perpendicular
+    distance to it. Active edges are therefore kept in a plain list, windowed by x with a safety margin (see
+    :meth:`_build_events`/:meth:`_evict_expired`), and matched against each node via an exact bounding-box
+    overlap check (sound for any slope) before falling back to the precise point-to-segment distance formula.
+
+    The closest node-to-node pair is assumed to already be known (from :func:`closest_pair_of_points`) and is
+    used as the initial best distance; only node-to-edge improvements are searched for.
+    """
+
+    _ADD_EDGE = 0
+    _QUERY_NODE = 1
+
+    def __init__(
+        self,
+        g: nx.Graph,
+        pos: dict,
+        element_a: object,
+        element_b: object,
+        min_distance: Optional[float],
+    ):
+        super().__init__()
+
+        self.g = g
+        self.pos = pos
+
+        self.element_a = element_a
+        self.element_b = element_b
+        self.min_distance = min_distance
+        self._initial_distance = min_distance
+
+        self._events: List[Tuple[Numeric, int, object]] = []
+        self._event_index = 0
+
+        # Active edges: list of (x_max, y_min, y_max, edge)
+        self._active: List[Tuple[Numeric, Numeric, Numeric, Tuple[object, object]]] = (
+            []
+        )
+
+    def _build_events(self) -> None:
+        if self.min_distance is None:
+            # Fewer than two nodes - closest_pair_of_points already returned (None, None, None)
+            # and there can be no edge to compare against
+            return
+
+        for edge in self.g.edges():
+            x0, y0 = self.pos[edge[0]]
+            x1, y1 = self.pos[edge[1]]
+            x_min, x_max = min(x0, x1), max(x0, x1)
+            y_min, y_max = min(y0, y1), max(y0, y1)
+
+            # An edge can only be the closest match for a node whose true distance to it is below the initial
+            # (upper bound) distance. By the standard coordinate-projection argument, such a node's x cannot be
+            # smaller than x_min - initial_distance, so adding the edge there is always early enough.
+            add_x = x_min - self._initial_distance
+            self._events.append(
+                (add_x, self._ADD_EDGE, (x_max, y_min, y_max, edge))
+            )
+
+        for node in self.g.nodes():
+            self._events.append((self.pos[node][0], self._QUERY_NODE, node))
+
+        self._events.sort(key=lambda e: (e[0], e[1]))
+
+    def _pop_event(self) -> Optional[Tuple[Numeric, int, object]]:
+        if self._event_index >= len(self._events):
+            return None
+        event = self._events[self._event_index]
+        self._event_index += 1
+        return event
+
+    def _evict_expired(self, current_x: Numeric) -> None:
+        # An edge whose x_max already lies more than the current best distance behind the sweep position can
+        # no longer be closer than min_distance to any node still to come (same projection argument as above).
+        self._active = [
+            entry for entry in self._active if entry[0] >= current_x - self.min_distance
+        ]
+
+    def _distance_to_edge(self, node: object, edge: Tuple[object, object]) -> float:
+        return common.LineSegment(
+            Vector.from_point(self.pos[edge[0]]), Vector.from_point(self.pos[edge[1]])
+        ).distance_to_point(Vector.from_point(self.pos[node]))
+
+    def _handle_event(self, event: Tuple[Numeric, int, object]) -> None:
+        x, kind, payload = event
+
+        self._evict_expired(x)
+
+        if kind == self._ADD_EDGE:
+            self._active.append(payload)
+            return
+
+        node = payload
+        y = self.pos[node][1]
+        d = self.min_distance
+
+        for x_max, y_min, y_max, edge in self._active:
+            if node in edge:
+                continue
+            # Sound overlap check: any point within distance d of the edge has a y-coordinate within d of the
+            # edge's y-range, regardless of the edge's slope
+            if y_min - d > y or y_max + d < y:
+                continue
+
+            distance = self._distance_to_edge(node, edge)
+            if distance < self.min_distance:
+                self.min_distance = distance
+                self.element_a, self.element_b = node, edge
+                d = self.min_distance
+
+    def _finalize(self) -> Tuple[object, object, Optional[float]]:
+        return self.element_a, self.element_b, self.min_distance
 
 
 def closest_pair_of_elements(
@@ -462,7 +579,6 @@ def closest_pair_of_elements(
     :rtype: (object, object, float)
     """
     pos = common.get_node_positions(g, pos)
-    element_a, element_b, min_distance = closest_pair_of_points(g, pos)
 
     if consider_crossings:
         crossing_list = crossings.get_crossings_quadratic(g, pos)
@@ -474,18 +590,9 @@ def closest_pair_of_elements(
                 0.0,
             )
 
-    # TODO implement sweep line approach
-    for edge in g.edges():
-        for node in g.nodes():
-            if node in edge:
-                continue
+    element_a, element_b, min_distance = closest_pair_of_points(g, pos)
 
-            distance = _edge_node_distance(edge, node, pos)
-
-            if distance < min_distance:
-                element_a, element_b, min_distance = node, edge, distance
-
-    return element_a, element_b, min_distance
+    return _ClosestPairSweep(g, pos, element_a, element_b, min_distance).run()
 
 
 def node_orthogonality(
