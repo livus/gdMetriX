@@ -352,6 +352,7 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
         e2: SweepLineEdgeInfo,
         current_event_point: SweepLinePoint,
         edges_involved_at_current_event_point: List[SweepLineEdgeInfo],
+        candidate_siblings: Optional[Set[SweepLineEdgeInfo]] = None,
     ) -> None:
         potential_crossing_point = check_lines(e1, e2)
         if potential_crossing_point is not None and not isinstance(
@@ -361,8 +362,27 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
             # which is why we skip them here
 
             if current_event_point.position < potential_crossing_point:
-                # Add to the queue to process later
-                self.queue.add_crossing(potential_crossing_point, [e1, e2])
+                # Add to the queue to process later. e2 was only picked as one
+                # representative of a (possibly bigger) group of edges tied with it at
+                # the current event point. Any other member of that group which is
+                # genuinely collinear with e2 crosses e1 at this exact same point too,
+                # and must be reordered alongside it - otherwise it would be left
+                # structurally inconsistent on the sweep line after this point. We
+                # validate geometrically (via check_lines) rather than just trusting
+                # the x-tie at the current point, since two edges can share an x value
+                # there without actually being collinear.
+                edges_to_queue = [e1, e2]
+                if candidate_siblings:
+                    for sibling in candidate_siblings:
+                        if sibling is e1 or sibling is e2:
+                            continue
+                        sibling_crossing = check_lines(sibling, e1)
+                        if (
+                            isinstance(sibling_crossing, CrossingPoint)
+                            and sibling_crossing == potential_crossing_point
+                        ):
+                            edges_to_queue.append(sibling)
+                self.queue.add_crossing(potential_crossing_point, edges_to_queue)
 
             elif current_event_point.position == potential_crossing_point:
                 # This can only be the case if this is a crossing involving a vertex (i.e. check via bool flag)
@@ -450,12 +470,14 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
                 leftmost,
                 current_event_point,
                 edges_discovered_at_current_event_point,
+                union,
             )
             self._append_crossing_to_queue(
                 right_edge,
                 rightmost,
                 current_event_point,
                 edges_discovered_at_current_event_point,
+                union,
             )
 
         # region Check all edges at the current point for intersection
