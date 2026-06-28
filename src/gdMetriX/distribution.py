@@ -581,7 +581,7 @@ def closest_pair_of_elements(
     pos = common.get_node_positions(g, pos)
 
     if consider_crossings:
-        crossing_list = crossings.get_crossings_quadratic(g, pos)
+        crossing_list = crossings.get_crossings(g, pos)
         if len(crossing_list) > 0:
             first_crossing = crossing_list[0]
             return (
