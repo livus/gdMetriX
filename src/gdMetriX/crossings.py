@@ -438,6 +438,7 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
                 if len(sweep_line_status) == sl_size_before:
                     sweep_line_status.force_remove(edge)
 
+        for edge in current_event_point.interior_list:
             sweep_line_status.add(
                 current_event_point.position.y - numeric.get_precision(), edge
             )

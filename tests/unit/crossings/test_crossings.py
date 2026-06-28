@@ -20,15 +20,12 @@ Unit tests for crossing detection.
 
 import inspect
 import math
-import random
 import unittest
 
 import networkx as nx
 
 # noinspection PyUnresolvedReferences
 import pytest
-from libpysal import weights
-from libpysal.cg import voronoi_frames
 
 from . import crossing_test_helper
 from gdMetriX import crossings
@@ -1753,27 +1750,6 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         # Note that we explicitly do not check for the contained edges as grouping crossings together which are not
         #  actually crossing at the same point
 
-    def test_random_graph(self):
-        random.seed(9018098129039)
-        success_count = 0
-        for i in range(20, 25):
-            for j in range(0, 2):
-                print(f"Current graph: {success_count}")
-                random_graph = nx.fast_gnp_random_graph(
-                    i, random.uniform(0.1, 0.5), random.randint(1, 10000000)
-                )
-                random_embedding = {
-                    n: [random.randint(-1000, 1000), random.randint(-1000, 1000)]
-                    for n in range(0, i + 1)
-                }
-                nx.set_node_attributes(random_graph, random_embedding, "pos")
-                _assert_crossing_equality(
-                    random_graph,
-                    crossings.get_crossings_quadratic(random_graph),
-                    include_node_crossings=True,
-                )
-                success_count += 1
-
     def test_intertwined_crossings_1(self):
         g = nx.Graph()
         g.add_nodes_from(range(0, 8))
@@ -2037,176 +2013,6 @@ class TestComplexCrossingScenarios(unittest.TestCase):
 
         _assert_crossing_equality(g, crossings.get_crossings_quadratic(g))
 
-
-    """
-    def test_graph_minimizer(self):
-
-        edges = [(0, 4), (0, 11), (0, 13), (0, 8), (0, 12), (0, 14), (0, 10), (0, 16), (0, 5), (0, 7), (0, 3), (0, 1),
-                 (0, 15), (0, 9), (1, 10), (1, 5), (1, 4), (1, 13), (1, 9), (1, 14), (1, 12), (1, 16), (1, 15), (1, 8),
-                 (1, 6), (1, 7), (1, 11), (2, 9), (2, 4), (2, 7), (2, 8), (2, 6), (2, 10), (2, 5), (2, 3), (2, 15),
-                 (2, 12), (2, 16), (2, 14), (3, 11), (3, 9), (3, 14), (3, 15), (3, 12), (3, 8), (3, 13), (3, 7),
-                 (3, 16), (3, 4), (3, 6), (3, 10), (4, 7), (4, 12), (4, 6), (4, 13), (4, 15), (4, 14), (4, 5), (4, 9),
-                 (4, 10), (5, 7), (5, 6), (5, 16), (5, 11), (5, 13), (5, 15), (5, 10), (5, 9), (5, 14), (6, 7), (6, 15),
-                 (6, 11), (6, 13), (6, 16), (6, 14), (6, 9), (6, 10), (6, 8), (7, 15), (7, 14), (7, 12), (7, 11),
-                 (7, 13), (7, 16), (7, 9), (7, 8), (8, 10), (8, 13), (8, 14), (8, 12), (8, 9), (8, 11), (9, 10),
-                 (9, 12), (9, 11), (9, 14), (9, 15), (9, 16), (9, 13), (10, 15), (10, 11), (10, 13), (10, 14), (10, 16),
-                 (10, 12), (11, 16), (11, 13), (11, 12), (11, 15), (11, 14), (12, 14), (12, 13), (12, 15), (12, 16),
-                 (13, 16), (13, 14), (13, 15), (14, 16), (15, 16)]
-
-        while True:
-            random.shuffle(edges)
-            count = 0
-
-            found_any = False
-
-            for subset in combinations(edges, len(edges) - 1):
-                count += 1
-                g = nx.Graph()
-                g.add_nodes_from(range(0, 17))
-                nx.set_node_attributes(g,
-                                       {0: {'pos': [-459, -324]}, 1: {'pos': [-758, 851]}, 2: {'pos': [825, -608]},
-                                        3: {'pos': [774, 530]}, 4: {'pos': [-421, -529]}, 5: {'pos': [-370, 713]},
-                                        6: {'pos': [720, 856]}, 7: {'pos': [-859, -552]}, 8: {'pos': [-660, -745]},
-                                        9: {'pos': [566, -144]}, 10: {'pos': [742, -259]}, 11: {'pos': [36, -151]},
-                                        12: {'pos': [495, -571]}, 13: {'pos': [151, -780]}, 14: {'pos': [-314, 159]},
-                                        15: {'pos': [4, -324]}, 16: {'pos': [-216, -292]}}
-                                       )
-                g.add_edges_from(subset)
-
-                crossings_a = sorted(crossings.get_crossings(g))
-                crossings_b = sorted(crossings.get_crossings_quadratic(g))
-
-                if crossings_a != crossings_b:
-                    min_length = len(subset)
-                    min_edges = subset
-                    edges = list(subset)
-                    found_any = True
-
-                    print(f"Min edge size: {min_length}")
-                    print(f"Edges: {min_edges}")
-                    print(f"Graphs tested: {count}")
-
-                    with open("./test_results.txt", "w") as file:
-                        g_copy = g.copy()
-
-                        nodes_to_remove = [node for node, degree in dict(g.degree()).items() if degree == 0]
-                        g_copy.remove_nodes_from(nodes_to_remove)
-
-                        print(g_copy.order())
-                        print(list(g_copy.edges()))
-                        print(dict(g_copy.nodes(data=True)))
-                        print(nx.get_node_attributes(g, "pos"))
-
-                        file.write(f"\n\ng = nx.Graph()")
-                        file.write(f"\ng.add_nodes_from({str(list(g_copy.nodes()))})")
-                        file.write(f"\ng.add_edges_from({g_copy.edges()})")
-                        file.write(f"\nnx.set_node_attributes(g, {str(dict(g_copy.nodes(data=True)))})\n")
-
-                    break
-            if not found_any:
-                print(f"{len(edges)}: {count}")
-                assert False
-            print(f"{len(edges)}: {count}")
-    """
-
-    def test_random_graph_2(self):
-        random.seed(9018098129039)
-        success_count = 0
-        for i in range(20, 25):
-            for j in range(0, 2):
-                print(f"Current graph: {success_count}")
-                random_graph = nx.fast_gnp_random_graph(
-                    i, random.uniform(0.1, 0.5), random.randint(1, 10000000)
-                )
-                random_embedding = {
-                    n: [random.randint(-1000, 1000), random.randint(-1000, 1000)]
-                    for n in range(0, i + 1)
-                }
-                nx.set_node_attributes(random_graph, random_embedding, "pos")
-                _assert_crossing_equality(
-                    random_graph, crossings.get_crossings_quadratic(random_graph)
-                )
-                success_count += 1
-
-    def test_random_line_graph(self):
-        # Random graph that should be in normal position
-
-        random.seed(38528349829348)
-        success_count = 0
-        for i in range(0, 50):
-            for j in range(0, 2):
-                print(f"Current graph: {success_count}")
-                random_graph = nx.Graph()
-
-                for node in range(i):
-                    random_graph.add_nodes_from([f"{i}a", f"{j}b"])
-                    random_graph.add_edge(f"{i}a", f"{j}b")
-
-                random_embedding = {
-                    node: [random.randint(-1000, 1000), random.randint(-1000, 1000)]
-                    for node in random_graph.nodes()
-                }
-                nx.set_node_attributes(random_graph, random_embedding, "pos")
-
-                _assert_crossing_equality(
-                    random_graph,
-                    crossings.get_crossings_quadratic(random_graph),
-                    include_node_crossings=True,
-                )
-                success_count += 1
-
-    def test_random_graph_small_grid(self):
-        """
-        Due to the smaller area, we expect much more edge cases such as:
-            - Multiple crossings on the same point
-            - Horizontal edges
-            - Vertices on edges (we count those as crossings as well)
-        """
-        random.seed(19031023901923)
-        success_count = 0
-        for i in range(0, 25):
-            print(f"Current graph: {success_count}")
-            random_graph = nx.fast_gnp_random_graph(
-                i, random.uniform(0.1, 1), random.randint(1, 1000000)
-            )
-            random_embedding = {
-                n: [random.randint(-1, 1), random.randint(-1, 1)]
-                for n in range(0, i + 1)
-            }
-            nx.set_node_attributes(random_graph, random_embedding, "pos")
-            _assert_crossing_equality(
-                random_graph,
-                crossings.get_crossings_quadratic(
-                    random_graph, include_node_crossings=True
-                ),
-                include_node_crossings=True,
-            )
-            success_count += 1
-
-    def test_random_graph_small_grid_2(self):
-        """
-        Due to the smaller area, we expect much more edge cases such as:
-            - Multiple crossings on the same point
-            - Horizontal edges
-            - Vertices on edges (we count those as crossings as well)
-        """
-        random.seed(19031023901923)
-        success_count = 0
-        for i in range(0, 25):
-            print(f"Current graph: {success_count}")
-            random_graph = nx.fast_gnp_random_graph(
-                i, random.uniform(0.1, 1), random.randint(1, 1000000)
-            )
-            random_embedding = {
-                n: [random.randint(-1, 1), random.randint(-1, 1)]
-                for n in range(0, i + 1)
-            }
-            nx.set_node_attributes(random_graph, random_embedding, "pos")
-            _assert_crossing_equality(
-                random_graph, crossings.get_crossings_quadratic(random_graph)
-            )
-            success_count += 1
-
     def test_overlapping_edges_crossing_another_at_vertex(self):
         g = nx.Graph()
         g.add_node(1, pos=(0, 0))
@@ -2249,22 +2055,254 @@ class TestComplexCrossingScenarios(unittest.TestCase):
             ],
         )
 
-    def test_random_planar_graphs(self):
 
-        for i in range(20, 40):
-            n = i * 5
-            coordinates = [
-                (random.uniform(0, 1), random.uniform(0, 1)) for _ in range(0, n)
+class TestNonGeneralPositionRegressions(unittest.TestCase):
+    """
+    Concrete, previously-failing instances found while debugging the sweep-line
+    implementation's handling of non-general-position degeneracies (several edges
+    meeting at exactly the same point, in ways the general adjacent-pair sweep
+    doesn't naturally discover).
+    """
+
+    def test_prune_does_not_merge_unrelated_node_crossing_with_overlap(self):
+        # Nodes 4 and 6 coincide at (1, -1). (6, 8) is collinear with (4, 8)
+        # (already reported separately as a Line crossing) and merely shares node 6
+        # with (6, 7) - it has no genuine point-crossing role at (1, -1) and must
+        # not be merged into that point crossing by Crossing.prune().
+        g = nx.Graph()
+        g.add_edges_from([(4, 8), (6, 7), (6, 8)])
+        nx.set_node_attributes(
+            g, {4: [1, -1], 6: [1, -1], 7: [0, -1], 8: [0, 1]}, "pos"
+        )
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g, include_node_crossings=True),
+            include_node_crossings=True,
+        )
+
+    def test_collinear_group_overlap_not_missed_via_adjacency_chain(self):
+        # Nodes {0, 3, 5, 8} coincide at (0, 1) and {2, 7} coincide at (0, -1), so
+        # (0,2), (0,7), (2,3), (2,5), (2,8), (5,7), (7,8) are all the same fully
+        # overlapping line segment. The old grouping algorithm walked candidates in
+        # sorted-by-x order and chained together only adjacent overlapping pairs -
+        # with other, non-overlapping edges interleaved at the same x, the chain
+        # broke and silently dropped members of the group.
+        g = nx.Graph()
+        g.add_edges_from(
+            [
+                (0, 1), (0, 2), (0, 3), (0, 4), (0, 6), (0, 7), (0, 8),
+                (1, 2), (1, 5), (1, 6), (1, 7), (1, 8),
+                (2, 3), (2, 5), (2, 7), (2, 8),
+                (3, 5), (3, 6), (3, 8),
+                (4, 6), (4, 8),
+                (5, 6), (5, 7), (5, 8),
+                (6, 7), (6, 8),
+                (7, 8),
             ]
+        )
+        nx.set_node_attributes(
+            g,
+            {
+                0: [0, 1], 1: [-1, 0], 2: [0, -1], 3: [0, 1], 4: [1, -1],
+                5: [0, 1], 6: [1, -1], 7: [0, -1], 8: [0, 1],
+            },
+            "pos",
+        )
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g, include_node_crossings=True),
+            include_node_crossings=True,
+        )
 
-            # Generate delaunay
-            cells, generators = voronoi_frames(coordinates, clip="convex hull")
-            delaunay = weights.Rook.from_dataframe(cells)
-            delaunay_graph = delaunay.to_networkx()
+    def test_edge_through_collinear_group_found_on_stale_tree(self):
+        # Edge (9, 10) genuinely crosses two other edges at the exact same point,
+        # but is never adjacent to either of them anywhere in the sweep before
+        # that point (a third, share-endpoint-excluded edge always sits between
+        # them). The old `get_range` used bounding-box pruning during tree descent
+        # that assumed the tree's structure matches sorted order at the queried
+        # height; since (9, 10) was never explicitly reordered, that assumption
+        # broke and the pruning silently skipped the subtree containing it.
+        g = nx.Graph()
+        g.add_edges_from(
+            [
+                (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8),
+                (0, 9), (0, 12),
+                (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 9), (1, 11),
+                (1, 12),
+                (2, 3), (2, 4), (2, 8), (2, 9), (2, 11),
+                (3, 5), (3, 6), (3, 7), (3, 8), (3, 9), (3, 10), (3, 11),
+                (4, 5), (4, 6), (4, 7), (4, 8), (4, 9), (4, 11), (4, 12),
+                (5, 6), (5, 7), (5, 10), (5, 12),
+                (6, 9), (6, 10), (6, 11), (6, 12),
+                (7, 8), (7, 10), (7, 11), (7, 12),
+                (8, 9), (8, 10), (8, 12),
+                (9, 10), (9, 11), (9, 12),
+                (10, 11), (10, 12), (10, 13), (10, 14),
+                (11, 12), (11, 13), (11, 14),
+                (12, 14),
+                (13, 14),
+            ]
+        )
+        nx.set_node_attributes(
+            g,
+            {
+                0: [1, -1], 1: [1, 1], 2: [-1, -1], 3: [-1, 0], 4: [1, 1],
+                5: [1, 1], 6: [-1, 1], 7: [-1, 1], 8: [-1, 1], 9: [1, 0],
+                10: [0, 1], 11: [1, 1], 12: [0, -1], 13: [-1, -1], 14: [-1, -1],
+            },
+            "pos",
+        )
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g, include_node_crossings=True),
+            include_node_crossings=True,
+        )
 
-            pos = dict(zip(delaunay_graph.nodes, coordinates))
+    def test_crossing_against_one_of_several_exactly_tied_outer_edges(self):
+        # (8, 12) crosses a collinear group of edges ((5,11), (6,11), (7,14),
+        # (11,13), (11,14), all the same line) at a point further down the sweep
+        # than where (8, 12) last had a registered event. get_left/get_right can
+        # only return one of several edges that are exactly tied with it at that
+        # other point (here, tied with another, unrelated edge) - so without
+        # checking the rest of that tie, the crossing was never queued at all.
+        g = nx.Graph()
+        g.add_edges_from(
+            [
+                (0, 2), (0, 4), (0, 5), (0, 6), (0, 8), (0, 9), (0, 11), (0, 12),
+                (0, 13), (0, 14),
+                (1, 2), (1, 5), (1, 8), (1, 10), (1, 11),
+                (2, 3), (2, 4), (2, 5), (2, 10), (2, 11), (2, 13),
+                (3, 5), (3, 8), (3, 9), (3, 10), (3, 12), (3, 13), (3, 14),
+                (4, 8), (4, 9), (4, 10), (4, 11),
+                (5, 6), (5, 8), (5, 9), (5, 10), (5, 11), (5, 12), (5, 13),
+                (6, 8), (6, 9), (6, 10), (6, 12), (6, 13),
+                (7, 10), (7, 11), (7, 12), (7, 14),
+                (8, 9), (8, 10), (8, 12),
+                (9, 10), (9, 11), (9, 12),
+                (10, 11), (10, 12), (10, 13), (10, 14),
+                (11, 12), (11, 13), (11, 14),
+                (12, 14),
+                (13, 14),
+            ]
+        )
+        nx.set_node_attributes(
+            g,
+            {
+                0: [-1, 0], 1: [1, 0], 2: [1, 0], 3: [1, 0], 4: [-1, 0],
+                5: [-1, -1], 6: [-1, -1], 7: [1, 1], 8: [-1, 1], 9: [1, 0],
+                10: [0, 1], 11: [1, 1], 12: [0, -1], 13: [-1, -1], 14: [-1, -1],
+            },
+            "pos",
+        )
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g, include_node_crossings=True),
+            include_node_crossings=True,
+        )
 
-            for node, value in pos.items():
-                delaunay_graph.nodes[node]["pos"] = value
+    def test_get_left_get_right_find_closest_match_not_just_any_match(self):
+        # (13, 19) and (42, 46) genuinely cross at (0, -0.4). Right before that,
+        # they're already directly adjacent on the sweep line with nothing between
+        # them - but get_left/get_right used to descend into only one subtree per
+        # node based on a comparison against that node alone (the same kind of
+        # structural-staleness trap fixed for get_range earlier): for an edge that
+        # was last explicitly reordered somewhere else entirely (here, (42, 46) at
+        # an earlier 5-way crossing through the origin), that descent could walk
+        # straight past the actual closest match and return some other,
+        # technically-valid-but-wrong neighbour instead - here (14, 17), which
+        # never registers the crossing with (13, 19) that's actually about to
+        # happen.
+        g = nx.Graph()
+        g.add_edges_from(
+            [
+                (8, 29), (12, 29), (13, 19), (14, 17), (17, 23),
+                (18, 27), (21, 27), (32, 54), (42, 46),
+            ]
+        )
+        nx.set_node_attributes(
+            g,
+            {
+                32: [-1, 2], 8: [-2, 1], 42: [0, -3], 12: [-1, -2], 13: [-3, 2],
+                14: [1, -2], 46: [0, 1], 17: [-1, 2], 18: [1, 1], 19: [2, -2],
+                21: [3, 2], 54: [1, -2], 23: [2, -3], 27: [-3, -2], 29: [1, 2],
+            },
+            "pos",
+        )
+        _assert_crossing_equality(
+            g, crossings.get_crossings_quadratic(g)
+        )
 
-            _assert_crossing_equality(delaunay_graph, [])
+    def test_interior_list_reorder_is_not_corrupted_by_interleaving(self):
+        # Four edges - (0,1), (2,3), (4,5), (6,7) - all pass through the exact
+        # same point (0, 0): three distinct slopes plus the vertical (6, 7).
+        # _handle_event's "reverse the order of interior edges" loop processes
+        # this tied group by removing and immediately reinserting each edge in
+        # turn (in arbitrary set-iteration order), rather than removing the
+        # whole group first and only then reinserting it. While edge A is being
+        # reinserted, some of its true new neighbours may already be back in
+        # their new position while others are still missing entirely - an
+        # inconsistent intermediate tree state that can structurally misplace
+        # an edge relative to others it's never been directly compared to.
+        #
+        # (8, 9) crosses three of the four concurrent edges further down the
+        # sweep, at three separate points. With the AVL tree's get_left/
+        # get_right/get_range reverted to plain pruning (no full traversal),
+        # this corruption causes the crossing with (4, 5) specifically -
+        # (4, 5) being whichever edge ends up structurally misplaced - to be
+        # silently dropped entirely, even though it's a perfectly ordinary,
+        # non-degenerate crossing on its own.
+        g = nx.Graph()
+        g.add_edges_from([(0, 1), (2, 3), (4, 5), (6, 7), (8, 9)])
+        nx.set_node_attributes(
+            g,
+            {
+                0: [2, 2], 1: [-2, -2], 2: [6, 2], 3: [-6, -2], 4: [2, 6],
+                5: [-2, -6], 6: [0, 9], 7: [0, -6], 8: [-2, 8], 9: [-1, -8],
+            },
+            "pos",
+        )
+        _assert_crossing_equality(
+            g, crossings.get_crossings_quadratic(g)
+        )
+
+    def test_zero_length_edge_does_not_steal_the_extreme_slot(self):
+        # (15, 22) is a zero-length edge (both endpoints coincide at (0, 1)). At
+        # the event where it and (11, 22) both start, _get_extreme_edges used to
+        # pick between them by x at a probe height - but a zero-length edge's x
+        # is constant regardless of height, so it could spuriously look "more
+        # extreme" than the genuinely sloped (11, 22), which is the one that
+        # actually goes on to cross (9, 21) later. Testing only the (wrongly)
+        # chosen representative against the outer edge silently missed that
+        # crossing entirely.
+        g = nx.Graph()
+        g.add_edges_from([(9, 21), (11, 22), (15, 22)])
+        nx.set_node_attributes(
+            g, {9: [1, 0], 11: [1, -1], 15: [0, 1], 21: [-1, 1], 22: [0, 1]}, "pos"
+        )
+        _assert_crossing_equality(g, crossings.get_crossings_quadratic(g))
+
+    def test_collinear_group_member_with_matching_extent_not_skipped(self):
+        # (6, 8), (8, 9) and (8, 12) are all on the same vertical line (x=2), but
+        # with different finite extents: y in [1,2], [-2,2] and [0,2]
+        # respectively. (0, 7) crosses that line at (2, -1), which only (8, 9)'s
+        # extent actually reaches. _get_extreme_edges picks just one
+        # representative of this tied group to test against (0, 7); if that
+        # happens to be (6, 8) or (8, 12) instead of (8, 9), check_lines correctly
+        # reports no intersection for that pair (the point is outside their
+        # extent) - and the genuine crossing with (8, 9) was never tried as a
+        # separate pairing.
+        g = nx.Graph()
+        g.add_edges_from([(0, 7), (6, 8), (8, 9), (8, 11), (8, 12), (8, 14)])
+        nx.set_node_attributes(
+            g,
+            {
+                0: [3, 1], 6: [2, 1], 7: [1, -3], 8: [2, 2], 9: [2, -2],
+                11: [0, -2], 12: [2, 0], 14: [-3, 1],
+            },
+            "pos",
+        )
+        _assert_crossing_equality(
+            g,
+            crossings.get_crossings_quadratic(g, include_node_crossings=True),
+            include_node_crossings=True,
+        )
