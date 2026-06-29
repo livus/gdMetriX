@@ -72,4 +72,4 @@ from gdMetriX.symmetry import (
     even_neighborhood_distribution,
 )
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"

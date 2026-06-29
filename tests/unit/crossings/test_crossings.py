@@ -1794,7 +1794,7 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         g.add_node(6, pos=(0, 0))
         edges = [(1, 5), (2, 6), (3, 6), (4, 6)]
         g.add_edges_from(edges)
-.
+
         previous_precision = numeric.get_precision()
         try:
             crossing_list = crossings.get_crossings(g, precision=0.142)
