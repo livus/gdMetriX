@@ -27,24 +27,25 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
   
   <!-- So that users can add custom icons -->
-  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
     <script src="_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'symmetry_overview';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Features" href="features.html" />
@@ -52,20 +53,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -91,7 +98,7 @@
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -174,11 +181,18 @@
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
     </div>
     
@@ -258,18 +272,32 @@
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
       </div>
     
   </div>
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
         <div class="sidebar-primary-item">
+
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
@@ -353,27 +381,27 @@ This page tries to give an overview of all symmetry metrics for graph drawings p
 <tbody>
 <tr class="row-even"><td><p>Node-based symmetry</p></td>
 <td><p>Tries to identify all potential axes over all vertex pairs and build the sum over all axes over a certain quality threshold.</p></td>
-<td><p><span id="id1">Purchase [<a class="reference internal" href="#id17" title="Helen C. Purchase. Metrics for Graph Drawing Aesthetics. Journal of Visual Languages &amp; Computing, 13(5):501–516, October 2002. doi:10.1006/jvlc.2002.0232.">Pur02</a>]</span></p></td>
+<td><p><span class="bibtex-citation" id="id1">Purchase [<a class="reference internal" href="#id17" title="Helen C. Purchase. Metrics for Graph Drawing Aesthetics. Journal of Visual Languages &amp; Computing, 13(5):501–516, October 2002. doi:10.1006/jvlc.2002.0232.">Pur02</a>]</span></p></td>
 <td><p><a class="reference internal" href="symmetry.html#symmetry.reflective_symmetry" title="symmetry.reflective_symmetry"><code class="xref py py-func docutils literal notranslate"><span class="pre">symmetry.reflective_symmetry()</span></code></a></p></td>
 </tr>
 <tr class="row-odd"><td><p>Edge-based symmetry</p></td>
 <td><p>This metric tries to improve upon the node-based symmetry by also considering edges.</p></td>
-<td><p><span id="id2">Klapaukh <em>et al.</em> [<a class="reference internal" href="#id20" title="Roman Klapaukh, Stuart Marshall, and David Pearce. A Symmetry Metric for Graphs and Line Diagrams. In Peter Chapman, Gem Stapleton, Amirouche Moktefi, Sarah Perez-Kriz, and Francesco Bellucci, editors, Diagrammatic Representation and Inference, volume 10871, pages 739–742. Springer International Publishing, Cham, 2018. doi:10.1007/978-3-319-91376-6_71.">KMP18</a>]</span></p></td>
+<td><p><span class="bibtex-citation" id="id2">Klapaukh <em>et al.</em> [<a class="reference internal" href="#id20" title="Roman Klapaukh, Stuart Marshall, and David Pearce. A Symmetry Metric for Graphs and Line Diagrams. In Peter Chapman, Gem Stapleton, Amirouche Moktefi, Sarah Perez-Kriz, and Francesco Bellucci, editors, Diagrammatic Representation and Inference, volume 10871, pages 739–742. Springer International Publishing, Cham, 2018. doi:10.1007/978-3-319-91376-6_71.">KMP18</a>]</span></p></td>
 <td><p><a class="reference internal" href="symmetry.html#symmetry.edge_based_symmetry" title="symmetry.edge_based_symmetry"><code class="xref py py-func docutils literal notranslate"><span class="pre">symmetry.edge_based_symmetry()</span></code></a></p></td>
 </tr>
 <tr class="row-even"><td><p>Stress</p></td>
 <td><p>Based on the classic term of <em>stress</em>, i.e. the ratio of the edge lengths, this measure tries to define a measure of energy in a drawing, with lower energy levels claimed to correspond to more symmetric drawings.</p></td>
-<td><p><span id="id3">Welch and Kobourov [<a class="reference internal" href="#id23" title="E. Welch and S. Kobourov. Measuring Symmetry in Drawings of Graphs. Computer Graphics Forum, 36(3):341–351, June 2017. doi:10.1111/cgf.13192.">WK17</a>]</span></p></td>
+<td><p><span class="bibtex-citation" id="id3">Welch and Kobourov [<a class="reference internal" href="#id23" title="E. Welch and S. Kobourov. Measuring Symmetry in Drawings of Graphs. Computer Graphics Forum, 36(3):341–351, June 2017. doi:10.1111/cgf.13192.">WK17</a>]</span></p></td>
 <td><p><a class="reference internal" href="symmetry.html#symmetry.stress" title="symmetry.stress"><code class="xref py py-func docutils literal notranslate"><span class="pre">symmetry.stress()</span></code></a></p></td>
 </tr>
 <tr class="row-odd"><td><p>Even neighborhood distribution</p></td>
 <td><p>Determines how evenly the neighbors of each vertex are distributed among each vertex.</p></td>
-<td><p><span id="id4">Xu <em>et al.</em> [<a class="reference internal" href="#id22" title="Taihua Xu, Jie Yang, and Guanglei Gou. A Force-Directed Algorithm for Drawing Directed Graphs Symmetrically. Mathematical Problems in Engineering, 2018:1–24, November 2018. doi:10.1155/2018/6208509.">XYG18</a>]</span></p></td>
+<td><p><span class="bibtex-citation" id="id4">Xu <em>et al.</em> [<a class="reference internal" href="#id22" title="Taihua Xu, Jie Yang, and Guanglei Gou. A Force-Directed Algorithm for Drawing Directed Graphs Symmetrically. Mathematical Problems in Engineering, 2018:1–24, November 2018. doi:10.1155/2018/6208509.">XYG18</a>]</span></p></td>
 <td><p><a class="reference internal" href="symmetry.html#symmetry.even_neighborhood_distribution" title="symmetry.even_neighborhood_distribution"><code class="xref py py-func docutils literal notranslate"><span class="pre">symmetry.even_neighborhood_distribution()</span></code></a></p></td>
 </tr>
 <tr class="row-even"><td><p>Automorphism detection</p></td>
 <td><p>Tries to determine the extent to which a drawing displays an automorphism or a group of automorphisms, meaning that this metric takes the structural symmetry of the graph into account.</p></td>
-<td><p><span id="id5">Meidiana <em>et al.</em> [<a class="reference internal" href="#id24" title="A. Meidiana, S.-H. Hong, P. Eades, and D. Keim. Automorphism Faithfulness Metrics for Symmetric Graph Drawings. IEEE Transactions on Visualization and Computer Graphics, pages 1–15, 2022. URL: https://ieeexplore.ieee.org/document/9987696/ (visited on 2023-12-10), doi:10.1109/TVCG.2022.3229354.">MHEK22</a>]</span></p></td>
+<td><p><span class="bibtex-citation" id="id5">Meidiana <em>et al.</em> [<a class="reference internal" href="#id24" title="A. Meidiana, S.-H. Hong, P. Eades, and D. Keim. Automorphism Faithfulness Metrics for Symmetric Graph Drawings. IEEE Transactions on Visualization and Computer Graphics, pages 1–15, 2022. URL: https://ieeexplore.ieee.org/document/9987696/ (visited on 2023-12-10), doi:10.1109/TVCG.2022.3229354.">MHEK22</a>]</span></p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p>Pixel-based symmetry</p></td>
@@ -390,7 +418,7 @@ This page tries to give an overview of all symmetry metrics for graph drawings p
 <p class="admonition-title">Note</p>
 <p>For a more in-depth theoretical comparison of different symmetry metrics refer to <a class="reference download internal" download="" href="_downloads/6cdaaddcecf489cde413b5adc705c8a2/symmetry_guide.pdf"><code class="xref download docutils literal notranslate"><span class="pre">this</span> <span class="pre">guide</span></code></a>.</p>
 </div>
-<p>A more in-depth comparison between the node-, edge-, and stress-based approaches can be seen in the corresponding study by <span id="id6">Welch and Kobourov [<a class="reference internal" href="#id23" title="E. Welch and S. Kobourov. Measuring Symmetry in Drawings of Graphs. Computer Graphics Forum, 36(3):341–351, June 2017. doi:10.1111/cgf.13192.">WK17</a>]</span>.
+<p>A more in-depth comparison between the node-, edge-, and stress-based approaches can be seen in the corresponding study by <span class="bibtex-citation" id="id6">Welch and Kobourov [<a class="reference internal" href="#id23" title="E. Welch and S. Kobourov. Measuring Symmetry in Drawings of Graphs. Computer Graphics Forum, 36(3):341–351, June 2017. doi:10.1111/cgf.13192.">WK17</a>]</span>.
 They concluded, that the node-based metric agreed with human perception
 of symmetry slightly more often compared to the edge-based metric. The stress-based metric
 did not outperform either of the other metrics.</p>
@@ -451,7 +479,7 @@ did not outperform either of the other metrics.</p>
 </tbody>
 </table>
 </div>
-<p><strong>Types of symmetry.</strong> Three main types of symmetry are distinguished in literature <span id="id7">[<a class="reference internal" href="#id25" title="Felice De Luca, Stephen Kobourov, and Helen Purchase. Perception of Symmetries in Drawings of Graphs. In Therese Biedl and Andreas Kerren, editors, Graph Drawing and Network Visualization, volume 11282, pages 433–446. Springer International Publishing, Cham, 2018. doi:10.1007/978-3-030-04414-5_31.">DLKP18</a>]</span>.
+<p><strong>Types of symmetry.</strong> Three main types of symmetry are distinguished in literature <span class="bibtex-citation" id="id7">[<a class="reference internal" href="#id25" title="Felice De Luca, Stephen Kobourov, and Helen Purchase. Perception of Symmetries in Drawings of Graphs. In Therese Biedl and Andreas Kerren, editors, Graph Drawing and Network Visualization, volume 11282, pages 433–446. Springer International Publishing, Cham, 2018. doi:10.1007/978-3-030-04414-5_31.">DLKP18</a>]</span>.
 If a pattern exhibits <em>reflective</em> symmetry, it is mirrored along
 an axis. If a pattern exhibits <em>rotational</em> symmetry, if it remains
 unchanged after rotating it around a central point for a given
@@ -466,12 +494,12 @@ local symmetries might be considered as well. The node-based symmetry metric doe
 trade-offs. All other metrics are based on local substructures. It is, however, unclear to what extend
 global symmetry emerges from a sum of local symmetries.</p>
 <p><strong>Robustness.</strong> A metric is <em>robust</em> if it is not influenced by the scale, rotation or translation of the
-drawing <span id="id8">[<a class="reference internal" href="#id23" title="E. Welch and S. Kobourov. Measuring Symmetry in Drawings of Graphs. Computer Graphics Forum, 36(3):341–351, June 2017. doi:10.1111/cgf.13192.">WK17</a>]</span>. A metric should aim to be robust, as the perceived symmetry does not change with such
+drawing <span class="bibtex-citation" id="id8">[<a class="reference internal" href="#id23" title="E. Welch and S. Kobourov. Measuring Symmetry in Drawings of Graphs. Computer Graphics Forum, 36(3):341–351, June 2017. doi:10.1111/cgf.13192.">WK17</a>]</span>. A metric should aim to be robust, as the perceived symmetry does not change with such
 modifications. Unfortunately, the edge-based symmetry and the neural symmetry are not inherently
 robust to rescaling, the node-based metric can be made robust by wisely choosing appropriate
 parameters. All other metrics are inherently robust to rescaling, rotation and translation.</p>
 <p><strong>Faithfulness.</strong> A metric is <em>faithful</em>, if it is able to detect whether the depicted symmetries match the
-inherit symmetries of the graph itself <span id="id9">[<a class="reference internal" href="#id24" title="A. Meidiana, S.-H. Hong, P. Eades, and D. Keim. Automorphism Faithfulness Metrics for Symmetric Graph Drawings. IEEE Transactions on Visualization and Computer Graphics, pages 1–15, 2022. URL: https://ieeexplore.ieee.org/document/9987696/ (visited on 2023-12-10), doi:10.1109/TVCG.2022.3229354.">MHEK22</a>]</span>. The automorphism metric was designed with that exact
+inherit symmetries of the graph itself <span class="bibtex-citation" id="id9">[<a class="reference internal" href="#id24" title="A. Meidiana, S.-H. Hong, P. Eades, and D. Keim. Automorphism Faithfulness Metrics for Symmetric Graph Drawings. IEEE Transactions on Visualization and Computer Graphics, pages 1–15, 2022. URL: https://ieeexplore.ieee.org/document/9987696/ (visited on 2023-12-10), doi:10.1109/TVCG.2022.3229354.">MHEK22</a>]</span>. The automorphism metric was designed with that exact
 goal in mind. The stress- and force-based approaches consider the structure of the graph as well, the
 extend to which it influences the final metric, however, has to be evaluated separately.</p>
 </section>
@@ -616,8 +644,8 @@ The data consists of random graphs embedded using the force-based embedder from 
     class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> On this page
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison">Comparison</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#runtime">Runtime</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#correlation">Correlation</a></li>
@@ -639,8 +667,8 @@ The data consists of random graphs embedded using the force-based embedder from 
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -660,7 +688,7 @@ The data consists of random graphs embedded using the force-based embedder from 
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
     <br/>
   </p>
 </div>
@@ -674,7 +702,7 @@ The data consists of random graphs embedded using the force-based embedder from 
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
 </p></div>
       
     </div>
