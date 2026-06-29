@@ -5,6 +5,14 @@ REM Define the package name
 set PACKAGE_NAME=gdMetriX
 
 echo.
+echo === Activating virtual environment ===
+call "%~dp0venv\Scripts\activate.bat"
+IF %ERRORLEVEL% NEQ 0 (
+    echo ERROR: Failed to activate virtual environment at %~dp0venv
+    exit /b 1
+)
+
+echo.
 echo === Upgrading dependencies ===
 python -m pip install --upgrade pip build twine
 IF %ERRORLEVEL% NEQ 0 (
@@ -57,7 +65,7 @@ IF %ERRORLEVEL% NEQ 0 (
 
 echo.
 echo === Extracting expected version from pyproject.toml ===
-for /f "tokens=2 delims==" %%a in ('findstr /R "version *= *" pyproject.toml') do set EXPECTED_VERSION=%%a
+for /f "tokens=2 delims==" %%a in ('findstr /B /R "version *= *" pyproject.toml') do set EXPECTED_VERSION=%%a
 set EXPECTED_VERSION=%EXPECTED_VERSION: =%
 set EXPECTED_VERSION=%EXPECTED_VERSION:"=%
 if not defined EXPECTED_VERSION (
