@@ -26,25 +26,11 @@ generated and checked, asserting that the optimized sweep-line implementation
 (`get_crossings`) agrees exactly with the brute-force quadratic reference
 implementation (`get_crossings_quadratic`) on every single one of them.
 
-This exact style of test (many small, highly degenerate random graphs) is what
-originally found the non-general-position bugs documented in
-KNOWN_ISSUES_SWEEP_LINE.md - the point isn't elegance, it's throwing enough
-random instances at the algorithm for rare disagreements to surface.
-
-Each scenario is split into chunks via `@pytest.mark.parametrize`, so it shows
-up as several dozen individually-runnable, individually-ticking entries rather
-than one monolithic test - both in `pytest -v` terminal output and in VS Code's
-Test Explorer (`.vscode/settings.json` passes --runslow to VS Code-initiated
-runs, so picking a chunk there actually executes it instead of skipping it).
-Each chunk reseeds independently (base seed + chunk index) so results don't
-depend on execution order under pytest-xdist's parallel workers.
-
 Run explicitly with:
 
     pytest --runslow tests/unit/crossings/test_crossings_stress.py
 
-The suite is deliberately happy to run for hours - scale it up via environment
-variables:
+Scale it up via environment variables:
 
     GD_METRIX_STRESS_ITERATIONS - random graphs per scenario (default varies)
     GD_METRIX_STRESS_MAX_NODES  - upper bound on graph size for the larger-scale
@@ -151,8 +137,7 @@ class TestStressTinyDegenerateGraphs(object):
     Small graphs (a handful of nodes) squeezed into a tiny integer coordinate
     range. With that few possible positions, coincident nodes, collinear
     overlaps and multi-way crossings through a single point are the common case
-    rather than the exception - exactly the class of input that previously broke
-    the sweep line (see KNOWN_ISSUES_SWEEP_LINE.md).
+    rather than the exception.
     """
 
     _tiny_chunks = _chunks(_iterations(3000), _chunk_size(100))
@@ -254,9 +239,7 @@ class TestStressLargerGeneralPositionGraphs(object):
 class TestStressGridLikeGraphs(object):
     """
     A heavily scaled-up version of test_random_graph_small_grid below: random
-    graphs embedded on a tiny integer grid, which is exactly the style of test
-    that originally found the non-general-position bugs documented in
-    KNOWN_ISSUES_SWEEP_LINE.md.
+    graphs embedded on a tiny integer grid.
     """
 
     _grid_chunks = _chunks(_iterations(500), _chunk_size(20))
@@ -318,16 +301,9 @@ class TestStressPlanarGraphs(object):
 class TestStressLegacyRandomGraphs(object):
     """
     Random-graph regression scenarios that originally lived inline in
-    TestComplexCrossingScenarios (test_crossings.py) and found several of the
-    non-general-position bugs documented in KNOWN_ISSUES_SWEEP_LINE.md. Moved
-    here and chunked like the scenarios above so they run on demand rather than
-    on every default test run, and so progress is visible while they execute.
-
-    Each chunk reseeds independently (base seed + chunk index), so the exact
-    graphs probed no longer match the original single continuous-seed run
-    bit-for-bit - that was never the point: the assertion is the dynamic
-    comparison against get_crossings_quadratic (or, for the planar scenario,
-    against the planarity invariant), not a pinned expected output.
+    TestComplexCrossingScenarios (test_crossings.py). Moved here and chunked 
+    like the scenarios above so they run on demand rather than on every
+    default test run, and so progress is visible while they execute.
     """
 
     _random_graph_chunks = _chunks(10, _chunk_size(2))

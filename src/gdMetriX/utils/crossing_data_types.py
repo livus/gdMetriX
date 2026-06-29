@@ -120,24 +120,49 @@ class Crossing:
             self.involved_singletons = set()
             return
 
-        # It might be the case that we have removed all actual crossings and what remains are just crossing lines
-        # Crossing lines however are captured separately
         if len(self.involved_edges) > 1:
-            just_lines = True
             edge_list = list(self.involved_edges)
-            for index in range(1, len(edge_list)):
-                if not isinstance(
-                    check_lines(
-                        SweepLineEdgeInfo.from_edge(edge_list[0], pos),
-                        SweepLineEdgeInfo.from_edge(edge_list[index], pos),
-                    ),
-                    CrossingLine,
-                ):
-                    just_lines = False
-                    break
+            edge_infos = {edge: SweepLineEdgeInfo.from_edge(edge, pos) for edge in edge_list}
+            relation_cache: Dict[tuple, object] = {}
 
+            def relation(a, b):
+                key = (a, b)
+                if key not in relation_cache:
+                    relation_cache[key] = check_lines(edge_infos[a], edge_infos[b])
+                return relation_cache[key]
+
+            # It might be the case that we have removed all actual crossings and
+            # what remains are just crossing lines. Crossing lines however are
+            # captured separately.
+            just_lines = all(
+                isinstance(relation(edge_list[0], other), CrossingLine)
+                for other in edge_list[1:]
+            )
             if just_lines:
                 self.involved_edges = set()
+                return
+
+            # An edge might still be in the bundle only incidentally - e.g. it merely
+            # shares a node with another involved edge, or it is collinear with one of
+            # them (already reported separately as a CrossingLine) - without actually
+            # taking part in a crossing at this exact point itself. Such edges have no
+            # genuine CrossingPoint relation (via check_lines) to any other edge in the
+            # bundle and must be dropped, or they get reported as part of a crossing
+            # they don't belong to.
+            survivors = set()
+            for edge in edge_list:
+                for other in edge_list:
+                    if other == edge:
+                        continue
+                    rel = relation(edge, other)
+                    if isinstance(rel, CrossingPoint) and rel == self.pos:
+                        survivors.add(edge)
+                        break
+            self.involved_edges = survivors
+
+            if len(self.involved_edges) + len(self.involved_singletons) <= 1:
+                self.involved_edges = set()
+                self.involved_singletons = set()
                 return
 
 
