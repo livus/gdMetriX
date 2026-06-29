@@ -247,6 +247,33 @@ class LineSegment:
     def __repr__(self):
         return self.__str__()
 
+    def distance_squared_to_point(self, point: Vector) -> float:
+        """
+        Returns the squared distance between the line segment and the given point. Avoids the
+        square root `distance_to_point` needs, which is wasted work for callers that only
+        compare the result against a threshold (e.g. a precision radius).
+        :param point: Point to measure the squared distance towards.
+        :type point: gdMetriX.Vector
+        :return: Squared distance to the given point
+        :rtype: float
+        """
+
+        v_ab = self.end - self.start
+        len_ab_squared = v_ab.dot(v_ab)
+
+        if len_ab_squared == 0 or v_ab.dot(point - self.end) > 0:
+            # Node is closer to endpoint b
+            diff = point - self.end
+            return diff.dot(diff)
+        if v_ab.dot(point - self.start) < 0:
+            # Node is closer to endpoint a
+            diff = point - self.start
+            return diff.dot(diff)
+
+        # Node is closer to edge itself -> return squared distance to line
+        cross = v_ab.cross(self.start - point)
+        return (cross * cross) / len_ab_squared
+
     def distance_to_point(self, point: Vector) -> float:
         """
         Returns the distance between the line segment and the given point. If the point lies on the line segment,
@@ -256,21 +283,7 @@ class LineSegment:
         :return: Distance to the given point
         :rtype: float
         """
-
-        v_ab = self.end - self.start
-        v_bn = point - self.end
-        v_an = point - self.start
-        v_na = self.start - point
-
-        if v_ab.len() == 0 or v_ab.dot(v_bn) > 0:
-            # Node is closer to endpoint b
-            return self.end.distance(point)
-        if v_ab.dot(v_an) < 0:
-            # Node is closer to endpoint a
-            return point.distance(self.start)
-
-        # Node is closer to edge itself -> return distance to line
-        return abs(v_ab.cross(v_na) / v_ab.len())
+        return math.sqrt(self.distance_squared_to_point(point))
 
 
 class Angle(float):

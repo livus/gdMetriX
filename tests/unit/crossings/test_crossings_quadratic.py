@@ -1445,6 +1445,51 @@ class TestOverlappingCrossings(unittest.TestCase):
         )
 
 
+class TestNearCollinearOverlaps(unittest.TestCase):
+    """
+    Two segments that are *almost* collinear - every point of one lies within
+    `numeric.get_precision()` of the other's infinite line - should be reported
+    as an overlapping `CrossingLine`, the same as if they were exactly
+    collinear. See `tests/unit/utils/test_intersections.py`
+    (`TestNearCollinearOverlaps`) for the same two cases tested directly
+    against `check_lines`.
+    """
+
+    def test_segment_tilted_within_precision_of_collinear_should_overlap(self):
+        g = nx.Graph()
+        g.add_node(1, pos=(0, 0))
+        g.add_node(2, pos=(10, 0))
+        g.add_node(3, pos=(2, 6e-10))
+        g.add_node(4, pos=(8, -6e-10))
+        g.add_edges_from([(1, 2), (3, 4)])
+        _assert_crossing_equality(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingLine(CrossingPoint(2, 0), CrossingPoint(8, 0)),
+                    {(1, 2), (3, 4)},
+                )
+            ],
+        )
+
+    def test_segment_shifted_within_precision_of_collinear_should_overlap(self):
+        g = nx.Graph()
+        g.add_node(1, pos=(0, 0))
+        g.add_node(2, pos=(10, 0))
+        g.add_node(3, pos=(2, 5e-10))
+        g.add_node(4, pos=(8, 5e-10))
+        g.add_edges_from([(1, 2), (3, 4)])
+        _assert_crossing_equality(
+            g,
+            [
+                crossings.Crossing(
+                    crossings.CrossingLine(CrossingPoint(2, 0), CrossingPoint(8, 0)),
+                    {(1, 2), (3, 4)},
+                )
+            ],
+        )
+
+
 class TestCommonEndpointCrossings(unittest.TestCase):
 
     def test_crossings_with_common_vertex(self):

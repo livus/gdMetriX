@@ -34,7 +34,6 @@ classifiers = [
 dependencies = [
     "networkx>=3.2",
     "scipy>=1.10",
-    "shapely>=2.0.3",
     "osfclient>=0.0.5",
     "numpy>=1.24.4",
     "scikit-image>=0.21.0",
@@ -46,4 +45,7 @@ minversion = "6.0"
 addopts = "-n auto"
 testpaths = [
     "tests",
+]
+markers = [
+    "slow: long-running stress tests, skipped by default - run explicitly with `pytest --runslow`",
 ]
