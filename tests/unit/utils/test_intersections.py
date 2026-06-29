@@ -313,6 +313,45 @@ class TestCollinearOverlaps:
         assert check_lines(a, b) == CrossingLine(CrossingPoint(4, 4), CrossingPoint(10, 10))
 
 
+class TestCollinearGapPrecision:
+    """
+    Two segments that lie on the same infinite line (zero perpendicular
+    offset) but don't overlap.
+    """
+
+    def test_gap_just_outside_precision_is_not_reported(self):
+        a = _edge((0, 0), (10, 0))
+        b = _edge((10 + numeric.get_precision() * 1.5, 0), (20, 0))
+
+        assert check_lines(a, b) is None
+
+    def test_gap_just_inside_precision_is_reported_as_touching(self):
+        a = _edge((0, 0), (10, 0))
+        b = _edge((10 + numeric.get_precision() * 0.9, 0), (20, 0))
+
+        assert check_lines(a, b) == CrossingPoint(10, 0)
+
+    def test_tiny_overlap_just_over_precision_is_reported_as_a_line(self):
+        a = _edge((0, 0), (10, 0))
+        b = _edge((10 - numeric.get_precision() * 1.5, 0), (20, 0))
+
+        result = check_lines(a, b)
+
+        assert isinstance(result, CrossingLine)
+        assert result == CrossingLine(
+            CrossingPoint(10 - numeric.get_precision() * 1.5, 0), CrossingPoint(10, 0)
+        )
+
+    def test_tiny_overlap_just_under_precision_is_reported_as_touching(self):
+        a = _edge((0, 0), (10, 0))
+        b = _edge((10 - numeric.get_precision() * 0.9, 0), (20, 0))
+
+        result = check_lines(a, b)
+
+        assert isinstance(result, CrossingPoint)
+        assert result == CrossingPoint(10, 0)
+
+
 class TestPointToLinePrecision:
     """Direct tests of `check_point_and_line`'s use of `numeric.numeric_eq`."""
 

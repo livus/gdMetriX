@@ -29,6 +29,7 @@ import pytest
 
 from . import crossing_test_helper
 from gdMetriX import crossings
+from gdMetriX.utils import numeric
 from gdMetriX.utils.sweep_line import CrossingPoint
 
 
@@ -1793,8 +1794,13 @@ class TestComplexCrossingScenarios(unittest.TestCase):
         g.add_node(6, pos=(0, 0))
         edges = [(1, 5), (2, 6), (3, 6), (4, 6)]
         g.add_edges_from(edges)
+.
+        previous_precision = numeric.get_precision()
+        try:
+            crossing_list = crossings.get_crossings(g, precision=0.142)
+        finally:
+            numeric.set_precision(previous_precision)
 
-        crossing_list = crossings.get_crossings(g, precision=0.142)
         assert len(crossing_list) == 1
         assert math.isclose(crossing_list[0].pos[0], 1.5, rel_tol=0.142)
         assert math.isclose(crossing_list[0].pos[1], 1.5, rel_tol=0.142)

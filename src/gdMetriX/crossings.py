@@ -70,6 +70,7 @@ from gdMetriX.utils.sweep_line import (
     SweepLineEdgeInfo,
     SweepLineAlgorithm,
     SweepLinePoint,
+    SweepLineStatus,
     CrossingLine,
 )
 
@@ -346,13 +347,40 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
                 biggest_edge = e
         return smallest_edge, biggest_edge
 
+    @staticmethod
+    def _get_tied_group(
+        edges: Set[SweepLineEdgeInfo], representative: SweepLineEdgeInfo, y: Numeric
+    ) -> List[SweepLineEdgeInfo]:
+        # Several edges can be exactly tied at the probe height used by
+        # _get_extreme_edges - most commonly several collinear (e.g. vertical)
+        # edges, whose x doesn't depend on y at all. _get_extreme_edges only ever
+        # returns one of them; if that one happens to have a finite extent that
+        # doesn't actually reach the point where the outer edge crosses the group
+        # (while a tied sibling's extent does), testing only the chosen
+        # representative misses the crossing entirely. So every exact tie needs to
+        # be tried, not just whichever one was picked.
+        representative_x = get_x_at_y(representative, y)
+        return [e for e in edges if numeric_eq(get_x_at_y(e, y), representative_x)]
+
+    @staticmethod
+    def _get_ties(
+        sweep_line_status: SweepLineStatus,
+        edge: Optional[SweepLineEdgeInfo],
+        current_event_point: SweepLinePoint,
+    ) -> Optional[Set[SweepLineEdgeInfo]]:
+        if edge is None:
+            return None
+        x = get_x_at_y(edge, current_event_point.position.y)
+        return set(
+            sweep_line_status.get_range(current_event_point.position.y, x, x)
+        )
+
     def _append_crossing_to_queue(
         self,
         e1: SweepLineEdgeInfo,
         e2: SweepLineEdgeInfo,
         current_event_point: SweepLinePoint,
         edges_involved_at_current_event_point: List[SweepLineEdgeInfo],
-        candidate_siblings: Optional[Set[SweepLineEdgeInfo]] = None,
     ) -> None:
         potential_crossing_point = check_lines(e1, e2)
         if potential_crossing_point is not None and not isinstance(
@@ -362,27 +390,8 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
             # which is why we skip them here
 
             if current_event_point.position < potential_crossing_point:
-                # Add to the queue to process later. e2 was only picked as one
-                # representative of a (possibly bigger) group of edges tied with it at
-                # the current event point. Any other member of that group which is
-                # genuinely collinear with e2 crosses e1 at this exact same point too,
-                # and must be reordered alongside it - otherwise it would be left
-                # structurally inconsistent on the sweep line after this point. We
-                # validate geometrically (via check_lines) rather than just trusting
-                # the x-tie at the current point, since two edges can share an x value
-                # there without actually being collinear.
-                edges_to_queue = [e1, e2]
-                if candidate_siblings:
-                    for sibling in candidate_siblings:
-                        if sibling is e1 or sibling is e2:
-                            continue
-                        sibling_crossing = check_lines(sibling, e1)
-                        if (
-                            isinstance(sibling_crossing, CrossingPoint)
-                            and sibling_crossing == potential_crossing_point
-                        ):
-                            edges_to_queue.append(sibling)
-                self.queue.add_crossing(potential_crossing_point, edges_to_queue)
+                # Add to the queue to process later.
+                self.queue.add_crossing(potential_crossing_point, [e1, e2])
 
             elif current_event_point.position == potential_crossing_point:
                 # This can only be the case if this is a crossing involving a vertex (i.e. check via bool flag)
@@ -446,40 +455,85 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
         left_edge = sweep_line_status.get_left(current_event_point)
         right_edge = sweep_line_status.get_right(current_event_point)
 
+        # Get the edges just to the left/right of the current event point
+        # Can be multiple ones if they overlap at the current y
+        left_candidates = (
+            self._get_ties(sweep_line_status, left_edge, current_event_point) or set()
+        )
+        right_candidates = (
+            self._get_ties(sweep_line_status, right_edge, current_event_point)
+            or set()
+        )
+
         if (
             len(current_event_point.start_list) == 0
             and len(current_event_point.interior_list) == 0
         ):
             # Nothing comes below that is connected to the current event point
             # So we check the above and below neighbour for crossings
-            self._append_crossing_to_queue(
-                left_edge,
-                right_edge,
-                current_event_point,
-                edges_discovered_at_current_event_point,
-            )
+            for left_candidate in left_candidates or {None}:
+                for right_candidate in right_candidates or {None}:
+                    self._append_crossing_to_queue(
+                        left_candidate,
+                        right_candidate,
+                        current_event_point,
+                        edges_discovered_at_current_event_point,
+                    )
         else:
             union = current_event_point.interior_list | current_event_point.start_list
 
-            leftmost, rightmost = self._get_extreme_edges(
-                union,
-                current_event_point.position.y - 100 * numeric.get_precision(),
+            # Zero-length edges have no meaningful direction at the probe height
+            # used below (their x is constant, equal to their single point,
+            # regardless of y) - so they can spuriously look "more extreme" than a
+            # genuinely sloped edge that's actually the one which needs testing
+            # against the outer neighbour. They're never inserted into the sweep
+            # line status itself (see the start_list insertion loop further down),
+            # so exclude them here and fall back to the full union only if nothing
+            # else qualifies.
+            directional_union = {
+                e for e in union if e.start_position != e.end_position
+            } or union
+
+            probe_y = current_event_point.position.y - 100 * numeric.get_precision()
+            leftmost, rightmost = self._get_extreme_edges(directional_union, probe_y)
+
+            # Several members of the union can likewise be exactly tied at the
+            # probe height (e.g. several collinear/vertical edges) -
+            # _get_extreme_edges only ever returns one of them, but a tied sibling
+            # can have a different finite extent that's actually the one reaching
+            # the outer edge, so every exact tie has to be tried too. Trying every
+            # combination of outer candidate x tied union member (rather than
+            # picking one representative of each and only conditionally expanding
+            # afterwards) is what actually guarantees a genuine crossing isn't
+            # missed just because the first pair tried happens to fall outside one
+            # of the two edges' finite extent.
+            left_group = (
+                self._get_tied_group(directional_union, leftmost, probe_y)
+                if leftmost is not None
+                else [None]
+            )
+            right_group = (
+                self._get_tied_group(directional_union, rightmost, probe_y)
+                if rightmost is not None
+                else [None]
             )
 
-            self._append_crossing_to_queue(
-                left_edge,
-                leftmost,
-                current_event_point,
-                edges_discovered_at_current_event_point,
-                union,
-            )
-            self._append_crossing_to_queue(
-                right_edge,
-                rightmost,
-                current_event_point,
-                edges_discovered_at_current_event_point,
-                union,
-            )
+            for left_candidate in left_candidates or {None}:
+                for member in left_group:
+                    self._append_crossing_to_queue(
+                        left_candidate,
+                        member,
+                        current_event_point,
+                        edges_discovered_at_current_event_point,
+                    )
+            for right_candidate in right_candidates or {None}:
+                for member in right_group:
+                    self._append_crossing_to_queue(
+                        right_candidate,
+                        member,
+                        current_event_point,
+                        edges_discovered_at_current_event_point,
+                    )
 
         # region Check all edges at the current point for intersection
 
@@ -520,83 +574,16 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
 
         # region Check for crossing lines
         if len(current_event_point.start_list) > 0:
-            candidates_sorted = sorted(
-                edges_from_sweepline,
-                key=lambda e: get_x_at_y(e, current_event_point.position.y - self.height),
-            )
-            start_sorted = sorted(
-                current_event_point.start_list,
-                key=lambda e: get_x_at_y(e, current_event_point.position.y - self.height),
+            # Check every pair of edges touching this point (whether starting here
+            # or already passing through) for an overlap.
+            overlap_candidates = list(edges_from_sweepline) + list(
+                current_event_point.start_list
             )
 
-            index_candidate = index_start = 0
-            start_group = []
-            candidate_group = []
-            while index_start < len(start_sorted) or index_candidate < len(
-                candidates_sorted
-            ):
-                overlap_starts = (
-                    check_lines(
-                        start_sorted[index_start], start_sorted[index_start + 1]
-                    )
-                    if index_start < len(start_sorted) - 1
-                    else None
-                )
-                overlap_candidate = (
-                    check_lines(
-                        start_sorted[index_start], candidates_sorted[index_candidate]
-                    )
-                    if index_candidate < len(candidates_sorted)
-                    and index_start < len(start_sorted)
-                    else None
-                )
-
-                if isinstance(overlap_starts, CrossingLine):
-                    start_group.append(start_sorted[index_start])
-                    start_group.append(start_sorted[index_start + 1])
-                    index_start += 1
-                elif isinstance(overlap_candidate, CrossingLine):
-                    start_group.append(start_sorted[index_start])
-                    candidate_group.append(candidates_sorted[index_candidate])
-                    index_candidate += 1
-                else:
-                    # Report group pairwise as line crossings
-                    for a, b in itertools.combinations(start_group, 2):
-                        if a == b:
-                            continue
-
-                        crossing = check_lines(a, b)
-
-                        if isinstance(crossing, CrossingLine):
-                            self.crossing_lines.append(
-                                Crossing(crossing, {a.edge, b.edge})
-                            )
-
-                    for a in start_group:
-                        for b in candidate_group:
-
-                            crossing = check_lines(a, b)
-                            if isinstance(crossing, CrossingLine):
-                                self.crossing_lines.append(
-                                    Crossing(crossing, {a.edge, b.edge})
-                                )
-
-                    start_group = []
-                    candidate_group = []
-
-                    if index_start == len(start_sorted):
-                        index_candidate += 1
-                    elif index_candidate == len(candidates_sorted):
-                        index_start += 1
-                    elif get_x_at_y(
-                        start_sorted[index_start], current_event_point.position.y - 1000
-                    ) < get_x_at_y(
-                        candidates_sorted[index_candidate],
-                        current_event_point.position.y - 1000,
-                    ):
-                        index_start += 1
-                    else:
-                        index_candidate += 1
+            for a, b in itertools.combinations(overlap_candidates, 2):
+                crossing = check_lines(a, b)
+                if isinstance(crossing, CrossingLine):
+                    self.crossing_lines.append(Crossing(crossing, {a.edge, b.edge}))
 
         # endregion
 
