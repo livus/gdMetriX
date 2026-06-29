@@ -167,3 +167,7 @@ cython_debug/
 /analysis/SpringEmbedder/
 /analysis/SpringEmbedderOld/
 /analysis/*.pkl
+/analysis/*.png
+/analysis/*.jpg
+/analysis/*.svg
+/analysis/*.pdf
