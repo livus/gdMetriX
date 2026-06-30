@@ -27,8 +27,7 @@ jobs:
       - name: Install package and test dependencies
         run: python -m pip install --upgrade pip && pip install -e ".[test]"
 
-      # Slow stress tests (tests/unit/crossings/test_crossings_stress.py) are
-      # skipped by default via the `slow` pytest marker - intentionally not run here.
+      # Tests marked `slow` (integration tests + stress tests) are skipped by default.
       - name: Run tests with coverage
         run: pytest --cov=gdMetriX --cov-report=xml
 

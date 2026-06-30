@@ -80,5 +80,5 @@ testpaths = [
     "tests",
 ]
 markers = [
-    "slow: long-running stress tests, skipped by default - run explicitly with `pytest --runslow`",
+    "slow: long-running tests (stress tests and integration tests), skipped by default - run explicitly with `pytest --runslow`",
 ]
