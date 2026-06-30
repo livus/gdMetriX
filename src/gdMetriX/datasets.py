@@ -330,7 +330,10 @@ def iterate_dataset(
 
 
 def _get_graph(json_load: Any, adapt_attributes: bool) -> nx.Graph:
-    graph = nx.node_link_graph(json_load)
+    # NetworkX 3.4 renamed the edge key from 'links' (old) to 'edges' (new).
+    # Dataset files on OSF were generated with the old format, so detect which key is present.
+    edges_key = "links" if "links" in json_load else "edges"
+    graph = nx.node_link_graph(json_load, edges=edges_key)
 
     if adapt_attributes:
 

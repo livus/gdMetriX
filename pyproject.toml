@@ -16,29 +16,63 @@ packages = ["src/gdMetriX"]
 name = "gdMetriX"
 version = "0.0.5"
 license = { file = "LICENSE" }
-keywords = ["graph drawing", "networks", "metrics"]
+keywords = [
+    "graph drawing",
+    "graph layout",
+    "graph visualization",
+    "network visualization",
+    "networkx",
+    "graph metrics",
+    "graph drawing metrics",
+    "graph quality metrics",
+    "crossing number",
+    "graph symmetry",
+    "graph aesthetics",
+    "graph embedding evaluation",
+    "network analysis",
+]
 authors = [
     { name = "Martin Nöllenburg" },
     { name = "Sebastian Röder" },
     { name = "Markus Wallinger" }
 ]
-description = "A small extension to networkX providing common metrics for graph drawing"
+description = "A NetworkX extension for computing graph drawing quality metrics (crossings, symmetry, node distribution, edge directions, area/boundary) and benchmark datasets."
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Mathematics",
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
 ]
+
 dependencies = [
-    "networkx>=3.2",
+    "networkx>=3.6",
     "scipy>=1.10",
     "osfclient>=0.0.5",
     "numpy>=1.24.4",
     "scikit-image>=0.21.0",
     "matplotlib>=3.10"
 ]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.2",
+    "pytest-xdist>=3.6",
+    "pytest-socket>=0.7",
+    "pytest-cov>=5.0",
+    "filelock>=3.0",
+]
+
+[project.urls]
+Homepage = "https://livus.github.io/gdMetriX/"
+Documentation = "https://livus.github.io/gdMetriX/"
+Repository = "https://github.com/livus/gdMetriX"
+Issues = "https://github.com/livus/gdMetriX/issues"
+Paper = "https://doi.org/10.4230/LIPIcs.GD.2024.45"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -47,5 +81,5 @@ testpaths = [
     "tests",
 ]
 markers = [
-    "slow: long-running stress tests, skipped by default - run explicitly with `pytest --runslow`",
+    "slow: long-running tests (stress tests and integration tests), skipped by default - run explicitly with `pytest --runslow`",
 ]
