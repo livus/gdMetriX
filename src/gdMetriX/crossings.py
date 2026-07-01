@@ -372,9 +372,7 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
         if edge is None:
             return None
         x = get_x_at_y(edge, current_event_point.position.y)
-        return set(
-            sweep_line_status.get_range(current_event_point.position.y, x, x)
-        )
+        return set(sweep_line_status.get_range(current_event_point.position.y, x, x))
 
     def _append_crossing_to_queue(
         self,
@@ -462,8 +460,7 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
             self._get_ties(sweep_line_status, left_edge, current_event_point) or set()
         )
         right_candidates = (
-            self._get_ties(sweep_line_status, right_edge, current_event_point)
-            or set()
+            self._get_ties(sweep_line_status, right_edge, current_event_point) or set()
         )
 
         if (

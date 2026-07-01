@@ -30,7 +30,12 @@ import numpy as np
 from scipy.spatial import KDTree
 
 from gdMetriX import common, boundary, crossings
-from gdMetriX.common import Numeric, Vector, circle_from_two_points, circle_from_three_points
+from gdMetriX.common import (
+    Numeric,
+    Vector,
+    circle_from_two_points,
+    circle_from_three_points,
+)
 from gdMetriX.utils import numeric
 from gdMetriX.utils.sweep_line import SweepLineAlgorithm
 
@@ -276,7 +281,7 @@ def homogeneity(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     # Necessary variables
     n = g.order()
     n_avg = math.floor(n / 4)
-    
+
     # Sum up the number of nodes in each quadrant
     quadrants = _get_grid_distribution(g, pos, 2)
     multiply = []
@@ -372,7 +377,7 @@ def closest_pair_of_points(g: nx.Graph, pos: Union[str, dict, None] = None):
     y_sorted = sorted(points, key=lambda p: p[2])
 
     p, q, d_sq = _cpop_recursion(x_sorted, y_sorted)
-    return p[0], q[0], d_sq ** 0.5
+    return p[0], q[0], d_sq**0.5
 
 
 def _sq_dist(p, q):
@@ -486,9 +491,7 @@ class _ClosestPairSweep(SweepLineAlgorithm):
         self._event_index = 0
 
         # Active edges: list of (x_max, y_min, y_max, edge)
-        self._active: List[Tuple[Numeric, Numeric, Numeric, Tuple[object, object]]] = (
-            []
-        )
+        self._active: List[Tuple[Numeric, Numeric, Numeric, Tuple[object, object]]] = []
 
     def _build_events(self) -> None:
         if self.min_distance is None:
@@ -506,9 +509,7 @@ class _ClosestPairSweep(SweepLineAlgorithm):
             # (upper bound) distance. By the standard coordinate-projection argument, such a node's x cannot be
             # smaller than x_min - initial_distance, so adding the edge there is always early enough.
             add_x = x_min - self._initial_distance
-            self._events.append(
-                (add_x, self._ADD_EDGE, (x_max, y_min, y_max, edge))
-            )
+            self._events.append((add_x, self._ADD_EDGE, (x_max, y_min, y_max, edge)))
 
         for node in self.g.nodes():
             self._events.append((self.pos[node][0], self._QUERY_NODE, node))
@@ -699,9 +700,7 @@ def gabriel_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
                 continue
 
             # Strict interior test
-            if numeric.greater_than(
-                    radius, midpoint.distance(vecs[w])
-            ):
+            if numeric.greater_than(radius, midpoint.distance(vecs[w])):
                 total_violations += 1
 
     # We counted every violation times 6 to keep everything integer
@@ -736,7 +735,9 @@ def _smallest_enclosing_circle_iteratively(points: List[Vector]) -> common.Circl
                 elif len(point_boundary) == 1:
                     circle = point_boundary[0], 0.0
                 elif len(point_boundary) == 2:
-                    circle = circle_from_two_points(point_boundary[0], point_boundary[1])
+                    circle = circle_from_two_points(
+                        point_boundary[0], point_boundary[1]
+                    )
                 elif len(point_boundary) == 3:
                     circle = circle_from_three_points(
                         point_boundary[0], point_boundary[1], point_boundary[2]
