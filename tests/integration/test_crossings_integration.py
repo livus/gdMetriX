@@ -6,6 +6,7 @@ import gdMetriX
 from gdMetriX import datasets, crossings
 
 
+@pytest.mark.slow
 class TestDatasetGraphs(object):
 
     @pytest.mark.parametrize(
@@ -25,6 +26,7 @@ class TestDatasetGraphs(object):
                     assert crossings_a == crossings_b
 
 
+@pytest.mark.slow
 class TestLargerGraphs(object):
 
     def test_random_graph(self):
