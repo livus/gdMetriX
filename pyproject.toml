@@ -40,6 +40,10 @@ dependencies = [
     "matplotlib>=3.10"
 ]
 
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-n auto"
