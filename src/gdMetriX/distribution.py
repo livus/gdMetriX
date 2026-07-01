@@ -35,6 +35,7 @@ from gdMetriX.utils import numeric
 from gdMetriX.utils.sweep_line import SweepLineAlgorithm
 
 
+@common.resolve_pos
 def center_of_mass(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -47,15 +48,13 @@ def center_of_mass(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param weight: An optional weight dictionary. If given as a string, the property under the given name in the
         networkX graph is used.
     :type weight: Union[str, dict, None]
     :return: A vector representing the position of the center of mass. If the graph is empty, None is returned.
     :rtype: Optional[Vector]
     """
-    pos = common.get_node_positions(g, pos)
-
     if len(pos) == 0:
         return None
 
@@ -89,11 +88,12 @@ def _get_grid_distribution(
     return heatmap(g, pos, None, grid_size, bounding_box, False)
 
 
+@common.resolve_pos
 def heatmap(
     g: nx.Graph,
-    pos: Union[dict, list],
-    values: Optional[list],
-    grid_size: int,
+    pos: Union[dict, list, None] = None,
+    values: Optional[list] = None,
+    grid_size: int = 10,
     bounding_box: Tuple[Numeric, Numeric, Numeric, Numeric] = None,
     average: bool = True,
 ) -> np.ndarray:
@@ -103,10 +103,11 @@ def heatmap(
 
     :param g: A networkX graph
     :type g: nx.Graph
-    :param pos: A dictionary or list of tuples of x and y positions
-    :type pos: pos: Optional[dict, list]
+    :param pos: A dictionary or list of tuples of x and y positions. If not supplied, node positions are read from
+        the graph directly. If given as a string, the property under the given name in the networkX graph is used.
+    :type pos: Union[dict, list, None]
     :param values: A list of values. If None, `1` is assumed for each position.
-    :type values: Optional[list, None]
+    :type values: Optional[list]
     :param grid_size: Number of grid cells per dimension. A grid size of 5 would lead to 5x5 = 25 individual cells.
     :type grid_size: int
     :param bounding_box: The bounding box of the heatmap. If None, the minimum sized bounding box containing the whole
@@ -117,6 +118,8 @@ def heatmap(
     :return: A two dimensional array with all grid cell values.
     :rtype: np.ndarray
     """
+    if grid_size <= 0:
+        raise ValueError("grid_size must be a positive integer")
 
     def _get_grid_cell(min_bound, max_bound, v):
         return int(
@@ -193,6 +196,7 @@ def _balance(
     )
 
 
+@common.resolve_pos
 def horizontal_balance(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -209,7 +213,7 @@ def horizontal_balance(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param use_relative_coordinates: Indicates whether to use the absolute zero points or relative coordinates.
         If use_relative_coordinates is true, the horizontal split line will be at the center between the lowest and
         the highest node in the graph. If use_relative_coordinates is false, the horizontal split line is put at y=0.
@@ -221,6 +225,7 @@ def horizontal_balance(
     return _balance(g, pos, use_relative_coordinates, 1)
 
 
+@common.resolve_pos
 def vertical_balance(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -237,7 +242,7 @@ def vertical_balance(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param use_relative_coordinates: Indicates whether to use the absolute zero points or relative coordinates.
         If use_relative_coordinates is true, the vertical split line will be at the center between the leftmost and the
         rightmost node in the graph. If use_relative_coordinates is false, the vertical split line is put at x=0.
@@ -249,6 +254,7 @@ def vertical_balance(
     return _balance(g, pos, use_relative_coordinates, 0)
 
 
+@common.resolve_pos
 def homogeneity(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     """
     Calculates how evenly the nodes are distributed among the four quadrants.
@@ -259,7 +265,7 @@ def homogeneity(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: A value between 0 and 1. A value of 0 indicates an even distribution among the quadrants, and 1 the worst
         case distribution.
     :rtype: float
@@ -270,10 +276,8 @@ def homogeneity(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     # Necessary variables
     n = g.order()
     n_avg = math.floor(n / 4)
-
+    
     # Sum up the number of nodes in each quadrant
-    pos = common.get_node_positions(g, pos)
-
     quadrants = _get_grid_distribution(g, pos, 2)
     multiply = []
     divide = []
@@ -294,6 +298,7 @@ def homogeneity(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     return 1 - fraction
 
 
+@common.resolve_pos
 def concentration(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -314,7 +319,7 @@ def concentration(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param grid_size: For large graphs, where the calculation might be time sensitive, set a bigger grid size to improve
         performance. A higher grid size reduces the precision of the metric. In most cases, leaving the
         default value should be sufficient.
@@ -327,7 +332,6 @@ def concentration(
     """
     if g.order() <= 1:
         return 0
-    pos = common.get_node_positions(g, pos)
 
     if grid_size == 0:
         grid_size = int(math.ceil(math.sqrt(g.order())))
@@ -346,6 +350,7 @@ def concentration(
     return (np.sum(np.maximum(grid - expected_per_cell, 0))) / (g.order() - 1)
 
 
+@common.resolve_pos
 def closest_pair_of_points(g: nx.Graph, pos: Union[str, dict, None] = None):
     """
     Returns the two closest points a, b together with their euclidean distance in the form (a,b, distance)
@@ -354,13 +359,12 @@ def closest_pair_of_points(g: nx.Graph, pos: Union[str, dict, None] = None):
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: The keys of the two involved nodes as well as their distance
     :rtype: (object, object, float)
     """
     if g.order() <= 1:
         return None, None, None
-    pos = common.get_node_positions(g, pos)
 
     points = [(key, pos[key][0], pos[key][1]) for key in pos]
 
@@ -561,6 +565,7 @@ class _ClosestPairSweep(SweepLineAlgorithm):
         return self.element_a, self.element_b, self.min_distance
 
 
+@common.resolve_pos
 def closest_pair_of_elements(
     g: nx.Graph, pos: Union[str, dict, None] = None, consider_crossings=False
 ):
@@ -571,15 +576,13 @@ def closest_pair_of_elements(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param consider_crossings: Whether or not to consider crossings as well. If a crossing exists, the closest pair of
         elements consists of two crossing edges.
     :type consider_crossings:
     :return: The keys of the two closest graph elements as well as their distance
     :rtype: (object, object, float)
     """
-    pos = common.get_node_positions(g, pos)
-
     if consider_crossings:
         crossing_list = crossings.get_crossings(g, pos)
         if len(crossing_list) > 0:
@@ -595,9 +598,10 @@ def closest_pair_of_elements(
     return _ClosestPairSweep(g, pos, element_a, element_b, min_distance).run()
 
 
+@common.resolve_pos
 def node_orthogonality(
     g: nx.Graph,
-    pos: Union[dict, list, None] = None,
+    pos: Union[str, dict, None] = None,
     width: int = None,
     height: int = None,
 ) -> float:
@@ -609,7 +613,7 @@ def node_orthogonality(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param width: Total number of horizontal grid cells. If not supplied, a minimal integer grid fitting g is assumed.
     :type width: int
     :param height: Total number of vertical grid cells. If not supplied, a minimal integer grid fitting g is assumed.
@@ -617,8 +621,6 @@ def node_orthogonality(
     :return: A metric of node orthogonality between 0 and 1
     :rtype: float
     """
-
-    pos = common.get_node_positions(g, pos)
 
     if width is None:
         width = math.ceil(boundary.width(g, pos)) + 1
@@ -628,6 +630,7 @@ def node_orthogonality(
     return g.order() / (width * height)
 
 
+@common.resolve_pos
 def gabriel_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     """
     The Gabriel ratio is the ratio of the number of nodes falling within a minimum circle covering an edge for any edge.
@@ -638,12 +641,10 @@ def gabriel_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: The Gabriel ratio between 0 and 1
     :rtype: float
     """
-    pos = common.get_node_positions(g, pos)
-
     nodes = list(g.nodes())
     edges = list(g.edges())
     n = g.order()
@@ -818,6 +819,7 @@ def smallest_enclosing_circle_from_point_set(points: Iterable) -> common.Circle:
     return _smallest_enclosing_circle_iteratively(points)
 
 
+@common.resolve_pos
 def smallest_enclosing_circle(
     g: nx.Graph, pos: Union[str, dict, None] = None
 ) -> common.Circle:
@@ -828,9 +830,8 @@ def smallest_enclosing_circle(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: The centre and radius of the smallest circle containing all nodes in g.
     :rtype:  gdMetriX.Circle
     """
-    pos = common.get_node_positions(g, pos)
     return smallest_enclosing_circle_from_point_set(pos.values())
