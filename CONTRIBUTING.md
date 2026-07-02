@@ -1,6 +1,10 @@
 # Contributing to gdMetriX
 
-Thank you for your interest in contributing! Here is everything you need to get started.
+Thank you for your interest in contributing! There are several ways to help:
+
+- **Report a bug or unexpected behaviour** — [open a bug report](https://github.com/livus/gdMetriX/issues/new?template=bug_report.md)
+- **Request a new feature or metric** — [open a feature request](https://github.com/livus/gdMetriX/issues/new?template=feature_request.md)
+- **Contribute code** — see the sections below to get started
 
 ## Setting up a development environment
 
