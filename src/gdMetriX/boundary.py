@@ -57,6 +57,7 @@ from gdMetriX import common
 from gdMetriX.common import Numeric
 
 
+@common.resolve_pos
 def area(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     """
     Calculates the area of the smallest axis-aligned bounding box containing all nodes.
@@ -65,13 +66,14 @@ def area(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: Area of the bounding box of g
     :rtype: float
     """
     return height(g, pos) * width(g, pos)
 
 
+@common.resolve_pos
 def area_tight(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     """
     Returns the area of the convex hull of the given networkx graph g.
@@ -80,12 +82,10 @@ def area_tight(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: Area of the convex hull of g
     :rtype: float
     """
-    pos = common.get_node_positions(g, pos)
-
     if len(pos) <= 1:
         return 0.0
 
@@ -96,6 +96,7 @@ def area_tight(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
         return 0.0
 
 
+@common.resolve_pos
 def bounding_box(
     g: nx.Graph, pos: Union[str, dict, None] = None
 ) -> Optional[Tuple[Numeric, Numeric, Numeric, Numeric]]:
@@ -106,14 +107,12 @@ def bounding_box(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
                 If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: Bounding box in the form (min_x, min_y, max_x, max_y)
     :rtype: Optional[Tuple[numeric, numeric, numeric, numeric]]
     """
     if g.order() == 0:
         return None
-
-    pos = common.get_node_positions(g, pos)
 
     min_x, max_x, min_y, max_y = (None, None, None, None)
 
@@ -132,6 +131,7 @@ def bounding_box(
     return min_x, min_y, max_x, max_y
 
 
+@common.resolve_pos
 def height(g: nx.Graph, pos: Union[str, dict, None] = None) -> Numeric:
     """
     Returns the height of the graph, which is defined as the vertical distance between the lowest and the highest node.
@@ -140,7 +140,7 @@ def height(g: nx.Graph, pos: Union[str, dict, None] = None) -> Numeric:
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: The height of the graph
     :rtype: numeric
     """
@@ -150,6 +150,7 @@ def height(g: nx.Graph, pos: Union[str, dict, None] = None) -> Numeric:
     return max_y - min_y
 
 
+@common.resolve_pos
 def width(g: nx.Graph, pos: Union[str, dict, None] = None) -> Numeric:
     """
     Returns the width of the graph, which is defined as the horizontal distance between the left-most and the right-most
@@ -159,7 +160,7 @@ def width(g: nx.Graph, pos: Union[str, dict, None] = None) -> Numeric:
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: The width of the graph
     :rtype: numeric
     """
@@ -169,6 +170,7 @@ def width(g: nx.Graph, pos: Union[str, dict, None] = None) -> Numeric:
     return max_x - min_x
 
 
+@common.resolve_pos
 def aspect_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> Optional[float]:
     """
     Calculates the aspect ratio of the given graph. The aspect ratio is defined as the ratio of the bigger side over the
@@ -178,7 +180,7 @@ def aspect_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> Optional[fl
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: The aspect ratio of the graph (None in case the graph is empty).
     :rtype: Optional[float]
     """
@@ -196,6 +198,7 @@ def aspect_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> Optional[fl
     return smaller / bigger
 
 
+@common.resolve_pos
 def normalize_positions(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -209,7 +212,7 @@ def normalize_positions(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param box: The bounding box b = (min_x, min_y, max_x, max_y) to fit the graph into. By default, the bounding box is
         equal to (-0.5, -0.5, 0.5, 0.5)
     :type box: Tuple[numeric, numeric, numeric, numeric]
@@ -219,9 +222,9 @@ def normalize_positions(
     :return: The new node positions
     :rtype: dict
     """
-    pos = common.get_node_positions(g, pos).copy()
+    pos = pos.copy()
 
-    if pos is None or len(pos) == 0:
+    if len(pos) == 0:
         return {}
 
     (min_x, min_y, max_x, max_y) = bounding_box(g, pos)

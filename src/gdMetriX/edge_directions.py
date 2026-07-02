@@ -35,6 +35,7 @@ from gdMetriX.common import Numeric, Vector, Angle
 from gdMetriX.utils.edge_orientations import order_clockwise
 
 
+@common.resolve_pos
 def upwards_flow(
     g: nx.DiGraph,
     pos: Union[str, dict, None] = None,
@@ -50,7 +51,7 @@ def upwards_flow(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param direction_vector: Defines the direction of 'upwards'
     :type direction_vector: Tuple[numeric, numeric]
     :return: Percentage of edges pointing 'upwards'
@@ -61,8 +62,6 @@ def upwards_flow(
 
     if direction_vector == (0, 0):
         return None
-
-    pos = common.get_node_positions(g, pos)
 
     sum_upward_edges = 0
 
@@ -76,6 +75,7 @@ def upwards_flow(
     return float(sum_upward_edges) / len(g.edges())
 
 
+@common.resolve_pos
 def average_flow(
     g: nx.DiGraph, pos: Union[str, dict, None] = None
 ) -> Optional[Tuple[float, float]]:
@@ -86,14 +86,13 @@ def average_flow(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: The average edge direction, as a normalized vector.
     :rtype: Optional[Tuple[float, float]]
     """
     if g is None or not nx.is_directed(g) or len(g.edges()) == 0:
         return None
 
-    pos = common.get_node_positions(g, pos)
     sum_vector = np.array([0.0, 0.0])
 
     for edge in g.edges():
@@ -112,6 +111,7 @@ def average_flow(
     return float(average[0]), float(average[1])
 
 
+@common.resolve_pos
 def coherence_to_average_flow(
     g: nx.DiGraph, pos: Union[str, dict, None] = None
 ) -> Optional[float]:
@@ -123,13 +123,14 @@ def coherence_to_average_flow(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: The coherence to the average flow
     :rtype: Optional[float]
     """
     return upwards_flow(g, pos, average_flow(g, pos))
 
 
+@common.resolve_pos
 def ordered_neighborhood(
     g: nx.Graph, node: object, pos: Union[str, dict, None] = None
 ) -> List:
@@ -142,17 +143,16 @@ def ordered_neighborhood(
     :type node: object
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: List of neighbors of 'node' ordered clockwise
     :rtype: List
     """
-    pos = common.get_node_positions(g, pos)
-
     neighbors = [edge[0] if edge[0] != node else edge[1] for edge in g.edges(node)]
     neighbors = list(filter(lambda nb: nb != node, neighbors))
     return order_clockwise(neighbors, pos[node], pos)
 
 
+@common.resolve_pos
 def combinatorial_embedding(g: nx.Graph, pos: Union[str, dict, None] = None) -> dict:
     """
     Returns the combinatorial embedding for the given networkX graph g.
@@ -161,14 +161,14 @@ def combinatorial_embedding(g: nx.Graph, pos: Union[str, dict, None] = None) -> 
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: The new node positions
     :rtype: dict
     """
-    pos = common.get_node_positions(g, pos)
     return {node: ordered_neighborhood(g, node, pos) for node in g.nodes()}
 
 
+@common.resolve_pos
 def edge_angles(
     g: nx.Graph, node: object, pos: Union[str, dict, None] = None, deg: bool = False
 ) -> List:
@@ -181,19 +181,19 @@ def edge_angles(
     :type node: object
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param deg: If true, the angles are returned as degrees in the range of (0,360). Otherwise, the angles are returned
         as radians.
     :type deg: bool
     :return: List of angles between the edges in a clockwise order
     :rtype: List
     """
-    pos = common.get_node_positions(g, pos)
     neighbors = ordered_neighborhood(g, node, pos)
 
     return gdMetriX.utils.edge_orientations.edge_angles(neighbors, pos[node], pos, deg)
 
 
+@common.resolve_pos
 def minimum_angle(
     g: nx.Graph, pos: Union[str, dict, None] = None, deg: bool = False
 ) -> float:
@@ -204,15 +204,13 @@ def minimum_angle(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param deg: If true, the angles are returned as degrees in the range of (0,360). Otherwise, the angles are returned
         as radians.
     :type deg: bool
      :return: Minimum angle between two adjacent edges
     :rtype: float
     """
-    pos = common.get_node_positions(g, pos)
-
     minimum = 360 if deg else math.pi * 2
 
     for node in g.nodes():
@@ -222,6 +220,7 @@ def minimum_angle(
     return minimum
 
 
+@common.resolve_pos
 def angular_resolution(
     g: nx.Graph, pos: Union[str, dict, None] = None, deg: bool = False
 ) -> float:
@@ -238,15 +237,13 @@ def angular_resolution(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param deg: If true, the angles are returned as degrees in the range of (0,360). Otherwise, the angles are returned
         as radians.
     :type deg: bool
     :return: Angular resolution between 0 and 1
     :rtype: float
     """
-
-    pos = common.get_node_positions(g, pos)
 
     node_count = 0
     deviation_sum = 0
@@ -267,6 +264,7 @@ def angular_resolution(
     return deviation_sum / node_count if node_count > 0 else 0
 
 
+@common.resolve_pos
 def edge_orthogonality(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     """
     Returns the extend to which edges are vertical or horizontal.
@@ -277,12 +275,10 @@ def edge_orthogonality(g: nx.Graph, pos: Union[str, dict, None] = None) -> float
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
      :return: Edge orthogonality between 0 and 1
     :rtype: float
     """
-
-    pos = common.get_node_positions(g, pos)
 
     total = 0
     for edge in g.edges():
@@ -295,6 +291,7 @@ def edge_orthogonality(g: nx.Graph, pos: Union[str, dict, None] = None) -> float
     return 1 - (total / len(g.edges()))
 
 
+@common.resolve_pos
 def edge_length_deviation(
     g: nx.Graph, pos: Union[str, dict, None] = None, ideal_length: float = None
 ) -> float:
@@ -305,7 +302,7 @@ def edge_length_deviation(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param ideal_length: The ideal length an edge should have. If not supplied, the average edge length is assumed to be
         the ideal edge length.
     :type ideal_length: float
@@ -315,8 +312,6 @@ def edge_length_deviation(
 
     if g.number_of_edges() < 1:
         return 0
-
-    pos = common.get_node_positions(g, pos)
 
     edge_lengths = [
         common.euclidean_distance(pos[edge[0]], pos[edge[1]]) for edge in g.edges()

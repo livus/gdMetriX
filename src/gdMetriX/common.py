@@ -20,6 +20,8 @@ Collects some basic classes used in other modules as well as useful methods.
 
 from __future__ import annotations
 
+import functools
+import inspect
 import math
 from typing import Union, Tuple, List, Optional
 
@@ -27,6 +29,41 @@ import networkx as nx
 import numpy as np
 
 Numeric = Union[int, float]
+
+
+def resolve_pos(func):
+    """Decorator that automatically resolves the ``pos`` parameter from the graph ``g``.
+
+    When applied to a function with ``g`` and ``pos`` parameters, calls
+    :func:`get_node_positions` before the function body executes. The function
+    therefore always receives a ready-to-use position dictionary regardless of
+    whether the caller passed ``None``, a string attribute name, or an explicit
+    dictionary.
+    """
+    sig = inspect.signature(func)
+    params = list(sig.parameters.keys())
+
+    try:
+        g_idx = params.index("g")
+        pos_idx = params.index("pos")
+    except ValueError:
+        return func
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        args = list(args)
+
+        g = args[g_idx] if g_idx < len(args) else kwargs.get("g")
+
+        if g is not None:
+            if pos_idx < len(args):
+                args[pos_idx] = get_node_positions(g, args[pos_idx])
+            else:
+                kwargs["pos"] = get_node_positions(g, kwargs.get("pos"))
+
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 def get_node_positions(g, pos: Union[str, dict, None] = None) -> dict:

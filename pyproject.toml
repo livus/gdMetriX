@@ -74,6 +74,10 @@ Repository = "https://github.com/livus/gdMetriX"
 Issues = "https://github.com/livus/gdMetriX/issues"
 Paper = "https://doi.org/10.4230/LIPIcs.GD.2024.45"
 
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-n auto"
