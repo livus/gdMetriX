@@ -37,6 +37,7 @@ from scipy.spatial import ConvexHull, QhullError, KDTree
 
 from gdMetriX import crossings, common, boundary
 from gdMetriX.common import Numeric, Vector
+from gdMetriX.utils.numeric import numeric_eq
 from gdMetriX.distribution import smallest_enclosing_circle_from_point_set
 
 
@@ -60,7 +61,7 @@ def reflective_symmetry(
     pos: Union[str, dict, None] = None,
     threshold: int = 2,
     tolerance: float = 1e-2,
-    fraction: float = 1,
+    fraction: float = 0.5,
 ) -> float:
     r"""
     Computes a metric for axial symmetry between 0 and 1 as defined by :footcite:t:`purchase_metrics_2002`.
@@ -84,10 +85,15 @@ def reflective_symmetry(
     :param fraction: A weighing of how much crossings and endpoints should be distinguished between 0 and 1. 1 means
             that we do not care about whether a point is a crossing or an endpoint regarding detecting symmetry and the
             two are treated equally.
-    :type fraction:
+    :type fraction: float
     :return: Axial symmetry estimate between 0 and 1
     :rtype: float
     """
+
+    if threshold < 1:
+        raise ValueError("threshold must be a positive integer")
+    if tolerance <= 0:
+        raise ValueError("tolerance must be positive")
 
     def _subgraph_area(nodes) -> float:
         try:
@@ -108,18 +114,18 @@ def reflective_symmetry(
         total = 0
 
         for pair_1, pair_2 in edge_pairs:
-            factor_1 = (
+            factor_p = (
                 fraction
-                if _is_crossing_node(pair_1[0]) != _is_crossing_node(pair_1[1])
+                if _is_crossing_node(pair_1[0]) != _is_crossing_node(pair_2[0])
                 else 1
             )
-            factor_2 = (
+            factor_q = (
                 fraction
-                if _is_crossing_node(pair_2[0]) != _is_crossing_node(pair_2[1])
+                if _is_crossing_node(pair_1[1]) != _is_crossing_node(pair_2[1])
                 else 1
             )
 
-            total += factor_1 * factor_2
+            total += factor_p * factor_q
 
         return total / len(edge_pairs)
 
@@ -174,7 +180,8 @@ def reflective_symmetry(
             node_b = node_list[i_b]
 
             if node_a == node_b or (
-                pos[node_a][0] == pos[node_b][0] and pos[node_a][1] == pos[node_b][1]
+                numeric_eq(pos[node_a][0], pos[node_b][0])
+                and numeric_eq(pos[node_a][1], pos[node_b][1])
             ):
                 continue
 
@@ -190,38 +197,41 @@ def reflective_symmetry(
                 # Abort before we even build the subgraph G_alpha
                 continue
 
-            # Build a subgraph of symmetric nodes
-            symmetric_subgraph = g.subgraph(mirrored_nodes)
-            subgraph_edges = list(symmetric_subgraph.edges)
+            # Edge-centric: collect only edges that have a mirrored counterpart.
+            # Track unique pairs to avoid double-counting: iterating (u,v) and
+            # then (mu,mv) would add both ((u,v),(mu,mv)) and ((mu,mv),(u,v)).
+            # Threshold is compared against the number of *mirrored edges*
+            # (Purchase 2002): a genuine pair contributes 2 (both edges have a
+            # mirror), a self-symmetric edge contributes 1.
+            seen_pairs: set = set()
+            subgraph_edge_pairs = []
+            subgraph_nodes = set()
+            num_mirrored_edges = 0
 
-            if len(subgraph_edges) <= threshold:
+            for u, v in g.edges():
+                for mu_idx in mirrored_node_pairs[u]:
+                    mu = node_list[mu_idx]
+                    for mv_idx in mirrored_node_pairs[v]:
+                        mv = node_list[mv_idx]
+                        if g.has_edge(mu, mv) or g.has_edge(mv, mu):
+                            key = frozenset(
+                                {frozenset({u, v}), frozenset({mu, mv})}
+                            )
+                            if key in seen_pairs:
+                                continue
+                            seen_pairs.add(key)
+                            subgraph_edge_pairs.append(((u, v), (mu, mv)))
+                            subgraph_nodes.update([u, v, mu, mv])
+                            if frozenset({u, v}) == frozenset({mu, mv}):
+                                num_mirrored_edges += 1  # self-symmetric edge
+                            else:
+                                num_mirrored_edges += 2  # genuine mirror pair
+
+            if num_mirrored_edges < threshold:
                 continue
 
-            if fraction == 1:
-                sub_sym = 1
-            else:
-
-                # Obtain all mirrored edges
-                subgraph_edge_pairs = []
-
-                for edge in subgraph_edges:
-                    a = edge[0]
-                    b = edge[1]
-
-                    for mirror_of_a in mirrored_node_pairs[a]:
-                        mirror_of_a = node_list[mirror_of_a]
-                        for mirror_of_b in mirrored_node_pairs[b]:
-                            mirror_of_b = node_list[mirror_of_b]
-                            if g.has_edge(mirror_of_a, mirror_of_b) or g.has_edge(
-                                mirror_of_b, mirror_of_a
-                            ):
-                                subgraph_edge_pairs.append(
-                                    ((a, b), (mirror_of_a, mirror_of_b))
-                                )
-
-                sub_sym = _subgraph_symmetry(subgraph_edge_pairs)
-
-            sub_area = _subgraph_area(symmetric_subgraph.nodes)
+            sub_sym = _subgraph_symmetry(subgraph_edge_pairs)
+            sub_area = _subgraph_area(subgraph_nodes)
             total_symmetry += sub_sym * sub_area
             total_area += sub_area
 
