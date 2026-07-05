@@ -24,7 +24,10 @@ not depend on (or be obscured by) crossing-specific comparison logic.
 import random
 import unittest
 
-from gdMetriX.utils.avl_tree import ParameterizedBalancedBinarySearchTree, SortableObject
+from gdMetriX.utils.avl_tree import (
+    ParameterizedBalancedBinarySearchTree,
+    SortableObject,
+)
 
 
 def _greater_than(a, b):
@@ -32,7 +35,7 @@ def _greater_than(a, b):
 
 
 class IntItem(SortableObject):
-    """ Simple SortableObject wrapping an int, ignoring key_parameter (fixed total order). """
+    """Simple SortableObject wrapping an int, ignoring key_parameter (fixed total order)."""
 
     def __init__(self, value, tag=None):
         self.value = value
@@ -63,7 +66,7 @@ class IntItem(SortableObject):
 
 
 def _assert_avl_balanced(testcase, tree):
-    """ Verifies the AVL height-balance invariant holds at every node. """
+    """Verifies the AVL height-balance invariant holds at every node."""
 
     def _check(node):
         if node is None:
@@ -77,7 +80,8 @@ def _assert_avl_balanced(testcase, tree):
         )
         expected_height = 1 + max(left_height, right_height)
         testcase.assertEqual(
-            node.height, expected_height,
+            node.height,
+            expected_height,
             f"Stored height at node {node.content} is wrong: stored={node.height}, actual={expected_height}",
         )
         return expected_height
@@ -86,7 +90,7 @@ def _assert_avl_balanced(testcase, tree):
 
 
 def _assert_bst_ordered(testcase, tree):
-    """ Verifies an in-order traversal yields values in non-decreasing order. """
+    """Verifies an in-order traversal yields values in non-decreasing order."""
     values = [item.value for item in tree]
     testcase.assertEqual(values, sorted(values))
 
@@ -167,12 +171,15 @@ class TestLength(unittest.TestCase):
         # force_remove(...)` fallback always fires, even when the preceding `remove()` already
         # succeeded: the size never appears to change, successful or not.
         self.assertEqual(
-            len(tree), 6,
+            len(tree),
+            6,
             "len(tree) should decrease after a successful remove(), but the length bookkeeping in "
             "remove()/force_remove() checks `found_item` before the recursive removal runs, so it "
             "never decrements (see avl_tree.py around the 'if found_item: self._length -= 1' lines)",
         )
-        self.assertEqual(len(list(tree)), 6)  # the tree's actual content is correct regardless
+        self.assertEqual(
+            len(list(tree)), 6
+        )  # the tree's actual content is correct regardless
 
     def test_len_after_force_remove(self):
         tree = ParameterizedBalancedBinarySearchTree(_greater_than)
@@ -182,7 +189,8 @@ class TestLength(unittest.TestCase):
         tree.force_remove(IntItem(3))
 
         self.assertEqual(
-            len(tree), 4,
+            len(tree),
+            4,
             "Same bookkeeping bug as test_len_decreases_after_successful_remove, but in force_remove()",
         )
 
@@ -265,7 +273,8 @@ class TestRemove(unittest.TestCase):
 
         remaining_tags = {i.tag for i in tree}
         self.assertNotIn(
-            204, remaining_tags,
+            204,
+            remaining_tags,
             "remove() failed to find and remove a tied-value item relocated by a rotation - "
             "it is still structurally present in the tree (see docstring for the exact mechanism)",
         )
@@ -320,7 +329,8 @@ class TestForceRemove(unittest.TestCase):
         tree.force_remove(IntItem(0, tag="X"))
 
         self.assertEqual(
-            list(tree), [],
+            list(tree),
+            [],
             "force_remove should remove every item equal to the given one, but a duplicate "
             "positioned as the lone child of another match survives (see force_remove's "
             "'if root.left is None: return root.right' shortcut, which never re-checks the "
@@ -329,7 +339,14 @@ class TestForceRemove(unittest.TestCase):
 
     def test_force_remove_with_duplicates_among_unrelated_values(self):
         tree = ParameterizedBalancedBinarySearchTree(_greater_than)
-        for v, tag in [(1, "a"), (2, "dup"), (3, "b"), (4, "dup"), (5, "c"), (6, "dup")]:
+        for v, tag in [
+            (1, "a"),
+            (2, "dup"),
+            (3, "b"),
+            (4, "dup"),
+            (5, "c"),
+            (6, "dup"),
+        ]:
             tree.insert(IntItem(v, tag=tag), None)
 
         tree.force_remove(IntItem(0, tag="dup"))
@@ -486,6 +503,7 @@ class TestRandomizedStress(unittest.TestCase):
             actual_values = sorted(i.value for i in tree)
             expected_values = sorted(v for _, v in reference)
             self.assertEqual(
-                actual_values, expected_values,
+                actual_values,
+                expected_values,
                 f"Mismatch after step {step} ({len(reference)} items expected)",
             )

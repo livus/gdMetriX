@@ -120,7 +120,9 @@ class TestSmallestEnclosingCircle(unittest.TestCase):
         for _ in range(0, 100):
             g = nx.Graph()
             for node in range(random.randint(5, 150)):
-                g.add_node(node, pos=(random.uniform(-100, 100), random.uniform(-100, 100)))
+                g.add_node(
+                    node, pos=(random.uniform(-100, 100), random.uniform(-100, 100))
+                )
 
             center, radius = distribution.smallest_enclosing_circle(g)
             pos = get_node_positions(g)
@@ -181,7 +183,7 @@ class TestSmallestEnclosingCircle(unittest.TestCase):
 
         assert center.x == pytest.approx(0.5)
         assert center.y == pytest.approx(0.5)
-        assert radius == pytest.approx(math.sqrt(2)/2)
+        assert radius == pytest.approx(math.sqrt(2) / 2)
 
     def test_collinear_points(self):
         g = nx.Graph()
@@ -204,7 +206,7 @@ class TestSmallestEnclosingCircle(unittest.TestCase):
 
         expected_center_x = (-5 + 3) / 2
         expected_center_y = (7 + -2) / 2
-        expected_radius = math.sqrt((3 - (-5))**2 + (-2 - 7)**2) / 2
+        expected_radius = math.sqrt((3 - (-5)) ** 2 + (-2 - 7) ** 2) / 2
 
         assert center.x == pytest.approx(expected_center_x)
         assert center.y == pytest.approx(expected_center_y)
@@ -254,11 +256,5 @@ class TestSmallestEnclosingCircle(unittest.TestCase):
         center, radius = distribution.smallest_enclosing_circle(g)
 
         for node in g.nodes:
-            point = Vector(*g.nodes[node]['pos'])
+            point = Vector(*g.nodes[node]["pos"])
             assert point.distance(center) <= radius + 1e-6
-
-
-
-
-
-

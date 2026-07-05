@@ -56,7 +56,9 @@ def _flip_point_around_axis(p: np.array, a: np.array, b: np.array) -> np.array:
     return p + 2 * v_pl
 
 
-def _flip_points_around_axis(points: np.ndarray, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+def _flip_points_around_axis(
+    points: np.ndarray, a: np.ndarray, b: np.ndarray
+) -> np.ndarray:
     """Vectorized version of :func:`_flip_point_around_axis`.
 
     Reflects every row of ``points`` (shape ``(n, 2)``) across the perpendicular
@@ -219,9 +221,7 @@ def reflective_symmetry(
             for mu in matching[iu]:
                 for mv in matching[iv]:
                     if (mu, mv) in edge_set:
-                        key = frozenset(
-                            {frozenset({iu, iv}), frozenset({mu, mv})}
-                        )
+                        key = frozenset({frozenset({iu, iv}), frozenset({mu, mv})})
                         if key in seen_pairs:
                             continue
                         seen_pairs.add(key)

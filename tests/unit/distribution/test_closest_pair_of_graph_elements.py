@@ -35,7 +35,7 @@ from gdMetriX import distribution, common
 
 
 def _brute_force_closest_pair_of_elements(g, pos):
-    """ Slow O(n*m) reference implementation, mirroring the loop closest_pair_of_elements used to use """
+    """Slow O(n*m) reference implementation, mirroring the loop closest_pair_of_elements used to use"""
     best = None
     best_pair = (None, None)
 
@@ -184,9 +184,13 @@ class TestClosestPairOfGraphElements(unittest.TestCase):
         """
         g = nx.Graph()
         g.add_node(1, pos=(0, 0))
-        g.add_node(2, pos=(1, 1000))  # steep edge: x spans only [0, 1], y spans [0, 1000]
+        g.add_node(
+            2, pos=(1, 1000)
+        )  # steep edge: x spans only [0, 1], y spans [0, 1000]
         g.add_edge(1, 2)
-        g.add_node(3, pos=(-0.01, 500))  # x lies outside [0, 1], but close to the segment's interior
+        g.add_node(
+            3, pos=(-0.01, 500)
+        )  # x lies outside [0, 1], but close to the segment's interior
 
         closest_pair = distribution.closest_pair_of_elements(g)
 

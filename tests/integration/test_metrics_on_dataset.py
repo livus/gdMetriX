@@ -33,7 +33,11 @@ def pytest_generate_tests(metafunc):
     if not metafunc.config.getoption("--runslow"):
         metafunc.parametrize(
             "test_case",
-            [pytest.param(None, marks=pytest.mark.skip(reason="need --runslow option to run"))],
+            [
+                pytest.param(
+                    None, marks=pytest.mark.skip(reason="need --runslow option to run")
+                )
+            ],
         )
     else:
         test_data = list(generate_test_data())

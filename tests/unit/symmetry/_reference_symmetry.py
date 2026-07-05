@@ -175,9 +175,7 @@ def reflective_symmetry(
                     for mv_idx in mirrored_node_pairs[v]:
                         mv = node_list[mv_idx]
                         if g.has_edge(mu, mv) or g.has_edge(mv, mu):
-                            key = frozenset(
-                                {frozenset({u, v}), frozenset({mu, mv})}
-                            )
+                            key = frozenset({frozenset({u, v}), frozenset({mu, mv})})
                             if key in seen_pairs:
                                 continue
                             seen_pairs.add(key)

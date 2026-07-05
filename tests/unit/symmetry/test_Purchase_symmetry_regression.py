@@ -134,8 +134,13 @@ def _rectangle():
 def _cycle(n):
     g = nx.Graph()
     for i in range(n):
-        g.add_node(i, pos=(math.sin(math.radians(i * 360 / n)),
-                           math.cos(math.radians(i * 360 / n))))
+        g.add_node(
+            i,
+            pos=(
+                math.sin(math.radians(i * 360 / n)),
+                math.cos(math.radians(i * 360 / n)),
+            ),
+        )
         g.add_edge(i, (i + 1) % n)
     return g
 
@@ -226,7 +231,9 @@ def test_fast_matches_original(name, threshold, fraction):
     g = ALL_GRAPHS[name]
 
     try:
-        expected = reference.reflective_symmetry(g, threshold=threshold, fraction=fraction)
+        expected = reference.reflective_symmetry(
+            g, threshold=threshold, fraction=fraction
+        )
     except crossings.OverlappingEdgesError:
         # Overlapping (collinear) edges are undefined for the shared
         # crossings.planarize preprocessing; both implementations reject them,
@@ -289,9 +296,9 @@ def test_fast_result_in_unit_interval_on_random_graphs():
     rng = random.Random(987)
     for _ in range(20):
         n = rng.randint(2, 10)
-        g = nx.fast_gnp_random_graph(n, rng.uniform(0.1, 0.8),
-                                     seed=rng.randint(0, 10 ** 7))
-        pos = {node: (rng.randint(-50, 50), rng.randint(-50, 50))
-               for node in g.nodes()}
+        g = nx.fast_gnp_random_graph(
+            n, rng.uniform(0.1, 0.8), seed=rng.randint(0, 10**7)
+        )
+        pos = {node: (rng.randint(-50, 50), rng.randint(-50, 50)) for node in g.nodes()}
         result = sym.reflective_symmetry(g, pos)
         assert 0 <= result <= 1
