@@ -56,6 +56,28 @@ def _flip_point_around_axis(p: np.array, a: np.array, b: np.array) -> np.array:
     return p + 2 * v_pl
 
 
+def _flip_points_around_axis(points: np.ndarray, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Vectorized version of :func:`_flip_point_around_axis`.
+
+    Reflects every row of ``points`` (shape ``(n, 2)``) across the perpendicular
+    bisector of ``a`` and ``b`` in a single numpy operation. Mathematically
+    identical to calling :func:`_flip_point_around_axis` on each point, but
+    avoids the per-point Python overhead that dominates the runtime of the
+    naive Purchase algorithm.
+    """
+    m = (a + b) / 2.0
+    v_ab = b - a
+
+    # Unit direction *along* the perpendicular bisector (perpendicular to v_ab).
+    v_ab_rot = np.array([v_ab[1], -v_ab[0]], dtype=float)
+    axis_dir = v_ab_rot / np.linalg.norm(v_ab_rot)
+
+    diff = points - m  # (n, 2)
+    t = diff @ axis_dir  # (n,) scalar projection onto the axis direction
+    projection = m + np.outer(t, axis_dir)  # (n, 2) foot of perpendicular
+    return 2.0 * projection - points
+
+
 def reflective_symmetry(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -95,63 +117,6 @@ def reflective_symmetry(
     if tolerance <= 0:
         raise ValueError("tolerance must be positive")
 
-    def _subgraph_area(nodes) -> float:
-        try:
-            ch = ConvexHull(list([[pos[node][0], pos[node][1]] for node in nodes]))
-            return ch.volume
-        except QhullError:
-            return 0
-
-    def _is_crossing_node(node):
-        node = g.nodes[node]
-        return "is_elevated_crossing" in node and node["is_elevated_crossing"]
-
-    def _subgraph_symmetry(edge_pairs) -> float:
-
-        if fraction == 1 or len(edge_pairs) == 0:
-            return 1
-
-        total = 0
-
-        for pair_1, pair_2 in edge_pairs:
-            factor_p = (
-                fraction
-                if _is_crossing_node(pair_1[0]) != _is_crossing_node(pair_2[0])
-                else 1
-            )
-            factor_q = (
-                fraction
-                if _is_crossing_node(pair_1[1]) != _is_crossing_node(pair_2[1])
-                else 1
-            )
-
-            total += factor_p * factor_q
-
-        return total / len(edge_pairs)
-
-    def _find_mirrored_nodes(pos_a, pos_b):
-
-        node_positions = np.array([pos[node] for node in node_list])
-        node_positions_mirrored = np.array(
-            [_flip_point_around_axis(pos[node], pos_a, pos_b) for node in node_list]
-        )
-
-        kdtree = KDTree(node_positions)
-        kdtree_mirrored = KDTree(node_positions_mirrored)
-
-        matching_pairs = list(kdtree.query_ball_tree(kdtree_mirrored, r=tolerance))
-
-        mirrored_nodes = []
-        matching_pairs_dic = {}
-
-        for i in range(len(matching_pairs)):
-            if len(matching_pairs[i]) > 0:
-                mirrored_nodes.append(node_list[i])
-
-            matching_pairs_dic[node_list[i]] = matching_pairs[i]
-
-        return mirrored_nodes, matching_pairs_dic
-
     if g.order() <= 1:
         return 1
 
@@ -159,81 +124,143 @@ def reflective_symmetry(
     if convex_hull_area <= 0:
         return 1
 
-    # Get node positions
+    # Identical preprocessing to reflective_symmetry so mirror sets line up.
     g = nx.edge_subgraph(g, g.edges()).copy()
-
     pos = common.get_node_positions(g, pos)
     nx.set_node_attributes(g, pos, "pos")
-
-    # Planarize by replacing crossings with nodes
     crossings.planarize(g)
     pos = common.get_node_positions(g)
-    n = len(g.nodes())
+
+    node_list = list(g.nodes())
+    n = len(node_list)
+    index_of = {node: i for i, node in enumerate(node_list)}
+
+    # No edges (edge_subgraph dropped every node) means no symmetric subgraphs.
+    if n == 0:
+        return 0.0
+
+    # Positions as a single (n, 2) array, built once (was rebuilt per axis).
+    positions = np.array([pos[node] for node in node_list], dtype=float)
+
+    # Spatial index over the fixed node positions, built once (was twice/axis).
+    base_tree = KDTree(positions)
+
+    # Index-based adjacency for O(1) edge-existence checks.
+    edges_idx = [(index_of[u], index_of[v]) for u, v in g.edges()]
+    edge_set = set()
+    for iu, iv in edges_idx:
+        edge_set.add((iu, iv))
+        edge_set.add((iv, iu))
+
+    is_crossing = [
+        bool(g.nodes[node].get("is_elevated_crossing", False)) for node in node_list
+    ]
+
+    prune_limit = math.floor(math.sqrt(threshold))
+
+    def _subgraph_symmetry(edge_pairs) -> float:
+        if fraction == 1 or len(edge_pairs) == 0:
+            return 1
+        total = 0.0
+        for (iu, iv), (mu, mv) in edge_pairs:
+            factor_p = fraction if is_crossing[iu] != is_crossing[mu] else 1
+            factor_q = fraction if is_crossing[iv] != is_crossing[mv] else 1
+            total += factor_p * factor_q
+        return total / len(edge_pairs)
+
+    def _subgraph_area(node_indices) -> float:
+        try:
+            return ConvexHull(positions[list(node_indices)]).volume
+        except QhullError:
+            return 0
+
+    def _axis_key(pa, pb):
+        # Canonical representation of the perpendicular bisector line of pa, pb.
+        # Pairs lying on the same line get the same key, so the (identical)
+        # symmetric subgraph is computed only once.
+        v = pb - pa
+        norm = math.hypot(v[0], v[1])
+        nx_, ny_ = v[0] / norm, v[1] / norm  # unit normal of the bisector
+        m = (pa + pb) / 2.0
+        d = nx_ * m[0] + ny_ * m[1]  # signed offset of the line from the origin
+        # Fix the orientation so opposite normals map to the same key.
+        if nx_ < 0 or (nx_ == 0.0 and ny_ < 0):
+            nx_, ny_, d = -nx_, -ny_, -d
+        return (round(nx_, 9), round(ny_, 9), round(d, 9))
+
+    def _compute_axis(pa, pb):
+        """Symmetric subgraph for the axis induced by (pa, pb).
+
+        Returns ``(sub_sym, sub_area)`` or ``None`` if no symmetric subgraph
+        meeting the threshold exists around the axis.
+        """
+        flipped = _flip_points_around_axis(positions, pa, pb)
+
+        # matching[i] = indices j whose reflection lands on node i (within
+        # tolerance) -- i.e. the nodes that mirror *onto* i. This mirrors the
+        # semantics of the original query_ball_tree call.
+        neighbors = base_tree.query_ball_point(flipped, r=tolerance)
+        matching = [[] for _ in range(n)]
+        mirrored_count = 0
+        for j, pre_images in enumerate(neighbors):
+            for i in pre_images:
+                if not matching[i]:
+                    mirrored_count += 1
+                matching[i].append(j)
+
+        if mirrored_count <= prune_limit:
+            return None
+
+        seen_pairs = set()
+        subgraph_edge_pairs = []
+        subgraph_nodes = set()
+        num_mirrored_edges = 0
+
+        for iu, iv in edges_idx:
+            for mu in matching[iu]:
+                for mv in matching[iv]:
+                    if (mu, mv) in edge_set:
+                        key = frozenset(
+                            {frozenset({iu, iv}), frozenset({mu, mv})}
+                        )
+                        if key in seen_pairs:
+                            continue
+                        seen_pairs.add(key)
+                        subgraph_edge_pairs.append(((iu, iv), (mu, mv)))
+                        subgraph_nodes.update([iu, iv, mu, mv])
+                        if frozenset({iu, iv}) == frozenset({mu, mv}):
+                            num_mirrored_edges += 1
+                        else:
+                            num_mirrored_edges += 2
+
+        if num_mirrored_edges < threshold:
+            return None
+
+        return _subgraph_symmetry(subgraph_edge_pairs), _subgraph_area(subgraph_nodes)
 
     total_area = 0.0
     total_symmetry = 0.0
+    memo = {}
 
-    node_list = list(g.nodes())
+    for i_a in range(n):
+        pa = positions[i_a]
+        for i_b in range(i_a + 1, n):
+            pb = positions[i_b]
 
-    for i_a, node_a in enumerate(node_list):
-        for i_b in range(i_a, n):
-            node_b = node_list[i_b]
-
-            if node_a == node_b or (
-                numeric_eq(pos[node_a][0], pos[node_b][0])
-                and numeric_eq(pos[node_a][1], pos[node_b][1])
-            ):
+            if numeric_eq(pa[0], pb[0]) and numeric_eq(pa[1], pb[1]):
                 continue
 
-            # Iterate over all node pairs
+            key = _axis_key(pa, pb)
+            if key in memo:
+                result = memo[key]
+            else:
+                result = _compute_axis(pa, pb)
+                memo[key] = result
 
-            pos_a = np.asarray(pos[node_a])
-            pos_b = np.asarray(pos[node_b])
-
-            mirrored_nodes, mirrored_node_pairs = _find_mirrored_nodes(pos_a, pos_b)
-
-            if len(mirrored_nodes) <= math.floor(math.sqrt(threshold)):
-                # In this case there cannot even be enough reflected edges
-                # Abort before we even build the subgraph G_alpha
-                continue
-
-            # Edge-centric: collect only edges that have a mirrored counterpart.
-            # Track unique pairs to avoid double-counting: iterating (u,v) and
-            # then (mu,mv) would add both ((u,v),(mu,mv)) and ((mu,mv),(u,v)).
-            # Threshold is compared against the number of *mirrored edges*
-            # (Purchase 2002): a genuine pair contributes 2 (both edges have a
-            # mirror), a self-symmetric edge contributes 1.
-            seen_pairs: set = set()
-            subgraph_edge_pairs = []
-            subgraph_nodes = set()
-            num_mirrored_edges = 0
-
-            for u, v in g.edges():
-                for mu_idx in mirrored_node_pairs[u]:
-                    mu = node_list[mu_idx]
-                    for mv_idx in mirrored_node_pairs[v]:
-                        mv = node_list[mv_idx]
-                        if g.has_edge(mu, mv) or g.has_edge(mv, mu):
-                            key = frozenset(
-                                {frozenset({u, v}), frozenset({mu, mv})}
-                            )
-                            if key in seen_pairs:
-                                continue
-                            seen_pairs.add(key)
-                            subgraph_edge_pairs.append(((u, v), (mu, mv)))
-                            subgraph_nodes.update([u, v, mu, mv])
-                            if frozenset({u, v}) == frozenset({mu, mv}):
-                                num_mirrored_edges += 1  # self-symmetric edge
-                            else:
-                                num_mirrored_edges += 2  # genuine mirror pair
-
-            if num_mirrored_edges < threshold:
-                continue
-
-            sub_sym = _subgraph_symmetry(subgraph_edge_pairs)
-            sub_area = _subgraph_area(subgraph_nodes)
-            total_symmetry += sub_sym * sub_area
-            total_area += sub_area
+            if result is not None:
+                sub_sym, sub_area = result
+                total_symmetry += sub_sym * sub_area
+                total_area += sub_area
 
     return total_symmetry / max(total_area, convex_hull_area)
 

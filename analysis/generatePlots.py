@@ -188,9 +188,10 @@ def draw_data(data, properties, names, filename, xlim=None, ylim=None):
             for property in properties:
                 _plot(axes[i - 1], filtered_dic['n'], filtered_dic[property], str(i))
 
-        axes[i - 1].set_yscale('symlog')
-        axes[i - 1].set_yticks([0.1, 1, 10])
-        axes[i - 1].set_yticks([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], minor=True)
+        # Linear y-axis with plain (non-scientific) tick labels, e.g. "10"
+        # instead of the log formatter's "10^1".
+        axes[i - 1].set_yscale('linear')
+        axes[i - 1].ticklabel_format(style='plain', axis='y', useOffset=False)
         axes[i - 1].set_ylim(0, ylim)
         axes[i - 1].set_xlim(0, xlim)
 
