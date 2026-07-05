@@ -1,69 +1,35 @@
 import pickle
 
+import matplotlib
+
+matplotlib.use("Agg")
+
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
-import matplotlib.pyplot as plt
-import networkx as nx
-import numpy as np
+IMAGES_DIR = "../doc/images"
 
-import gdMetriX
+# Human-readable labels for the shorthand property keys used in data.pkl,
+# used only for plot display - the keys themselves are unchanged.
+METRIC_LABELS = {
+    "pur": "Node-based",
+    "tra": "Edge-based\n(translational)",
+    "rot": "Edge-based\n(rotational)",
+    "ref": "Edge-based\n(reflective)",
+    "str": "Stress",
+    "for": "Even neighborhood\ndistribution",
+    "viz": "Visual (pixel-based)",
+    "n": "Node count",
+    "m": "Edge count",
+    "m_dens": "Edge density",
+    "area": "Area",
+    "area_tight": "Tight area",
+    "concentration": "Concentration",
+    "crossings": "Crossings",
+}
 
-subways = list(gdMetriX.iterate_dataset('subways'))
-
-scale_factor = 0.9
-plt.figure(figsize=(10.5*scale_factor, 5.25*scale_factor))
-i = 0
-for name, g in subways:
-    ax = plt.subplot(3, 5, i + 1)
-    ax.set_title(name)
-
-    ax.set_axis_off()
-
-    pos = gdMetriX.get_node_positions(g)
-    edge_lengths = [gdMetriX.euclidean_distance(pos[edge[0]], pos[edge[1]]) for edge in g.edges()]
-    edge_pos = [gdMetriX.Vector.from_point(pos[edge[0]]).mid(gdMetriX.Vector.from_point(pos[edge[1]])) for edge in
-                g.edges()]
-
-    x_values = [x for x, y in pos.values()]
-    y_values = [y for x, y in pos.values()]
-
-    heatmap = gdMetriX.heatmap(g, edge_pos, edge_lengths, 20)
-    plt.tight_layout()
-    ax.imshow(heatmap, cmap='viridis', interpolation='nearest')
-
-    i += 1
-
-plt.tight_layout()
-#plt.savefig(f"../poster/subways_edge_length.svg")
-plt.show()
-
-computed_symmetry = {key: gdMetriX.visual_symmetry(value) for key, value in subways}
-
-# sorted_subways = dict(sorted(subways.items(), key=lambda g: computed_symmetry[g[0]]))
-subways.sort(key=lambda g: computed_symmetry[g[0]])
-
-plt.figure(figsize=(10.25, 5.25))
-i = 0
-for name, graph in subways:
-    # Setup the matplotlib axis
-    ax = plt.subplot(3, 5, i + 1)
-    ax.set_title(name)
-
-    # Read the node positions from the graph
-    pos = gdMetriX.get_node_positions(graph)
-
-    # Draw on the axis using networkX
-    nx.draw_networkx_edges(graph, pos, ax=ax, node_size=10)
-    nx.draw_networkx_nodes(graph, pos, ax=ax, node_size=10)
-
-    i += 1
-
-plt.tight_layout()
-plt.savefig(f"../poster/symmetry_sorted.svg")
-plt.show()
-
-x = 1 / 0
 
 def smooth(y, box_pts):
     box = np.ones(box_pts) / box_pts
@@ -91,74 +57,77 @@ def correlation_matrix(data, properties):
     cor_data = {property: [] for property in properties}
 
     for graph_key, graph_data in data.items():
-
         for property in properties:
-            if property in graph_data:
-                cor_data[property].append(graph_data[property])
-            else:
-                cor_data[property].append(None)
+            cor_data[property].append(graph_data.get(property))
 
-    df = pd.DataFrame(cor_data)
-    sns.pairplot(df, diag_kind='kde')
-    plt.savefig('sym_scatter.svg')
-    plt.show()
+    df = pd.DataFrame(cor_data).rename(columns=METRIC_LABELS)
+    sns.pairplot(df, diag_kind='kde', height=1.8)
+    plt.savefig(f'{IMAGES_DIR}/sym_scatter.svg', bbox_inches='tight')
+    plt.close('all')
 
     correlation_matrix = df.corr()
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
-    plt.savefig('sym_corr.svg')
-    plt.show()
+    n = len(properties)
+    plt.figure(figsize=(max(8, n * 1.4), max(6, n * 1.2)))
+    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, annot_kws={"size": 10})
+    plt.xticks(rotation=45, ha='right')
+    plt.yticks(rotation=0)
+    plt.tight_layout()
+    plt.savefig(f'{IMAGES_DIR}/sym_corr.svg', bbox_inches='tight')
+    plt.close('all')
 
 
 def correlation_matrix_2(data, row_prop, column_prop):
     cor_data = {property: [] for property in row_prop + column_prop}
     for graph_key, graph_data in data.items():
-
         for property in row_prop + column_prop:
-            if property in graph_data:
-                cor_data[property].append(graph_data[property])
-            else:
-                cor_data[property].append(None)
+            cor_data[property].append(graph_data.get(property))
 
     df = pd.DataFrame(cor_data)
 
+    row_labels = [METRIC_LABELS.get(p, p) for p in row_prop]
+    column_labels = [METRIC_LABELS.get(p, p) for p in column_prop]
+
     # Scatter plot
-    fig, axes = plt.subplots(len(row_prop), len(column_prop), figsize=(len(row_prop) * 3, len(column_prop) * 3))
+    fig, axes = plt.subplots(len(row_prop), len(column_prop),
+                              figsize=(len(column_prop) * 2.5, len(row_prop) * 2.2))
 
     for i, g1 in enumerate(row_prop):
         for j, g2 in enumerate(column_prop):
-            axes[i, j].scatter(df[g2], df[g1])
+            axes[i, j].scatter(df[g2], df[g1], s=10)
 
             # Label axes
             if i == len(row_prop) - 1:
-                axes[i, j].set_xlabel(g2)
+                axes[i, j].set_xlabel(column_labels[j])
             if j == 0:
-                axes[i, j].set_ylabel(g1)
+                axes[i, j].set_ylabel(row_labels[i])
 
     plt.tight_layout()
-    plt.savefig('sym_scatter_2.svg')
-    plt.show()
+    plt.savefig(f'{IMAGES_DIR}/sym_scatter_2.svg', bbox_inches='tight')
+    plt.close('all')
 
     # Correlation matrix
 
     group1 = df[row_prop]
     group2 = df[column_prop]
 
-    correlation_matrix = pd.DataFrame(index=group1.columns, columns=group2.columns)
-    for col1 in group1.columns:
-        for col2 in group2.columns:
-            correlation_matrix.loc[col1, col2] = group1[col1].corr(group2[col2])
+    correlation_matrix = pd.DataFrame(index=row_labels, columns=column_labels)
+    for col1, label1 in zip(row_prop, row_labels):
+        for col2, label2 in zip(column_prop, column_labels):
+            correlation_matrix.loc[label1, label2] = group1[col1].corr(group2[col2])
     correlation_matrix = correlation_matrix.astype(float)
 
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
-    plt.savefig('sym_corr_2.svg')
-    plt.show()
+    plt.figure(figsize=(max(8, len(column_prop) * 1.4), max(6, len(row_prop) * 1.2)))
+    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, annot_kws={"size": 10})
+    plt.xticks(rotation=45, ha='right')
+    plt.yticks(rotation=0)
+    plt.tight_layout()
+    plt.savefig(f'{IMAGES_DIR}/sym_corr_2.svg', bbox_inches='tight')
+    plt.close('all')
 
 
-# correlation_matrix(data, ['pur', 'tra', 'rot', 'ref', 'str', 'for', 'viz'])
-# correlation_matrix_2(data, ['pur', 'tra', 'rot', 'ref', 'str', 'for', 'viz'],
-#                     ['n', 'm', 'm_dens', 'area', 'area_tight', 'concentration', 'crossings'])
+correlation_matrix(data, ['pur', 'tra', 'rot', 'ref', 'str', 'for', 'viz'])
+correlation_matrix_2(data, ['pur', 'tra', 'rot', 'ref', 'str', 'for', 'viz'],
+                      ['n', 'm', 'm_dens', 'area', 'area_tight', 'concentration', 'crossings'])
 
 # Time data
 
@@ -194,8 +163,8 @@ def draw_data(data, properties, names, filename, xlim=None, ylim=None):
         property_dic[key] = np.array(property)[sorted_indices]
 
     width = 2
-    height = 2
-    fig, axes = plt.subplots(height, width, figsize=(width * 4 * 0.8, height * 2.5 * 0.8))
+    height = 5
+    fig, axes = plt.subplots(height, width, figsize=(width * 6, height * 3))
     axes[-1, -1].axis('off')
     axes = axes.flatten()
 
@@ -205,23 +174,23 @@ def draw_data(data, properties, names, filename, xlim=None, ylim=None):
     if xlim is None:
         xlim = max(x for x in property_dic['n'] if x is not None)
 
-    for i in range(1, 4):
-        density_value = 10 + (i-1) * 40
+    for i in range(1, 10):
+        density_value = 10 + (i - 1) * 10
 
-        filtered_dic = {property: [x for x, t in zip(property_dic[property], property_dic['den']) if t == density_value]
-                        for property in property_dic if property != 'den'}
-
-        print(filtered_dic)
+        filtered_dic = {
+            property: [x for x, t in zip(property_dic[property], property_dic['den']) if t == density_value]
+            for property in property_dic if property != 'den'}
 
         if i == 1:
-            labels = [_plot(axes[i - 1], filtered_dic['n'], filtered_dic[property], str(i)) for property in properties]
+            labels = [_plot(axes[i - 1], filtered_dic['n'], filtered_dic[property], str(i)) for property in
+                      properties]
         else:
             for property in properties:
                 _plot(axes[i - 1], filtered_dic['n'], filtered_dic[property], str(i))
 
-        axes[i-1].set_yscale('symlog')
-        axes[i-1].set_yticks([0.1,1,10])
-        axes[i-1].set_yticks([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 ,1, 2, 3, 4, 5, 6, 7, 8, 9, 10], minor=True)
+        axes[i - 1].set_yscale('symlog')
+        axes[i - 1].set_yticks([0.1, 1, 10])
+        axes[i - 1].set_yticks([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], minor=True)
         axes[i - 1].set_ylim(0, ylim)
         axes[i - 1].set_xlim(0, xlim)
 
@@ -230,54 +199,25 @@ def draw_data(data, properties, names, filename, xlim=None, ylim=None):
         axes[i - 1].set_xlabel('n')
         axes[i - 1].set_ylabel('Time [s]')
 
-    fig.legend(labels,
-               labels=names,
-               loc="lower right")
+    handle_label_pairs = [(h[0], name) for h, name in zip(labels, names) if h is not None]
+    if handle_label_pairs:
+        handles, handle_names = zip(*handle_label_pairs)
+        fig.legend(handles=list(handles), labels=list(handle_names), loc="lower right")
 
-    # Display the plot
     plt.tight_layout()
     plt.savefig(filename)
-    plt.show()
-
-    """
-    for i in range(1, 10):
-        plt.figure(figsize=(6, 4), dpi=300)
-
-        density_value = i * 10
-
-        filtered_dic = {property: [x for x, t in zip(property_dic[property], property_dic['den']) if t == density_value]
-                        for property in property_dic if property != 'den'}
-
-        for property in properties:
-            _plot(plt, filtered_dic['n'], filtered_dic[property], str(i))
-
-        # plt.figure(figsize=(10, 8))
-
-        plt.xlabel('n')
-        plt.ylabel('Time [s]')
-        plt.ylim(0, ylim)
-        plt.xlim(0, xlim)
-
-        plt.tight_layout()
-        plt.savefig(f"{i}.png")
-        plt.show(
-    """
+    plt.close('all')
 
 
 draw_data(timedata, ['pur', 'tra', 'rot', 'ref', 'str', 'for', 'viz'],
           ['Node-based', 'Edge-based - translational', 'Edge-based - rotational', 'Edge-based - reflective',
            'Stress-based',
            'Even neighborhood distribution', 'Visual Symmetry'],
-          "../poster/sym_runtime_all.svg"
+          f'{IMAGES_DIR}/sym_runtime_all.svg'
           )
 
-# draw_data(timedata, ['pur', 'tra', 'rot', 'ref'],
-#           ['Node-based', 'Edge-based - translational', 'Edge-based - rotational', 'Edge-based - reflective'],
-#           "sym_runtime_presentation.pdf"
-#           )
-
-# draw_data(timedata, ['str', 'for', 'viz'],
-#           ['Stress',
-#            'Even neighborhood distribution', 'Pixel-based'],
-#           "sym_runtime.svg"
-#           )
+draw_data(timedata, ['str', 'for', 'viz'],
+          ['Stress',
+           'Even neighborhood distribution', 'Pixel-based'],
+          f'{IMAGES_DIR}/sym_runtime.svg'
+          )

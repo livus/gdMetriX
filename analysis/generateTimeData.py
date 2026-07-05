@@ -136,12 +136,13 @@ for filename in os.listdir(spring_graphs):
 
         print(sym.even_neighborhood_distribution(g))
 
-        """
-        if not pur_timeouted.val:  # and g.order() <= purchase_node_cutoff and g.number_of_edges() <= purchase_edge_cutoff:
+        if not pur_timeouted.val:
             save_data(data, filename_2, "pur",
                       lambda: time_function_with_timeout(
                           lambda: sym.reflective_symmetry(g), pur_timeouted),
                       overwrite=False)
+
+        """
         # if (g.order() <= kmp_node_cutoff and g.number_of_edges() <= kmp_edge_cutoff):
         if not tra_timeouted.val:
             save_data(data, filename_2, "tra",

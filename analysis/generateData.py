@@ -1,9 +1,42 @@
 import os
 import pickle
+import subprocess
+import sys
+import time
 
 import networkx as nx
 
-from gdMetriX import boundary, crossings, distribution, symmetry as sym
+METRIC_TIMEOUT_SECONDS = 120
+HEARTBEAT_SECONDS = 15
+METRIC_WORKER = os.path.join(os.path.dirname(__file__), "_metric_worker.py")
+
+
+def _compute_with_timeout(file_path, metric_name):
+    start = time.time()
+    proc = subprocess.Popen(
+        [sys.executable, METRIC_WORKER, file_path, metric_name],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+    )
+
+    while True:
+        try:
+            stdout, stderr = proc.communicate(timeout=HEARTBEAT_SECONDS)
+            break
+        except subprocess.TimeoutExpired:
+            elapsed = time.time() - start
+            if elapsed >= METRIC_TIMEOUT_SECONDS:
+                proc.kill()
+                proc.wait()
+                print(f"  {metric_name} timed out after {METRIC_TIMEOUT_SECONDS}s on {file_path}, skipping",
+                      flush=True)
+                return None
+            print(f"  ...still computing {metric_name} on {file_path} ({elapsed:.0f}s elapsed)", flush=True)
+
+    if proc.returncode != 0 or not stdout.strip():
+        print(f"  {metric_name} failed on {file_path}: {stderr.strip()}", flush=True)
+        return None
+
+    return float(stdout.strip())
 
 
 def _load_graph_from_file(path):
@@ -42,8 +75,15 @@ def save_data(data, filename, property_name, function, overwrite=False):
     graph_data = data[filename]
 
     if property_name not in graph_data or overwrite:
-        print(f"Obtaining {property_name} of {filename}")
-        graph_data[property_name] = function()
+        print(f"Obtaining {property_name} of {filename}", flush=True)
+        result = function()
+
+        # Don't cache a timeout/failure (None) as if it were a real result -
+        # leave the property absent so it gets retried on the next run.
+        if result is None:
+            return
+
+        graph_data[property_name] = result
 
         with open('data.pkl', 'wb') as pickle_file:
             pickle.dump(data, pickle_file)
@@ -57,42 +97,35 @@ try:
 except:
     pass
 
-print(data)
+print(data, flush=True)
 
 for filename in os.listdir(spring_graphs):
-    print(filename)
+    print(filename, flush=True)
     file_path = os.path.join(spring_graphs, filename)
     if not os.path.isfile(file_path):
         continue
 
     g = _load_graph_from_file(file_path)
-    pos = boundary.normalize_positions(g, box=(-100, -100, 100, 100))
-    print(g.order())
+    print(g.order(), flush=True)
 
     save_data(data, filename, "n", lambda: g.order())
     save_data(data, filename, "m", lambda: g.number_of_edges())
     save_data(data, filename, "m_dens", lambda: g.number_of_edges() / (g.order() * g.order()))
-    save_data(data, filename, "area", lambda: boundary.area(g))
-    save_data(data, filename, "area_tight", lambda: boundary.area_tight(g))
-    save_data(data, filename, "concentration", lambda: distribution.concentration(g))
+    save_data(data, filename, "area", lambda: _compute_with_timeout(file_path, "area"))
+    save_data(data, filename, "area_tight", lambda: _compute_with_timeout(file_path, "area_tight"))
+    save_data(data, filename, "concentration", lambda: _compute_with_timeout(file_path, "concentration"))
 
     if g.order() <= 70:
-        save_data(data, filename, "crossings", lambda: crossings.number_of_crossings(g))
+        save_data(data, filename, "crossings", lambda: _compute_with_timeout(file_path, "crossings"))
 
-    if g.order() <= 12:
-        save_data(data, filename, "pur",
-                  lambda: sym.reflective_symmetry(g, tolerance=0.085, fraction=0.5, threshold=4))
+    if g.order() <= 60:
+        save_data(data, filename, "pur", lambda: _compute_with_timeout(file_path, "pur"))
 
     if g.order() <= 100:
-        save_data(data, filename, "ref",
-                  lambda: sym.edge_based_symmetry(g, sym.SymmetryType.REFLECTIVE, pos=pos))
+        save_data(data, filename, "ref", lambda: _compute_with_timeout(file_path, "ref"))
+        save_data(data, filename, "tra", lambda: _compute_with_timeout(file_path, "tra"))
+        save_data(data, filename, "rot", lambda: _compute_with_timeout(file_path, "rot"))
 
-        save_data(data, filename, "tra",
-                  lambda: sym.edge_based_symmetry(g, sym.SymmetryType.TRANSLATIONAL, pos=pos))
-
-        save_data(data, filename, "rot",
-                  lambda: sym.edge_based_symmetry(g, sym.SymmetryType.ROTATIONAL, pos=pos))
-
-    save_data(data, filename, "str", lambda: sym.stress(g, pos))
-    save_data(data, filename, "for", lambda: sym.even_neighborhood_distribution(g, pos))
-    save_data(data, filename, "viz", lambda: sym.visual_symmetry(g, pos))
+    save_data(data, filename, "str", lambda: _compute_with_timeout(file_path, "str"))
+    save_data(data, filename, "for", lambda: _compute_with_timeout(file_path, "for"))
+    save_data(data, filename, "viz", lambda: _compute_with_timeout(file_path, "viz"))
