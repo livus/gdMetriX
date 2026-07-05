@@ -148,3 +148,48 @@ class TestPlanarization(unittest.TestCase):
 
         assert g.order() == 8
         assert len(g.edges()) == 7
+
+    def test_overlapping_edges_raise_specific_error(self):
+        # Two collinear edges A-B = [0,3] and C-D = [1,4] overlap along a
+        # segment; their intersection is a CrossingLine, not a point. This is
+        # undefined for planarize, which must raise a clear, specific error.
+        g = nx.Graph()
+        g.add_node("A", pos=(0, 0))
+        g.add_node("B", pos=(3, 0))
+        g.add_node("C", pos=(1, 0))
+        g.add_node("D", pos=(4, 0))
+        g.add_edges_from([("A", "B"), ("C", "D")])
+
+        with self.assertRaises(crossings.OverlappingEdgesError):
+            crossings.planarize(g)
+
+    def test_overlapping_edges_error_is_value_error(self):
+        # OverlappingEdgesError subclasses ValueError, so generic handlers work.
+        g = nx.Graph()
+        g.add_node("A", pos=(0, 0))
+        g.add_node("B", pos=(3, 0))
+        g.add_node("C", pos=(1, 0))
+        g.add_node("D", pos=(4, 0))
+        g.add_edges_from([("A", "B"), ("C", "D")])
+
+        with self.assertRaises(ValueError):
+            crossings.planarize(g)
+
+    def test_overlapping_edges_leave_graph_untouched(self):
+        # The error is raised before any graph mutation, so the input graph
+        # is left in its original state.
+        g = nx.Graph()
+        g.add_node("A", pos=(0, 0))
+        g.add_node("B", pos=(3, 0))
+        g.add_node("C", pos=(1, 0))
+        g.add_node("D", pos=(4, 0))
+        g.add_edges_from([("A", "B"), ("C", "D")])
+
+        edges_before = set(g.edges())
+        nodes_before = set(g.nodes())
+
+        with self.assertRaises(crossings.OverlappingEdgesError):
+            crossings.planarize(g)
+
+        assert set(g.edges()) == edges_before
+        assert set(g.nodes()) == nodes_before

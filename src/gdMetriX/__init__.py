@@ -35,6 +35,7 @@ from gdMetriX.crossings import (
     get_crossings,
     get_crossings_quadratic,
     number_of_crossings,
+    OverlappingEdgesError,
     planarize,
 )
 from gdMetriX.datasets import clear_cache, get_available_datasets, iterate_dataset
