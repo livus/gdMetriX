@@ -142,6 +142,7 @@ def _get_crossings_agnostic(
 # endregion
 
 
+@common.resolve_pos
 def get_crossings_quadratic(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -163,7 +164,7 @@ def get_crossings_quadratic(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param include_node_crossings: Indicate whether crossings involving vertices should be returned as well. A
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
@@ -387,9 +388,7 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
         if edge is None:
             return None
         x = get_x_at_y(edge, current_event_point.position.y)
-        return set(
-            sweep_line_status.get_range(current_event_point.position.y, x, x)
-        )
+        return set(sweep_line_status.get_range(current_event_point.position.y, x, x))
 
     def _append_crossing_to_queue(
         self,
@@ -477,8 +476,7 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
             self._get_ties(sweep_line_status, left_edge, current_event_point) or set()
         )
         right_candidates = (
-            self._get_ties(sweep_line_status, right_edge, current_event_point)
-            or set()
+            self._get_ties(sweep_line_status, right_edge, current_event_point) or set()
         )
 
         if (
@@ -668,6 +666,7 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
         self.previous_y = current_event_point.position.y
 
 
+@common.resolve_pos
 def get_crossings(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -688,7 +687,7 @@ def get_crossings(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param include_node_crossings: Indicate whether crossings involving vertices should be returned as well. A
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
@@ -711,6 +710,7 @@ def get_crossings(
     ).run()
 
 
+@common.resolve_pos
 def planarize(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -726,7 +726,7 @@ def planarize(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param include_node_crossings: Indicate whether crossings involving vertices should be considered as well. A
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
@@ -740,8 +740,6 @@ def planarize(
     :param crossing_list: If supplied, these crossings are used to obtain the crossing angles.
     :type crossing_list: List[Crossings]
     """
-
-    pos = common.get_node_positions(g, pos)
 
     crossings = _get_crossings_agnostic(
         g,
@@ -809,7 +807,7 @@ def crossing_angles(
     :type crossing: gdMetriX.Crossing
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param deg: If true, the angles are returned as degrees in the range of (0,360). Otherwise, the angles are returned
         as radians.
     :type deg: bool
@@ -839,6 +837,7 @@ def crossing_angles(
         return edge_angles(involved_nodes, crossing_point, pos, deg)
 
 
+@common.resolve_pos
 def crossing_angular_resolution(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -855,7 +854,7 @@ def crossing_angular_resolution(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param include_node_crossings: Indicate whether crossings involving vertices should be considered as well. A
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
@@ -871,7 +870,6 @@ def crossing_angular_resolution(
     :return: The average deviation from the optimal angle between two edges in any of the crossings
     :rtype: float
     """
-    pos = common.get_node_positions(g, pos)
     deviation_sum = 0
     crossing_list = _get_crossings_agnostic(
         g,
@@ -933,6 +931,7 @@ def _c_max(g: nx.Graph, include_mooney_cases: bool):
     return _n_choose_2(m) - c_deg - c_tri - c_4cyc
 
 
+@common.resolve_pos
 def number_of_crossings(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -951,7 +950,7 @@ def number_of_crossings(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param include_node_crossings: Indicate whether crossings involving vertices should be considered as well. A
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
@@ -984,6 +983,7 @@ def number_of_crossings(
     return total
 
 
+@common.resolve_pos
 def crossing_density(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -1003,7 +1003,7 @@ def crossing_density(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
         If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param tighter_bound: If set to true, a tighter bound on the maximum number of potential crossings is calculated,
         which might however lie below the actual maximum number of crossings. See :footcite:t:`purchase_landscape` for
         details. If set to false, the original estimate by :footcite:t:`purchase_metrics_2002` is used.

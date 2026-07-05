@@ -122,7 +122,9 @@ class Crossing:
 
         if len(self.involved_edges) > 1:
             edge_list = list(self.involved_edges)
-            edge_infos = {edge: SweepLineEdgeInfo.from_edge(edge, pos) for edge in edge_list}
+            edge_infos = {
+                edge: SweepLineEdgeInfo.from_edge(edge, pos) for edge in edge_list
+            }
             relation_cache: Dict[tuple, object] = {}
 
             def relation(a, b):

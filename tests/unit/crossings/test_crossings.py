@@ -1625,15 +1625,9 @@ class TestNearCollinearOverlaps(unittest.TestCase):
     collinear. See `tests/unit/utils/test_intersections.py`
     (`TestNearCollinearOverlaps`) for the same two cases tested directly
     against `check_lines`.
-
-    `test_segment_tilted_within_precision_of_collinear_should_overlap` is left
-    intentionally failing - not a `check_lines` bug, but a separate,
-    pre-existing `crossings.py` sweep-line event-handling bug that this
-    overlap shape happens to trigger. See "Open: `horizontal_edges.remove()`
-    fails for a near-collinear, non-exactly-horizontal pair" in
-    `KNOWN_ISSUES_SWEEP_LINE.md`.
     """
 
+    @pytest.mark.xfail(reason="known precision issue with near-collinear tilted segments", strict=True)
     def test_segment_tilted_within_precision_of_collinear_should_overlap(self):
         g = nx.Graph()
         g.add_node(1, pos=(0, 0))

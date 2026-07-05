@@ -15,14 +15,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Tests marked `slow` (the stress tests under crossings/test_crossings_stress.py)
-are skipped by default, but stay collected - unlike `-m "not slow"` deselection,
-which removes them from `--collect-only` entirely and hides them from VS Code's
-Test Explorer. Run them explicitly with `pytest --runslow ...`.
+Tests marked `slow` (stress tests and all integration tests) are skipped by
+default, but stay collected - unlike `-m "not slow"` deselection, which removes
+them from `--collect-only` entirely and hides them from VS Code's Test Explorer.
+Run them explicitly with `pytest --runslow ...`.
 
-.vscode/settings.json passes --runslow to every VS Code-initiated run, so
-stress tests run for real (with their per-chunk progress visible as individual
-Test Explorer items) when you pick and run a specific chunk/class/file there,
+.vscode/settings.json passes --runslow to every VS Code-initiated run, so slow
+tests run for real when you pick and run a specific test/class/file in VS Code,
 while a plain terminal `pytest` keeps skipping them by default.
 """
 

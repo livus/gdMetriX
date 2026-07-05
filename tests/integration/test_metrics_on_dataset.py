@@ -13,7 +13,7 @@ import itertools
 
 
 def generate_test_data():
-    """Generator function yielding large test cases one by one."""
+    """Yields (dataset_name, graph_name) pairs for the first 2 graphs per dataset."""
     lock_datasets = FileLock("dataset_download.lock")
     with lock_datasets:
         available_datasets = datasets.get_available_datasets()
@@ -27,13 +27,17 @@ def generate_test_data():
                 yield dataset_name, name
 
 
-test_data = list(generate_test_data())
-ids = [f"{dataset}_{graph}" for dataset, graph in test_data]
-
-
 def pytest_generate_tests(metafunc):
-    """Dynamically generate test cases lazily without preloading all of them."""
-    if "test_case" in metafunc.fixturenames:
+    if "test_case" not in metafunc.fixturenames:
+        return
+    if not metafunc.config.getoption("--runslow"):
+        metafunc.parametrize(
+            "test_case",
+            [pytest.param(None, marks=pytest.mark.skip(reason="need --runslow option to run"))],
+        )
+    else:
+        test_data = list(generate_test_data())
+        ids = [f"{dataset}_{graph}" for dataset, graph in test_data]
         metafunc.parametrize("test_case", test_data, ids=ids)
 
 

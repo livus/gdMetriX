@@ -78,6 +78,7 @@ def _flip_points_around_axis(points: np.ndarray, a: np.ndarray, b: np.ndarray) -
     return 2.0 * projection - points
 
 
+@common.resolve_pos
 def reflective_symmetry(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -99,7 +100,7 @@ def reflective_symmetry(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
             If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param threshold: The minimum number of edges a subgraph needs in order to be considered to be symmetric
     :type threshold: int
     :param tolerance: The tolerance for when two points should be considered to be at the same position.
@@ -124,9 +125,7 @@ def reflective_symmetry(
     if convex_hull_area <= 0:
         return 1
 
-    # Identical preprocessing to reflective_symmetry so mirror sets line up.
     g = nx.edge_subgraph(g, g.edges()).copy()
-    pos = common.get_node_positions(g, pos)
     nx.set_node_attributes(g, pos, "pos")
     crossings.planarize(g)
     pos = common.get_node_positions(g)
@@ -574,6 +573,7 @@ class _AxesSystem:
         return len(matching_edge_dic) / float(len(top_features) * len(g.edges()))
 
 
+@common.resolve_pos
 def edge_based_symmetry(
     g: nx.Graph,
     symmetry_type: SymmetryType,
@@ -600,7 +600,7 @@ def edge_based_symmetry(
     :type symmetry_type: gdMetriX.SymmetryType
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
             If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param axes_count: Only the top `axes_count` axes are selected and evaluated.
     :type axes_count: int
     :param sigma_scale: The tolerance for when two features are considered to have the same scale.
@@ -620,8 +620,6 @@ def edge_based_symmetry(
     :return: A symmetry estimate
     :rtype: float
     """
-    pos = common.get_node_positions(g, pos)
-
     if len(g.edges()) == 0:
         return 1
 
@@ -655,6 +653,7 @@ def edge_based_symmetry(
     return votes.conclude_voting(g)
 
 
+@common.resolve_pos
 def visual_symmetry(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -668,10 +667,11 @@ def visual_symmetry(
     Tries to estimate the perceived symmetry of the drawing by visually testing reflective, rotational and dihedral
     symmetry.
 
-    :param g: graph
+    :param g: A networkX graph
     :type g: nx.Graph
-    :param pos: Dictionary of node positions. If not supplied, it is expected that the positions are included in g.
-    :type pos: dic
+    :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+        If given as a string, the property under the given name in the networkX graph is used.
+    :type pos: Union[str, dict, None]
     :param resolution: Width and height of the image the graph is drawn to. The higher the resolution, the more
         sensitive the measure is to local details.
     :type resolution: int
@@ -687,8 +687,6 @@ def visual_symmetry(
     :return: A value in [0,1] estimating the perceived symmetry.
     :rtype: float
     """
-
-    pos = common.get_node_positions(g, pos)
 
     if len(pos) <= 1:
         return 1
@@ -793,6 +791,7 @@ def visual_symmetry(
     return 1 - math.pow(minimum, 2)
 
 
+@common.resolve_pos
 def stress(
     g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: bool = True
 ) -> float:
@@ -807,7 +806,7 @@ def stress(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
             If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :param scale_minimization: If true, the scale of the drawing is adjusted to minimize the stress. To be precise,
             a parameter :math:`s` is calculated using a binary search, minimizing the following function:
             :math:`\sum{i,j \in V} (s \cdot ||p_j - p_j|| - d_{ij})^2`
@@ -816,7 +815,6 @@ def stress(
     :rtype: float
     """
 
-    pos = common.get_node_positions(g, pos)
     shortest_path_distances = dict(nx.all_pairs_shortest_path_length(g))
 
     def _get_stress(scale):
@@ -855,6 +853,7 @@ def stress(
     return _get_stress(optimal_scale)
 
 
+@common.resolve_pos
 def even_neighborhood_distribution(
     g: nx.Graph, pos: Union[str, dict, None] = None
 ) -> float:
@@ -874,12 +873,10 @@ def even_neighborhood_distribution(
     :type g: nx.Graph
     :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
             If given as a string, the property under the given name in the networkX graph is used.
-    :type pos: Union[str, dic, None]
+    :type pos: Union[str, dict, None]
     :return: The symmetry metric defined by the neighborhood distribution.
     :rtype: float
     """
-    pos = common.get_node_positions(g, pos)
-
     if g.order() <= 2:
         return 1
 

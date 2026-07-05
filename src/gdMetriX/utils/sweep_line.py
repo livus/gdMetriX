@@ -87,7 +87,9 @@ class CrossingLine(LineSegment):
 
     def __lt__(self, other):
         if isinstance(other, CrossingLine):
-            return self.start < other.start or (self.start == other.start and self.end < other.end)
+            return self.start < other.start or (
+                self.start == other.start and self.end < other.end
+            )
         if isinstance(other, CrossingPoint):
             return False
         raise TypeError(other)

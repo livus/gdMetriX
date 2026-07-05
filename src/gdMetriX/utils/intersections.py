@@ -143,7 +143,9 @@ def _intersect_degenerate(
     return None
 
 
-def _perpendicular_distance_squared(point, origin, direction, direction_len_sq) -> float:
+def _perpendicular_distance_squared(
+    point, origin, direction, direction_len_sq
+) -> float:
     """Squared distance from `point` to the infinite line through `origin` along `direction`."""
     cross = direction.cross(point - origin)
     return (cross * cross) / direction_len_sq
@@ -177,7 +179,12 @@ def _crossing_point(
 
 
 def _collinear_overlap(
-    p1: CrossingPoint, d1, len1_sq: float, p3: CrossingPoint, p4: CrossingPoint, precision: float
+    p1: CrossingPoint,
+    d1,
+    len1_sq: float,
+    p3: CrossingPoint,
+    p4: CrossingPoint,
+    precision: float,
 ) -> Union[CrossingLine, CrossingPoint, None]:
     # Line a and line b are collinear within precision - find the overlap of
     # their extents by projecting b's endpoints onto a's direction. Working in
