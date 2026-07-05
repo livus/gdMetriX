@@ -229,9 +229,7 @@ class TestStressLargerGeneralPositionGraphs(object):
         for i in range(start, end):
             n = random.randint(30, max_nodes)
             p = random.uniform(0.01, 0.08)
-            g = _random_graph(
-                n, p, coordinate_range=100000, integer_coordinates=False
-            )
+            g = _random_graph(n, p, coordinate_range=100000, integer_coordinates=False)
             _assert_matches_quadratic(g, include_node_crossings=False)
 
 
@@ -301,7 +299,7 @@ class TestStressPlanarGraphs(object):
 class TestStressLegacyRandomGraphs(object):
     """
     Random-graph regression scenarios that originally lived inline in
-    TestComplexCrossingScenarios (test_crossings.py). Moved here and chunked 
+    TestComplexCrossingScenarios (test_crossings.py). Moved here and chunked
     like the scenarios above so they run on demand rather than on every
     default test run, and so progress is visible while they execute.
     """

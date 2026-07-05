@@ -279,19 +279,25 @@ class TestCollinearOverlaps:
         a = _edge((0, 0), (10, 0))
         b = _edge((0, 0), (10, 0))
 
-        assert check_lines(a, b) == CrossingLine(CrossingPoint(0, 0), CrossingPoint(10, 0))
+        assert check_lines(a, b) == CrossingLine(
+            CrossingPoint(0, 0), CrossingPoint(10, 0)
+        )
 
     def test_one_segment_fully_contained_in_the_other(self):
         a = _edge((0, 0), (10, 0))
         b = _edge((3, 0), (7, 0))
 
-        assert check_lines(a, b) == CrossingLine(CrossingPoint(3, 0), CrossingPoint(7, 0))
+        assert check_lines(a, b) == CrossingLine(
+            CrossingPoint(3, 0), CrossingPoint(7, 0)
+        )
 
     def test_partial_overlap(self):
         a = _edge((0, 0), (6, 0))
         b = _edge((3, 0), (9, 0))
 
-        assert check_lines(a, b) == CrossingLine(CrossingPoint(3, 0), CrossingPoint(6, 0))
+        assert check_lines(a, b) == CrossingLine(
+            CrossingPoint(3, 0), CrossingPoint(6, 0)
+        )
 
     def test_overlap_is_independent_of_endpoint_order(self):
         a_forward = _edge((0, 0), (10, 0))
@@ -310,7 +316,9 @@ class TestCollinearOverlaps:
         a = _edge((0, 0), (10, 10))
         b = _edge((4, 4), (14, 14))
 
-        assert check_lines(a, b) == CrossingLine(CrossingPoint(4, 4), CrossingPoint(10, 10))
+        assert check_lines(a, b) == CrossingLine(
+            CrossingPoint(4, 4), CrossingPoint(10, 10)
+        )
 
 
 class TestCollinearGapPrecision:
@@ -402,7 +410,9 @@ class TestPointToLinePrecision:
         assert check_point_and_line(point, line) == CrossingPoint(-1e-10, 0)
 
     @pytest.mark.parametrize("distance", [1e-3, 1e-4, 1e-5])
-    def test_custom_precision_changes_whether_a_point_counts_as_touching(self, distance):
+    def test_custom_precision_changes_whether_a_point_counts_as_touching(
+        self, distance
+    ):
         line = _edge((0, 0), (10, 0))
         point = CrossingPoint(5, distance)
 
@@ -462,7 +472,9 @@ class TestCheckLinesPrecisionFallback:
 
         assert check_lines(a, b) is None
 
-    def test_t_intersection_just_outside_precision_of_edge_interior_is_not_reported(self):
+    def test_t_intersection_just_outside_precision_of_edge_interior_is_not_reported(
+        self,
+    ):
         a = _edge((0, 0), (10, 0))
         b = _edge((5, numeric.get_precision() * 1.5), (5, 5))
 
