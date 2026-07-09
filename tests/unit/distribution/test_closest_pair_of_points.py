@@ -34,7 +34,7 @@ from gdMetriX import distribution
 
 
 def brute_force_closest(pos):
-    """ Slow reference implementation of closest pair of points for testing purposes """
+    """Slow reference implementation of closest pair of points for testing purposes"""
     pts = list(pos.items())
     best = None
     pair = None
@@ -50,7 +50,7 @@ def brute_force_closest(pos):
 
 
 def assert_matches_bruteforce(testcase, g):
-    """ Assert that the closest pair of points found by the efficient algorithm is the same as the brute-force one """
+    """Assert that the closest pair of points found by the efficient algorithm is the same as the brute-force one"""
     a, b, d = distribution.closest_pair_of_points(g)
     pos = {n: g.nodes[n]["pos"] for n in g.nodes}
     (p, q), ref = brute_force_closest(pos)
@@ -92,9 +92,9 @@ class TestClosestPairOfPoints(unittest.TestCase):
         closest_pair = distribution.closest_pair_of_points(g)
 
         assert closest_pair[0] == 0 or closest_pair[1] == 0
-        assert closest_pair[1] == grid_size ** 2 or closest_pair[1] == grid_size ** 2
+        assert closest_pair[1] == grid_size**2 or closest_pair[1] == grid_size**2
         assert closest_pair[0] != closest_pair[1]
-        assert math.isclose(closest_pair[2], math.sqrt((0.4 ** 2) * 2))
+        assert math.isclose(closest_pair[2], math.sqrt((0.4**2) * 2))
 
     def test_node_pair(self):
         g = nx.Graph()

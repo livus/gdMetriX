@@ -662,9 +662,7 @@ class TestSweepLineStatus(unittest.TestCase):
         random.seed(998244353)
 
         for _ in range(0, 50):
-            shared_end = CrossingPoint(
-                random.uniform(-10, 10), random.uniform(-10, 10)
-            )
+            shared_end = CrossingPoint(random.uniform(-10, 10), random.uniform(-10, 10))
             fan_size = random.randint(2, 20)
             edges = [
                 SweepLineEdgeInfo(

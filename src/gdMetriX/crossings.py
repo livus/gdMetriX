@@ -74,6 +74,22 @@ from gdMetriX.utils.sweep_line import (
     CrossingLine,
 )
 
+
+class OverlappingEdgesError(ValueError):
+    """Raised when an operation cannot handle overlapping (collinear) edges.
+
+    Two edges that overlap along a shared segment intersect in a
+    :class:`~gdMetriX.utils.sweep_line.CrossingLine` (a line segment) rather
+    than in a single :class:`~gdMetriX.utils.sweep_line.CrossingPoint`. Some
+    operations (e.g. :func:`planarize`) have no well-defined behavior for such
+    crossings and raise this error instead of failing with an obscure
+    ``TypeError``.
+
+    It subclasses :class:`ValueError`, so existing ``except ValueError``
+    handlers keep working.
+    """
+
+
 # region Common helper functions
 
 
@@ -737,6 +753,13 @@ def planarize(
     # Obtain a list of crossing per edge
     involved_edges = {}
     for crossing in crossings:
+        if isinstance(crossing.pos, CrossingLine):
+            raise OverlappingEdgesError(
+                "Cannot planarize a drawing with overlapping (collinear) edges: "
+                f"the edges {list(crossing.involved_edges)} overlap along a "
+                "line segment rather than crossing in a single point. Remove or "
+                "perturb the overlapping edges before calling planarize()."
+            )
         for edge in crossing.involved_edges:
             if edge in involved_edges:
                 involved_edges[edge].append(crossing)

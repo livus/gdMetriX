@@ -392,6 +392,21 @@
 <section id="methods">
 <h2>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h2>
 </section>
+<dl class="py exception">
+<dt class="sig sig-object py" id="crossings.OverlappingEdgesError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">crossings.</span></span><span class="sig-name descname"><span class="pre">OverlappingEdgesError</span></span><a class="headerlink" href="#crossings.OverlappingEdgesError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Raised when an operation cannot handle overlapping (collinear) edges.</p>
+<p>Two edges that overlap along a shared segment intersect in a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">CrossingLine</span></code> (a line segment) rather
+than in a single <code class="xref py py-class docutils literal notranslate"><span class="pre">CrossingPoint</span></code>. Some
+operations (e.g. <a class="reference internal" href="#crossings.planarize" title="crossings.planarize"><code class="xref py py-func docutils literal notranslate"><span class="pre">planarize()</span></code></a>) have no well-defined behavior for such
+crossings and raise this error instead of failing with an obscure
+<code class="docutils literal notranslate"><span class="pre">TypeError</span></code>.</p>
+<p>It subclasses <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code>, so existing <code class="docutils literal notranslate"><span class="pre">except</span> <span class="pre">ValueError</span></code>
+handlers keep working.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="crossings.crossing_angles">
 <span class="sig-prename descclassname"><span class="pre">crossings.</span></span><span class="sig-name descname"><span class="pre">crossing_angles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crossing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Crossing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#crossings.crossing_angles" title="Link to this definition">#</a></dt>
@@ -642,6 +657,7 @@ See <a class="reference internal" href="#crossings.get_crossings_quadratic" titl
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#methods">Methods</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossings.OverlappingEdgesError"><code class="docutils literal notranslate"><span class="pre">OverlappingEdgesError</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossings.crossing_angles"><code class="docutils literal notranslate"><span class="pre">crossing_angles()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossings.crossing_angular_resolution"><code class="docutils literal notranslate"><span class="pre">crossing_angular_resolution()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crossings.crossing_density"><code class="docutils literal notranslate"><span class="pre">crossing_density()</span></code></a></li>
