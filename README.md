@@ -25,7 +25,7 @@ graph drawing algorithms.
 [![Code style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://black.readthedocs.io/en/stable/index.html)
 [![PRs Welcome](https://img.shields.io/badge/contribute-good%20first%20issues-brightgreen.svg)](https://github.com/livus/gdMetriX/issues?q=is%3Apr+is%3Aopen+label%3A%22good+first+issue%22)
 
-📖 **[Full documentation](https://livus.github.io/gdMetriX/)** · 📦 **[PyPI package](https://pypi.org/project/gdMetriX/)** · 📄 **[Cite the paper](#citing)**
+📖 **[Full documentation](https://livus.github.io/gdMetriX/)** · 📦 **[PyPI package](https://pypi.org/project/gdMetriX/)** · 📄 **[Cite the paper](#citing)** · 🕹️ **[Try the live graph editor](http://livus.sytes.net/apps/graph)**
 
 ## Why gdMetriX?
 
@@ -54,6 +54,7 @@ academic research in graph drawing and network visualization.
 - [Examples](#examples)
 - [Implemented metrics](#implemented-metrics)
 - [Loading benchmark datasets](#loading-datasets)
+- [Interactive graph editor](#interactive-graph-editor)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
 - [Citing](#citing)
@@ -174,6 +175,13 @@ To iterate over all graphs of a given dataset, simply call `gdMetriX.iterate_dat
 for graph in gdMetriX.iterate_dataset('subways'):
     print(graph.nodes())
 ```
+
+## Interactive graph editor
+
+Want to try gdMetriX without writing any code? The
+**[live interactive graph editor](http://livus.sytes.net/apps/graph)** lets you draw or import a graph in your
+browser and see gdMetriX's quality metrics (crossings, symmetry, node distribution, edge orthogonality, and more)
+calculated and updated live as you edit the layout.
 
 ## Documentation
 
