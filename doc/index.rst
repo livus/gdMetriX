@@ -101,12 +101,20 @@ To get a list of all available datasets:
    ['subways', 'code', 'rome', 'chess', 'steinlib', ...
 
 To iterate over all graphs of a given dataset, simply call
-:func:`gdMetriX.get_list_of_graphs()`:
+:func:`gdMetriX.iterate_dataset()`:
 
 .. code:: python
 
-   >>> for graph in gdMetriX.get_list_of_graphs('subways'):
+   >>> for graph in gdMetriX.iterate_dataset('subways'):
    >>>    print(graph.nodes())
+
+Interactive graph editor
+-------------------------
+
+Want to try gdMetriX without writing any code? The
+`live interactive graph editor <http://livus.sytes.net/apps/graph>`__ lets you draw or import a graph in your
+browser and see gdMetriX's quality metrics (crossings, symmetry, node distribution, edge orthogonality, and more)
+calculated and updated live as you edit the layout.
 
 License
 -------
