@@ -21,11 +21,7 @@ echo.
 echo === Building Sphinx documentation ===
 call .\doc\make.bat clean
 call .\doc\make.bat html
-del /q .\docs\*
-xcopy /s /y .\doc\_build\html\* .\docs\
 
-if not exist .\docs\.nojekyll (
-    echo. > .\docs\.nojekyll
-)
-
-git add ./docs/*
+echo.
+echo === Done: output in .\doc\_build\html ===
+echo Docs are deployed automatically by .github\workflows\docs.yml on push to main.

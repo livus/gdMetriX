@@ -29,6 +29,12 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = "pydata_sphinx_theme"
 html_static_path = ['_static']
+html_js_files = [
+    ('https://gc.zgo.at/count.js', {
+        'data-goatcounter': 'https://gdmetrix.goatcounter.com/count',
+        'async': 'async',
+    }),
+]
 html_logo = "_static/logo_dark.svg"
 html_show_sourcelink = False
 html_theme_options = {
