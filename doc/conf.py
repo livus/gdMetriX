@@ -11,7 +11,7 @@ import os
 import sys
 
 project = 'gdMetriX'
-copyright = '2024, Martin Nöllenburg, Sebastian Röder, Markus Wallinger'
+copyright = '2026, Martin Nöllenburg, Sebastian Röder, Markus Wallinger'
 author = 'Martin Nöllenburg, Sebastian Röder, Markus Wallinger'
 
 # -- General configuration ---------------------------------------------------
