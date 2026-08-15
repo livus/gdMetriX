@@ -18,6 +18,7 @@
 __init__.py
 """
 
+from gdMetriX.bend_support import BendsNotSupportedError
 from gdMetriX.boundary import (
     area,
     area_tight,

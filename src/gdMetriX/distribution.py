@@ -30,6 +30,7 @@ import numpy as np
 from scipy.spatial import KDTree
 
 from gdMetriX import common, boundary, crossings
+from gdMetriX.bend_support import BendSupport, bend_support
 from gdMetriX.common import (
     Numeric,
     Vector,
@@ -40,6 +41,7 @@ from gdMetriX.utils import numeric
 from gdMetriX.utils.sweep_line import SweepLineAlgorithm
 
 
+@bend_support(BendSupport.GEOMETRY_INDEPENDENT)
 @common.resolve_pos
 def center_of_mass(
     g: nx.Graph,
@@ -93,6 +95,7 @@ def _get_grid_distribution(
     return heatmap(g, pos, None, grid_size, bounding_box, False)
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def heatmap(
     g: nx.Graph,
@@ -201,6 +204,7 @@ def _balance(
     )
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def horizontal_balance(
     g: nx.Graph,
@@ -230,6 +234,7 @@ def horizontal_balance(
     return _balance(g, pos, use_relative_coordinates, 1)
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def vertical_balance(
     g: nx.Graph,
@@ -259,6 +264,7 @@ def vertical_balance(
     return _balance(g, pos, use_relative_coordinates, 0)
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def homogeneity(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     """
@@ -303,6 +309,7 @@ def homogeneity(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     return 1 - fraction
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def concentration(
     g: nx.Graph,
@@ -355,6 +362,7 @@ def concentration(
     return (np.sum(np.maximum(grid - expected_per_cell, 0))) / (g.order() - 1)
 
 
+@bend_support(BendSupport.GEOMETRY_INDEPENDENT)
 @common.resolve_pos
 def closest_pair_of_points(g: nx.Graph, pos: Union[str, dict, None] = None):
     """
@@ -566,6 +574,7 @@ class _ClosestPairSweep(SweepLineAlgorithm):
         return self.element_a, self.element_b, self.min_distance
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def closest_pair_of_elements(
     g: nx.Graph, pos: Union[str, dict, None] = None, consider_crossings=False
@@ -599,6 +608,7 @@ def closest_pair_of_elements(
     return _ClosestPairSweep(g, pos, element_a, element_b, min_distance).run()
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def node_orthogonality(
     g: nx.Graph,
@@ -631,6 +641,7 @@ def node_orthogonality(
     return g.order() / (width * height)
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def gabriel_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     """
@@ -820,6 +831,7 @@ def smallest_enclosing_circle_from_point_set(points: Iterable) -> common.Circle:
     return _smallest_enclosing_circle_iteratively(points)
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def smallest_enclosing_circle(
     g: nx.Graph, pos: Union[str, dict, None] = None

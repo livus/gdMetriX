@@ -36,6 +36,7 @@ from scipy import ndimage
 from scipy.spatial import ConvexHull, QhullError, KDTree
 
 from gdMetriX import crossings, common, boundary
+from gdMetriX.bend_support import BendSupport, bend_support
 from gdMetriX.common import Numeric, Vector
 from gdMetriX.utils.numeric import numeric_eq
 from gdMetriX.distribution import smallest_enclosing_circle_from_point_set
@@ -80,6 +81,7 @@ def _flip_points_around_axis(
     return 2.0 * projection - points
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def reflective_symmetry(
     g: nx.Graph,
@@ -573,6 +575,7 @@ class _AxesSystem:
         return len(matching_edge_dic) / float(len(top_features) * len(g.edges()))
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def edge_based_symmetry(
     g: nx.Graph,
@@ -653,6 +656,7 @@ def edge_based_symmetry(
     return votes.conclude_voting(g)
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def visual_symmetry(
     g: nx.Graph,
@@ -791,6 +795,7 @@ def visual_symmetry(
     return 1 - math.pow(minimum, 2)
 
 
+@bend_support(BendSupport.GEOMETRY_INDEPENDENT)
 @common.resolve_pos
 def stress(
     g: nx.Graph, pos: Union[str, dict, None] = None, scale_minimization: bool = True
@@ -853,6 +858,7 @@ def stress(
     return _get_stress(optimal_scale)
 
 
+@bend_support(BendSupport.GEOMETRY_INDEPENDENT)
 @common.resolve_pos
 def even_neighborhood_distribution(
     g: nx.Graph, pos: Union[str, dict, None] = None

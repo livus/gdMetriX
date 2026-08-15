@@ -54,6 +54,7 @@ import networkx as nx
 from bisect import bisect_left
 
 from gdMetriX import common, boundary
+from gdMetriX.bend_support import BendSupport, bend_support
 from gdMetriX.utils import crossing_data_types
 from gdMetriX.common import Numeric
 from gdMetriX.utils.crossing_data_types import (
@@ -142,6 +143,7 @@ def _get_crossings_agnostic(
 # endregion
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def get_crossings_quadratic(
     g: nx.Graph,
@@ -666,6 +668,7 @@ class _CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
         self.previous_y = current_event_point.position.y
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def get_crossings(
     g: nx.Graph,
@@ -710,6 +713,7 @@ def get_crossings(
     ).run()
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def planarize(
     g: nx.Graph,
@@ -797,6 +801,7 @@ def planarize(
         g.add_edge(last_node, edge[1])
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 def crossing_angles(
     crossing: Crossing, pos: Union[str, dict, None], deg: bool = False
 ) -> List[float]:
@@ -837,6 +842,7 @@ def crossing_angles(
         return edge_angles(involved_nodes, crossing_point, pos, deg)
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def crossing_angular_resolution(
     g: nx.Graph,
@@ -931,6 +937,7 @@ def _c_max(g: nx.Graph, include_mooney_cases: bool):
     return _n_choose_2(m) - c_deg - c_tri - c_4cyc
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def number_of_crossings(
     g: nx.Graph,
@@ -983,6 +990,7 @@ def number_of_crossings(
     return total
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def crossing_density(
     g: nx.Graph,

@@ -28,6 +28,8 @@ from typing import Union, Tuple, List, Optional
 import networkx as nx
 import numpy as np
 
+from gdMetriX.bend_support import BendSupport, bend_support
+
 Numeric = Union[int, float]
 
 
@@ -66,6 +68,7 @@ def resolve_pos(func):
     return wrapper
 
 
+@bend_support(BendSupport.GEOMETRY_INDEPENDENT)
 def get_node_positions(g, pos: Union[str, dict, None] = None) -> dict:
     """
     Tries to obtain the node positions for the given graph.

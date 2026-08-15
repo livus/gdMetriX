@@ -31,10 +31,12 @@ import numpy as np
 
 import gdMetriX.utils.edge_orientations
 from gdMetriX import common
+from gdMetriX.bend_support import BendSupport, bend_support
 from gdMetriX.common import Numeric, Vector, Angle
 from gdMetriX.utils.edge_orientations import order_clockwise
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def upwards_flow(
     g: nx.DiGraph,
@@ -75,6 +77,7 @@ def upwards_flow(
     return float(sum_upward_edges) / len(g.edges())
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def average_flow(
     g: nx.DiGraph, pos: Union[str, dict, None] = None
@@ -111,6 +114,7 @@ def average_flow(
     return float(average[0]), float(average[1])
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def coherence_to_average_flow(
     g: nx.DiGraph, pos: Union[str, dict, None] = None
@@ -130,6 +134,7 @@ def coherence_to_average_flow(
     return upwards_flow(g, pos, average_flow(g, pos))
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def ordered_neighborhood(
     g: nx.Graph, node: object, pos: Union[str, dict, None] = None
@@ -152,6 +157,7 @@ def ordered_neighborhood(
     return order_clockwise(neighbors, pos[node], pos)
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def combinatorial_embedding(g: nx.Graph, pos: Union[str, dict, None] = None) -> dict:
     """
@@ -168,6 +174,7 @@ def combinatorial_embedding(g: nx.Graph, pos: Union[str, dict, None] = None) -> 
     return {node: ordered_neighborhood(g, node, pos) for node in g.nodes()}
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def edge_angles(
     g: nx.Graph, node: object, pos: Union[str, dict, None] = None, deg: bool = False
@@ -193,6 +200,7 @@ def edge_angles(
     return gdMetriX.utils.edge_orientations.edge_angles(neighbors, pos[node], pos, deg)
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def minimum_angle(
     g: nx.Graph, pos: Union[str, dict, None] = None, deg: bool = False
@@ -220,6 +228,7 @@ def minimum_angle(
     return minimum
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def angular_resolution(
     g: nx.Graph, pos: Union[str, dict, None] = None, deg: bool = False
@@ -264,6 +273,7 @@ def angular_resolution(
     return deviation_sum / node_count if node_count > 0 else 0
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def edge_orthogonality(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     """
@@ -291,6 +301,7 @@ def edge_orthogonality(g: nx.Graph, pos: Union[str, dict, None] = None) -> float
     return 1 - (total / len(g.edges()))
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def edge_length_deviation(
     g: nx.Graph, pos: Union[str, dict, None] = None, ideal_length: float = None

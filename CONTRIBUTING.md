@@ -36,6 +36,27 @@ black --check src/   # check only
 black src/           # fix in place
 ```
 
+## Adding a metric
+
+Every function that takes a graph must declare how it responds to edge geometry, i.e. to drawings
+whose edges are drawn as polylines or curves rather than as straight lines. Apply the
+`@bend_support(...)` decorator from `gdMetriX.bend_support` as the outermost decorator:
+
+```python
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
+@common.resolve_pos
+def my_metric(g, pos=None):
+    ...
+```
+
+Pick the classification by what the metric actually reads:
+
+| | |
+|---|---|
+| `GEOMETRY_INDEPENDENT` | The metric is defined over the node positions alone. Note that this also has to hold for everything it calls — a metric that delegates to a `STRAIGHT_LINE_ONLY` helper is not geometry-independent, however node-based its own definition is. |
+| `STRAIGHT_LINE_ONLY` | The metric assumes straight edges. It is wrapped so that it raises `BendsNotSupportedError` on a drawing carrying edge geometry, rather than silently measuring a different drawing than the one given. |
+| `SUPPORTED` | The metric reads the edge geometry and respects it. |
+
 ## Running the tests
 
 ```shell

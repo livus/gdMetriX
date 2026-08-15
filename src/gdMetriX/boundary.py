@@ -54,9 +54,11 @@ import scipy.spatial
 from scipy.spatial import ConvexHull
 
 from gdMetriX import common
+from gdMetriX.bend_support import BendSupport, bend_support
 from gdMetriX.common import Numeric
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def area(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     """
@@ -73,6 +75,7 @@ def area(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     return height(g, pos) * width(g, pos)
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def area_tight(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
     """
@@ -96,6 +99,7 @@ def area_tight(g: nx.Graph, pos: Union[str, dict, None] = None) -> float:
         return 0.0
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def bounding_box(
     g: nx.Graph, pos: Union[str, dict, None] = None
@@ -131,6 +135,7 @@ def bounding_box(
     return min_x, min_y, max_x, max_y
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def height(g: nx.Graph, pos: Union[str, dict, None] = None) -> Numeric:
     """
@@ -150,6 +155,7 @@ def height(g: nx.Graph, pos: Union[str, dict, None] = None) -> Numeric:
     return max_y - min_y
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def width(g: nx.Graph, pos: Union[str, dict, None] = None) -> Numeric:
     """
@@ -170,6 +176,7 @@ def width(g: nx.Graph, pos: Union[str, dict, None] = None) -> Numeric:
     return max_x - min_x
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def aspect_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> Optional[float]:
     """
@@ -198,6 +205,7 @@ def aspect_ratio(g: nx.Graph, pos: Union[str, dict, None] = None) -> Optional[fl
     return smaller / bigger
 
 
+@bend_support(BendSupport.STRAIGHT_LINE_ONLY)
 @common.resolve_pos
 def normalize_positions(
     g: nx.Graph,
