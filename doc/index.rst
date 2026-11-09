@@ -112,7 +112,7 @@ Interactive graph editor
 -------------------------
 
 Want to try gdMetriX without writing any code? The
-`live interactive graph editor <http://livus.sytes.net/apps/graph>`__ lets you draw or import a graph in your
+`live interactive graph editor <https://sebastianroeder.at/apps/graph>`__ lets you draw or import a graph in your
 browser and see gdMetriX's quality metrics (crossings, symmetry, node distribution, edge orthogonality, and more)
 calculated and updated live as you edit the layout.
 
