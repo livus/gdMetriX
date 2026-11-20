@@ -138,7 +138,10 @@ def assert_crossing_equality(
     :type include_node_crossings:
     """
     if title is None:
-        title = inspect.getouterframes(inspect.currentframe(), 2)[1][3]
+        # The calling test's name. Read straight off the caller's frame: inspect.getouterframes
+        # would also load the source context of every frame on pytest's deep stack, which takes
+        # far longer than checking the small graphs of the stress tests.
+        title = inspect.currentframe().f_back.f_code.co_name
     _equal_crossings(
         crossing_function(
             g,
@@ -154,7 +157,6 @@ def assert_crossing_equality(
         for i in range(0, int(360 / angle_resolution)):
             _rotate_graph(g, angle_resolution)
             crossing_list = _rotate_crossings(crossing_list, 10)
-            print(nx.get_node_attributes(g, "pos"))
             _equal_crossings(
                 crossing_function(
                     g,

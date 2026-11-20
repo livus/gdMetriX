@@ -47,7 +47,8 @@ def _assert_crossing_equality(
         include_rotation,
         include_node_crossings,
         consider_singletons,
-        title=inspect.getouterframes(inspect.currentframe(), 2)[1][3],
+        # The calling test's name, read straight off the caller's frame (see crossing_test_helper)
+        title=inspect.currentframe().f_back.f_code.co_name,
     )
 
 

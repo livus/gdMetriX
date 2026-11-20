@@ -261,6 +261,41 @@ class Vector:
         raise IndexError
 
 
+def segment_distance_squared(
+    start_x: Numeric,
+    start_y: Numeric,
+    end_x: Numeric,
+    end_y: Numeric,
+    point_x: Numeric,
+    point_y: Numeric,
+) -> float:
+    """
+    Returns the squared distance between the line segment from (start_x, start_y) to (end_x, end_y)
+    and the given point (point_x, point_y).
+
+    :return: Squared distance to the given point
+    :rtype: float
+    """
+    v_x = end_x - start_x
+    v_y = end_y - start_y
+    len_squared = v_x * v_x + v_y * v_y
+
+    if len_squared == 0 or v_x * (point_x - end_x) + v_y * (point_y - end_y) > 0:
+        # Point is closest to the end
+        diff_x = point_x - end_x
+        diff_y = point_y - end_y
+        return diff_x * diff_x + diff_y * diff_y
+    if v_x * (point_x - start_x) + v_y * (point_y - start_y) < 0:
+        # Point is closest to the start
+        diff_x = point_x - start_x
+        diff_y = point_y - start_y
+        return diff_x * diff_x + diff_y * diff_y
+
+    # Point is closest to the segment itself -> squared distance to the line
+    cross = v_x * (start_y - point_y) - v_y * (start_x - point_x)
+    return (cross * cross) / len_squared
+
+
 class LineSegment:
     """
     A tuple of vectors representing a line segment.
@@ -294,22 +329,9 @@ class LineSegment:
         :return: Squared distance to the given point
         :rtype: float
         """
-
-        v_ab = self.end - self.start
-        len_ab_squared = v_ab.dot(v_ab)
-
-        if len_ab_squared == 0 or v_ab.dot(point - self.end) > 0:
-            # Node is closer to endpoint b
-            diff = point - self.end
-            return diff.dot(diff)
-        if v_ab.dot(point - self.start) < 0:
-            # Node is closer to endpoint a
-            diff = point - self.start
-            return diff.dot(diff)
-
-        # Node is closer to edge itself -> return squared distance to line
-        cross = v_ab.cross(self.start - point)
-        return (cross * cross) / len_ab_squared
+        return segment_distance_squared(
+            self.start.x, self.start.y, self.end.x, self.end.y, point.x, point.y
+        )
 
     def distance_to_point(self, point: Vector) -> float:
         """

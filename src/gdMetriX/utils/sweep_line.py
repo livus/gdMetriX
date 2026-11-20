@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import math
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import (
@@ -34,6 +35,7 @@ from gdMetriX.utils.avl_tree import (
     SortableObject,
     ParameterizedBalancedBinarySearchTree,
 )
+from gdMetriX.utils import numeric
 from gdMetriX.utils.numeric import numeric_eq, get_precision, greater_than
 
 
@@ -47,7 +49,10 @@ class CrossingPoint(Vector):
     def __eq__(self, other: Vector):
         if other is None or not isinstance(other, CrossingPoint):
             return False
-        return numeric_eq(self.distance(other), 0)
+        # Inlined implementation as numeric_eq(distance, 0)
+        diff_x = self.x - other.x
+        diff_y = self.y - other.y
+        return math.sqrt(diff_x**2 + diff_y**2) <= numeric.PRECISION
 
     @staticmethod
     def from_point(pos: Tuple[Numeric, Numeric]) -> Self:
@@ -56,8 +61,12 @@ class CrossingPoint(Vector):
 
     def __lt__(self, other):
         if isinstance(other, CrossingPoint):
-            return greater_than(self.y, other.y) or (
-                numeric_eq(self.y, other.y) and greater_than(other.x, self.x)
+            precision = numeric.PRECISION
+            if not math.isclose(self.y, other.y, abs_tol=precision):
+                return self.y > other.y
+            return (
+                not math.isclose(other.x, self.x, abs_tol=precision)
+                and other.x > self.x
             )
         if isinstance(other, CrossingLine):
             return True
