@@ -352,17 +352,16 @@ class TestStressLegacyRandomGraphs(object):
         ids=_chunk_ids(_random_line_graph_chunks),
     )
     def test_random_line_graph(self, chunk):
-        # Random graph that should be in normal position
+        # Disjoint random segments, which should be in general position
         chunk_index, start, end = chunk
         random.seed(38528349829348 + chunk_index)
         for flat_index in range(start, end):
-            i = flat_index // 2
-            j = flat_index % 2
+            # Two random drawings per segment count
+            segment_count = flat_index // 2
             random_graph = nx.Graph()
 
-            for _node in range(i):
-                random_graph.add_nodes_from([f"{i}a", f"{j}b"])
-                random_graph.add_edge(f"{i}a", f"{j}b")
+            for segment in range(segment_count):
+                random_graph.add_edge(f"{segment}a", f"{segment}b")
 
             random_embedding = {
                 node: [random.randint(-1000, 1000), random.randint(-1000, 1000)]
