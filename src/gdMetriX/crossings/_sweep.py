@@ -83,7 +83,8 @@ class CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
         self.include_node_crossings = include_node_crossings
         self.consider_singletons = consider_singletons
 
-        numeric.set_precision(precision)
+        # Applied while the sweep runs, see run()
+        self.precision = precision
 
         self.node_positions = convert_to_crossing_points(g, pos)
         self.height = boundary.height(g, pos)
@@ -97,6 +98,10 @@ class CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
         )  # Contains all horizontal edges at the current event point
 
         self.queue: Optional[EventQueue] = None
+
+    def run(self) -> List[Crossing]:
+        with numeric.precision_context(self.precision):
+            return super().run()
 
     # region SweepLineAlgorithm implementation
 

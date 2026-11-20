@@ -161,6 +161,7 @@ def filtered_pairs(coordinates: np.ndarray, precision: float):
 # endregion
 
 
+@numeric.applies_precision
 def crossings_quadratic(
     g: nx.Graph,
     pos: Union[str, dict, None],
@@ -172,7 +173,6 @@ def crossings_quadratic(
     Computes all crossings of the given drawing by checking every pair of edges. The arguments are
     those of :func:`gdMetriX.crossings.get_crossings_quadratic`, already validated.
     """
-    numeric.set_precision(precision)
     node_positions = convert_to_crossing_points(g, pos)
 
     # Built once per edge rather than once per pair of edges

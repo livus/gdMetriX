@@ -54,8 +54,10 @@ from gdMetriX import common
 from gdMetriX.crossings._quadratic import crossings_quadratic
 from gdMetriX.crossings._sweep import CrossingSweep
 from gdMetriX.crossings.data_types import Crossing
+from gdMetriX.utils import numeric
 from gdMetriX.utils.edge_orientations import edge_angles
 from gdMetriX.utils.sweep_line import CrossingLine, CrossingPoint
+
 
 class OverlappingEdgesError(ValueError):
     """Raised when an operation cannot handle overlapping (collinear) edges.
@@ -93,6 +95,7 @@ def _get_crossings_agnostic(
 
 
 @common.resolve_pos
+@numeric.applies_precision
 def get_crossings_quadratic(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -143,6 +146,7 @@ def get_crossings_quadratic(
 
 
 @common.resolve_pos
+@numeric.applies_precision
 def get_crossings(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -187,6 +191,7 @@ def get_crossings(
 
 
 @common.resolve_pos
+@numeric.applies_precision
 def planarize(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -314,6 +319,7 @@ def crossing_angles(
 
 
 @common.resolve_pos
+@numeric.applies_precision
 def crossing_angular_resolution(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -408,6 +414,7 @@ def _c_max(g: nx.Graph, include_mooney_cases: bool):
 
 
 @common.resolve_pos
+@numeric.applies_precision
 def number_of_crossings(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
@@ -460,6 +467,7 @@ def number_of_crossings(
 
 
 @common.resolve_pos
+@numeric.applies_precision
 def crossing_density(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
