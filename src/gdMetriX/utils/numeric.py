@@ -124,7 +124,8 @@ def greater_than(a: Numeric, b: Numeric) -> bool:
     :return: True if and only if the two numbers are equal within the specified precision.
     :rtype: bool
     """
-    if numeric_eq(a, b):
+    # numeric_eq(a, b), inlined: this runs millions of times during crossing detection
+    if math.isclose(a, b, abs_tol=PRECISION):
         return False
 
     return a > b

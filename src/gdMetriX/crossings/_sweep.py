@@ -46,8 +46,15 @@ from gdMetriX.utils.sweep_line import (
 
 
 def build_event_queue(
-    g, node_positions: Dict[object, CrossingPoint], consider_singletons: bool
+    g,
+    node_positions: Dict[object, CrossingPoint],
+    consider_singletons: bool,
+    edge_infos: Optional[Dict[object, SweepLineEdgeInfo]] = None,
 ):
+    """
+    Builds the initial event queue. If edge_infos is given, the SweepLineEdgeInfo built for every
+    edge is stored in it, keyed by the edge.
+    """
     queue = EventQueue()
     for e in g.edges():
         edge_info = SweepLineEdgeInfo(
@@ -55,6 +62,8 @@ def build_event_queue(
             node_positions[e[0]],
             node_positions[e[1]],
         )
+        if edge_infos is not None:
+            edge_infos[e] = edge_info
         queue.add_edge(edge_info)
 
     if consider_singletons:
@@ -99,6 +108,13 @@ class CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
 
         self.queue: Optional[EventQueue] = None
 
+        # The SweepLineEdgeInfo of every edge, and the check_lines result of every ordered pair of
+        # edges checked so far. The sweep checks the same pairs over and over as they meet at
+        # successive events, and pruning checks them again: a result only depends on the two
+        # edges and the precision, which is fixed for the run.
+        self.edge_infos: Dict[object, SweepLineEdgeInfo] = {}
+        self.relations: Dict[tuple, object] = {}
+
     def run(self) -> List[Crossing]:
         with numeric.precision_context(self.precision):
             return super().run()
@@ -107,7 +123,7 @@ class CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
 
     def _build_events(self) -> None:
         self.queue = build_event_queue(
-            self.g, self.node_positions, self.consider_singletons
+            self.g, self.node_positions, self.consider_singletons, self.edge_infos
         )
 
     def _pop_event(self) -> Optional[SweepLinePoint]:
@@ -129,7 +145,12 @@ class CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
         # Remove false positives
         crossing_points_consolidated = []
         for cr in self.crossings:
-            cr.prune(self.node_positions, self.include_node_crossings)
+            cr.prune(
+                self.node_positions,
+                self.include_node_crossings,
+                self.edge_infos,
+                self.relations,
+            )
             if len(cr) > 1:
                 crossing_points_consolidated.append(cr)
 
@@ -139,8 +160,28 @@ class CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
 
     # region Crossing-specific helper methods
 
+    def _check_lines(
+        self, a: Optional[SweepLineEdgeInfo], b: Optional[SweepLineEdgeInfo]
+    ):
+        """check_lines, remembered per ordered pair of edges for the rest of the run."""
+        if a is None or b is None:
+            return None
+
+        key = (a.edge, b.edge)
+        relations = self.relations
+        if key in relations:
+            return relations[key]
+
+        result = relations[key] = check_lines(a, b)
+        return result
+
     def _insert_crossing_directly(self, c: Crossing) -> None:
-        c.prune(self.node_positions, self.include_node_crossings)
+        c.prune(
+            self.node_positions,
+            self.include_node_crossings,
+            self.edge_infos,
+            self.relations,
+        )
         if len(c) <= 1:
             return
 
@@ -210,7 +251,7 @@ class CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
         current_event_point: SweepLinePoint,
         edges_involved_at_current_event_point: List[SweepLineEdgeInfo],
     ) -> None:
-        potential_crossing_point = check_lines(e1, e2)
+        potential_crossing_point = self._check_lines(e1, e2)
         if potential_crossing_point is not None and not isinstance(
             potential_crossing_point, CrossingLine
         ):
@@ -408,7 +449,7 @@ class CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
             )
 
             for a, b in itertools.combinations(overlap_candidates, 2):
-                crossing = check_lines(a, b)
+                crossing = self._check_lines(a, b)
                 if isinstance(crossing, CrossingLine):
                     self.crossing_lines.append(Crossing(crossing, {a.edge, b.edge}))
 
@@ -430,7 +471,7 @@ class CrossingSweep(SweepLineAlgorithm[SweepLinePoint, List[Crossing]]):
 
             if horizontal.start_position == current_event_point.position:
                 for edge_info in self.horizontal_edges:
-                    crossing_line = check_lines(edge_info, horizontal)
+                    crossing_line = self._check_lines(edge_info, horizontal)
                     # It might be the case that this returns just a point
                     # => This is tested in the region called "Check all edges at the current point for intersection"
                     # We can thus safely ignore crossing points here
