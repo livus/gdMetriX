@@ -74,15 +74,13 @@ def _draw_graph(g: nx.Graph, title: str, crossings_a, crossings_b):
     # Points
     points_a = list(
         filter(
-            lambda cr: type(cr.pos)
-            is gdMetriX.crossings.crossing_data_types.CrossingPoint,
+            lambda cr: type(cr.pos) is crossings.CrossingPoint,
             crossings_a,
         )
     )
     points_b = list(
         filter(
-            lambda cr: type(cr.pos)
-            is gdMetriX.crossings.crossing_data_types.CrossingPoint,
+            lambda cr: type(cr.pos) is crossings.CrossingPoint,
             crossings_b,
         )
     )

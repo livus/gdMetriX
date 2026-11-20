@@ -44,3 +44,19 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if "slow" in item.keywords:
             item.add_marker(skip_slow)
+
+
+@pytest.fixture(autouse=True)
+def _restore_numeric_precision():
+    """
+    Restores the global numeric precision after every test.
+
+    Every crossing detection call sets it to its `precision` argument and leaves it there, so a
+    test using a coarse precision would otherwise change the outcome of whichever test happens to
+    run next on the same worker.
+    """
+    from gdMetriX.utils import numeric
+
+    previous = numeric.get_precision()
+    yield
+    numeric.set_precision(previous)

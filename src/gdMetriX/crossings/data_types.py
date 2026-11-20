@@ -21,11 +21,15 @@ Supporting module for the crossings module containing some datastructures.
 from typing import (
     Union,
     Dict,
+    List,
     Optional,
 )
 
+import networkx as nx
+
+from gdMetriX import common
 from gdMetriX.utils import numeric
-from gdMetriX.utils.intersections import check_lines
+from gdMetriX.crossings.intersections import check_lines
 from gdMetriX.utils.sweep_line import (
     CrossingPoint,
     CrossingLine,
@@ -204,3 +208,11 @@ def _share_common_endpoint(edges: set) -> bool:
         common_elements &= set(edge)
 
     return len(common_elements) > 0
+
+
+def convert_to_crossing_points(
+    g: nx.Graph, pos: Union[List, dict, None]
+) -> Dict[object, CrossingPoint]:
+    """Returns the node positions of the drawing as crossing points."""
+    pos = common.get_node_positions(g, pos)
+    return {key: CrossingPoint.from_point(position) for key, position in pos.items()}

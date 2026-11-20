@@ -34,6 +34,9 @@ import networkx as nx
 import pytest
 
 from gdMetriX import crossings
+from gdMetriX.crossings import _quadratic
+from gdMetriX.crossings.data_types import convert_to_crossing_points
+from gdMetriX.utils.sweep_line import SweepLineEdgeInfo
 
 
 @pytest.fixture
@@ -42,7 +45,7 @@ def broad_phase(monkeypatch):
 
     def _run(g, enabled: bool, **kwargs):
         threshold = 0 if enabled else math.inf
-        monkeypatch.setattr(crossings, "_BROAD_PHASE_MIN_EDGES", threshold)
+        monkeypatch.setattr(_quadratic, "BROAD_PHASE_MIN_EDGES", threshold)
         return repr(crossings.get_crossings_quadratic(g, **kwargs))
 
     return _run
@@ -190,21 +193,19 @@ class TestCandidatePairs:
     @staticmethod
     def _infos(segments):
         g = _segments(segments)
-        positions = crossings._convert_to_crossing_points(g, None)
-        return [
-            crossings.SweepLineEdgeInfo.from_edge(edge, positions) for edge in g.edges()
-        ]
+        positions = convert_to_crossing_points(g, None)
+        return [SweepLineEdgeInfo.from_edge(edge, positions) for edge in g.edges()]
 
     def test_without_broad_phase_all_pairs_in_order(self, monkeypatch):
-        monkeypatch.setattr(crossings, "_BROAD_PHASE_MIN_EDGES", math.inf)
+        monkeypatch.setattr(_quadratic, "BROAD_PHASE_MIN_EDGES", math.inf)
         infos = self._infos([((i, 0), (i, 1)) for i in range(5)])
 
-        assert list(crossings._candidate_pairs(infos, 1e-9)) == list(
+        assert list(_quadratic.candidate_pairs(infos, 1e-9)) == list(
             itertools.combinations(range(5), 2)
         )
 
     def test_pairs_are_in_combination_order(self, monkeypatch):
-        monkeypatch.setattr(crossings, "_BROAD_PHASE_MIN_EDGES", 0)
+        monkeypatch.setattr(_quadratic, "BROAD_PHASE_MIN_EDGES", 0)
         rng = random.Random(5)
         infos = self._infos(
             [
@@ -216,51 +217,51 @@ class TestCandidatePairs:
             ]
         )
 
-        pairs = list(crossings._candidate_pairs(infos, 1e-9))
+        pairs = list(_quadratic.candidate_pairs(infos, 1e-9))
 
         assert pairs == sorted(pairs)
         assert all(i < j for i, j in pairs)
 
     def test_rules_out_edges_far_apart(self, monkeypatch):
-        monkeypatch.setattr(crossings, "_BROAD_PHASE_MIN_EDGES", 0)
+        monkeypatch.setattr(_quadratic, "BROAD_PHASE_MIN_EDGES", 0)
         # Parallel, short segments far apart from each other
         infos = self._infos([((10 * i, 0), (10 * i + 1, 1)) for i in range(20)])
 
-        assert list(crossings._candidate_pairs(infos, 1e-9)) == []
+        assert list(_quadratic.candidate_pairs(infos, 1e-9)) == []
 
     def test_rules_out_edges_on_one_side_of_each_other(self, monkeypatch):
-        monkeypatch.setattr(crossings, "_BROAD_PHASE_MIN_EDGES", 0)
+        monkeypatch.setattr(_quadratic, "BROAD_PHASE_MIN_EDGES", 0)
         # Overlapping bounding boxes, but no point in common
         infos = self._infos([((0, 0), (10, 10)), ((1, 0), (10, 9))])
 
-        assert list(crossings._candidate_pairs(infos, 1e-9)) == []
+        assert list(_quadratic.candidate_pairs(infos, 1e-9)) == []
 
     def test_keeps_edges_touching_within_precision(self, monkeypatch):
-        monkeypatch.setattr(crossings, "_BROAD_PHASE_MIN_EDGES", 0)
+        monkeypatch.setattr(_quadratic, "BROAD_PHASE_MIN_EDGES", 0)
         infos = self._infos([((0, 0), (10, 0)), ((5, 5e-10), (5, 10))])
 
-        assert list(crossings._candidate_pairs(infos, 1e-9)) == [(0, 1)]
+        assert list(_quadratic.candidate_pairs(infos, 1e-9)) == [(0, 1)]
 
     def test_keeps_every_pair_of_an_edge_shorter_than_the_margin(self, monkeypatch):
-        monkeypatch.setattr(crossings, "_BROAD_PHASE_MIN_EDGES", 0)
+        monkeypatch.setattr(_quadratic, "BROAD_PHASE_MIN_EDGES", 0)
         infos = self._infos(
             [((0, 0), (1, 0)), ((100, 100), (100, 100 + 1e-9)), ((50, 0), (51, 0))]
         )
 
-        assert list(crossings._candidate_pairs(infos, 1e-9)) == [(0, 1), (1, 2)]
+        assert list(_quadratic.candidate_pairs(infos, 1e-9)) == [(0, 1), (1, 2)]
 
     @pytest.mark.parametrize("bad", [math.inf, -math.inf, math.nan])
     def test_falls_back_to_all_pairs_for_non_finite_coordinates(self, monkeypatch, bad):
-        monkeypatch.setattr(crossings, "_BROAD_PHASE_MIN_EDGES", 0)
+        monkeypatch.setattr(_quadratic, "BROAD_PHASE_MIN_EDGES", 0)
         infos = self._infos([((0, 0), (1, 1)), ((5, 5), (6, 6)), ((bad, 0), (1, 0))])
 
-        assert list(crossings._candidate_pairs(infos, 1e-9)) == list(
+        assert list(_quadratic.candidate_pairs(infos, 1e-9)) == list(
             itertools.combinations(range(3), 2)
         )
 
     @pytest.mark.parametrize("count", [0, 1])
     def test_fewer_than_two_edges(self, monkeypatch, count):
-        monkeypatch.setattr(crossings, "_BROAD_PHASE_MIN_EDGES", 0)
+        monkeypatch.setattr(_quadratic, "BROAD_PHASE_MIN_EDGES", 0)
         infos = self._infos([((0, 0), (1, 1))] * count)
 
-        assert list(crossings._candidate_pairs(infos, 1e-9)) == []
+        assert list(_quadratic.candidate_pairs(infos, 1e-9)) == []
