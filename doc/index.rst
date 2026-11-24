@@ -12,7 +12,7 @@ For a complete list of implemented metrics and features, refer to the :ref:`metr
 Installation
 ------------
 
-gdMetriX requires Python 3.9 or higher.
+gdMetriX requires Python 3.11 or higher.
 
 To install the package using ``pip`` use the following command:
 

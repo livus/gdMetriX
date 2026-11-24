@@ -11,7 +11,7 @@ IF %ERRORLEVEL% NEQ 0 (
 
 echo.
 echo === Upgrading dependencies ===
-python -m pip install --upgrade sphinx nbsphinx pydata-sphinx-theme sphinxcontrib-bibtex sphinxcontrib-jsmath
+python -m pip install --upgrade sphinx nbsphinx pydata-sphinx-theme sphinxcontrib-bibtex sphinxcontrib-jsmath ipython
 IF %ERRORLEVEL% NEQ 0 (
     echo ERROR: Failed to upgrade dependencies
     exit /b 1

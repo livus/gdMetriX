@@ -38,7 +38,7 @@ authors = [
 ]
 description = "A NetworkX extension for computing graph drawing quality metrics (crossings, symmetry, node distribution, edge directions, area/boundary) and benchmark datasets."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
@@ -54,7 +54,6 @@ dependencies = [
     "scipy>=1.10",
     "osfclient>=0.0.5",
     "numpy>=1.24.4",
-    "scikit-image>=0.21.0",
     "matplotlib>=3.10"
 ]
 
