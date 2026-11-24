@@ -168,10 +168,16 @@ def crossings_quadratic(
     include_node_crossings: bool,
     consider_singletons: bool,
     precision: float,
+    stop_at_first: bool = False,
 ) -> List[Crossing]:
     """
     Computes all crossings of the given drawing by checking every pair of edges. The arguments are
     those of :func:`gdMetriX.crossings.get_crossings_quadratic`, already validated.
+
+    With stop_at_first, the search ends at the first pair of edges that crosses by itself, and
+    that one crossing is returned: a crossing exists if and only if the full search finds one. Only
+    if no pair crosses by itself does the search continue as usual, as crossings can still arise
+    from isolated nodes.
     """
     node_positions = convert_to_crossing_points(g, pos)
 
@@ -189,6 +195,21 @@ def crossings_quadratic(
         if crossing_point is not None:
             crossings.append(Crossing(crossing_point, {edges[i], edges[j]}))
             relations[(edges[i], edges[j])] = crossing_point
+
+            if stop_at_first:
+                # Prune the pair by itself, as the full search would prune a crossing of just
+                # these two edges - e.g. one merely ending on the other does not count without
+                # include_node_crossings. A copy, so that the full search can still continue.
+                candidate = Crossing(crossing_point, {edges[i], edges[j]})
+                if isinstance(crossing_point, CrossingPoint):
+                    candidate.prune(
+                        node_positions,
+                        include_node_crossings,
+                        {edges[i]: edge_infos[i], edges[j]: edge_infos[j]},
+                        relations,
+                    )
+                if len(candidate) > 1:
+                    return [candidate]
 
     if consider_singletons:
         singletons = list(sorted(nx.isolates(g), key=lambda x: node_positions[x]))
@@ -234,4 +255,6 @@ def crossings_quadratic(
             cr.prune(node_positions, include_node_crossings, edge_info_of, relations)
         return len(cr) > 1
 
-    return list(filter(_filter_node_crossings, grouped))
+    result = list(filter(_filter_node_crossings, grouped))
+
+    return result[:1] if stop_at_first else result

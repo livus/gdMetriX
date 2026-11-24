@@ -585,9 +585,9 @@ def closest_pair_of_elements(
     :rtype: (object, object, float)
     """
     if consider_crossings:
-        crossing_list = crossings.get_crossings(g, pos)
-        if len(crossing_list) > 0:
-            first_crossing = crossing_list[0]
+        # Any crossing will do, so the search can stop at the first one
+        first_crossing = crossings._first_crossing(g, pos)
+        if first_crossing is not None:
             return (
                 first_crossing.involved_edges.pop(),
                 first_crossing.involved_edges.pop(),

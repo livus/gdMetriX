@@ -34,6 +34,7 @@ from gdMetriX.crossings import (
     crossing_density,
     get_crossings,
     get_crossings_quadratic,
+    has_crossings,
     number_of_crossings,
     OverlappingEdgesError,
     planarize,

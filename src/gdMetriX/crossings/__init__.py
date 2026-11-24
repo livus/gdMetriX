@@ -27,11 +27,11 @@ Get a quality metric based on the number of crossings using :func:`crossing_dens
     >>> g = nx.random_geometric_graph(20, 0.5)
     >>> quality = crossing_density(g)
 
-To obtain a list of all crossings, simply call :func:`get_crossings()`:
+To obtain a list of all crossings, simply call :func:`get_crossings_quadratic()`:
 
 .. code-block:: python
 
-    >>> crossing_list = get_crossings(g)
+    >>> crossing_list = get_crossings_quadratic(g)
 
 To planarize a graph, call :func:`planarize()`:
 
@@ -46,7 +46,7 @@ Methods
 
 """
 import math
-from typing import List, Union
+from typing import List, Optional, Union
 
 import networkx as nx
 
@@ -104,14 +104,16 @@ def get_crossings_quadratic(
     precision: float = 1e-09,
 ) -> List[Crossing]:
     r"""
-    This alternative crossing detection function is in general slower, but in certain worst-cases might outperform
-    the :func:`get_crossings()` method. Use this method if you have problems with precision using the
-    :func:`get_crossings()` method.
+    Calculates all crossings occurring in the graph by checking every pair of edges, after quickly ruling out the
+    pairs that cannot cross. Returns the same crossings as :func:`get_crossings()`.
 
+    To only find out whether the drawing has any crossing at all, use :func:`has_crossings()`, which stops at the
+    first crossing it finds.
 
-    The :func:`get_crossings()` method has an asymptotic runtime of :math:`O((n+k) \text{log} n)`, where :math:`k`
-    is the number of crossings. This method runs in :math:`O(n^2)` time, which might outperform the optimized
-    function slightly when the number of crossing is :math:`\Theta(n^2)`.
+    It runs in :math:`O(m^2)` time in the worst case, where :math:`m` is the number of edges, compared with
+    :math:`O((n+k) \log (n+k))` for :func:`get_crossings()`, where :math:`k` is the number of crossings. In practice,
+    however, it is the faster of the two on most drawings, and the more robust one on degenerate drawings and with a
+    coarse precision.
 
     :param g: A networkX graph
     :type g: nx.Graph
@@ -130,6 +132,75 @@ def get_crossings_quadratic(
     :rtype: List[Crossing]
     """
 
+    _validate_arguments(g, include_node_crossings, consider_singletons)
+
+    return crossings_quadratic(
+        g, pos, include_node_crossings, consider_singletons, precision
+    )
+
+
+@common.resolve_pos
+@numeric.applies_precision
+def has_crossings(
+    g: nx.Graph,
+    pos: Union[str, dict, None] = None,
+    include_node_crossings: bool = False,
+    consider_singletons: bool = False,
+    precision: float = 1e-09,
+) -> bool:
+    """
+    Returns whether the drawing has any crossing at all.
+
+    :param g: A networkX graph
+    :type g: nx.Graph
+    :param pos: Optional node position dictionary. If not supplied, node positions are read from the graph directly.
+        If given as a string, the property under the given name in the networkX graph is used.
+    :type pos: Union[str, dict, None]
+    :param include_node_crossings: Indicate whether crossings involving vertices should count as well. A
+        crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
+    :type include_node_crossings: bool
+    :param consider_singletons: If true, singletons that lie on an edge or other vertices count as well.
+    :type consider_singletons: bool
+    :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
+    :type precision: float
+    :return: True if and only if the drawing has a crossing
+    :rtype: bool
+    """
+    return (
+        _first_crossing(g, pos, include_node_crossings, consider_singletons, precision)
+        is not None
+    )
+
+
+@common.resolve_pos
+@numeric.applies_precision
+def _first_crossing(
+    g: nx.Graph,
+    pos: Union[str, dict, None] = None,
+    include_node_crossings: bool = False,
+    consider_singletons: bool = False,
+    precision: float = 1e-09,
+) -> Optional[Crossing]:
+    """
+    Returns any one crossing of the drawing, or None if it has none - see :func:`has_crossings()`. The crossing
+    involves at least two of the elements crossing at its position, but not necessarily all of them.
+    """
+    _validate_arguments(g, include_node_crossings, consider_singletons)
+
+    found = crossings_quadratic(
+        g,
+        pos,
+        include_node_crossings,
+        consider_singletons,
+        precision,
+        stop_at_first=True,
+    )
+    return found[0] if found else None
+
+
+def _validate_arguments(
+    g: nx.Graph, include_node_crossings: bool, consider_singletons: bool
+) -> None:
     if g is None:
         raise ValueError(g)
     if isinstance(g, (nx.MultiGraph, nx.MultiDiGraph)):
@@ -139,10 +210,6 @@ def get_crossings_quadratic(
         raise ValueError(
             f"Invalid parameter combinations: cannot consider singletons if node crossings are disabled as behaviour is undefined."
         )
-
-    return crossings_quadratic(
-        g, pos, include_node_crossings, consider_singletons, precision
-    )
 
 
 @common.resolve_pos
@@ -196,7 +263,7 @@ def planarize(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
     include_node_crossings: bool = False,
-    use_quadratic_algorithm: bool = False,
+    use_quadratic_algorithm: bool = True,
     precision: float = 1e-09,
     crossing_list: List[Crossing] = None,
 ) -> None:
@@ -212,9 +279,9 @@ def planarize(
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
     :type include_node_crossings: bool
-    :param use_quadratic_algorithm: If set to true, the slower quadratic time algorithm is used to obtain crossings.
-        Use this method if you have problems with precision using the default method.
-        See :func:`get_crossings_quadratic()` for details.
+    :param use_quadratic_algorithm: If set to true, the default, crossings are obtained with
+        :func:`get_crossings_quadratic()`, which is faster on most drawings and more robust with respect to precision.
+        If set to false, the sweep line algorithm :func:`get_crossings()` is used instead.
     :type use_quadratic_algorithm: bool
     :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
     :type precision: float
@@ -324,7 +391,7 @@ def crossing_angular_resolution(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
     include_node_crossings: bool = False,
-    use_quadratic_algorithm: bool = False,
+    use_quadratic_algorithm: bool = True,
     precision: float = 1e-09,
     crossing_list: List[Crossing] = None,
 ) -> float:
@@ -341,9 +408,9 @@ def crossing_angular_resolution(
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
     :type include_node_crossings: bool
-    :param use_quadratic_algorithm: If set to true, the slower quadratic time algorithm is used to obtain crossings.
-        Use this method if you have problems with precision using the default method.
-        See :func:`get_crossings_quadratic()` for details.
+    :param use_quadratic_algorithm: If set to true, the default, crossings are obtained with
+        :func:`get_crossings_quadratic()`, which is faster on most drawings and more robust with respect to precision.
+        If set to false, the sweep line algorithm :func:`get_crossings()` is used instead.
     :type use_quadratic_algorithm: bool
     :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
     :type precision: float
@@ -419,7 +486,7 @@ def number_of_crossings(
     g: nx.Graph,
     pos: Union[str, dict, None] = None,
     include_node_crossings: bool = False,
-    use_quadratic_algorithm: bool = False,
+    use_quadratic_algorithm: bool = True,
     precision: float = 1e-09,
     crossing_list: List[Crossing] = None,
 ) -> int:
@@ -438,9 +505,9 @@ def number_of_crossings(
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
     :type include_node_crossings: bool
-    :param use_quadratic_algorithm: If set to true, the slower quadratic time algorithm is used to obtain crossings.
-        Use this method if you have problems with precision using the default method.
-        See :func:`get_crossings_quadratic()` for details.
+    :param use_quadratic_algorithm: If set to true, the default, crossings are obtained with
+        :func:`get_crossings_quadratic()`, which is faster on most drawings and more robust with respect to precision.
+        If set to false, the sweep line algorithm :func:`get_crossings()` is used instead.
     :type use_quadratic_algorithm: bool
     :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
     :type precision: float
@@ -473,7 +540,7 @@ def crossing_density(
     pos: Union[str, dict, None] = None,
     tighter_bound: bool = False,
     include_node_crossings: bool = False,
-    use_quadratic_algorithm: bool = False,
+    use_quadratic_algorithm: bool = True,
     precision: float = 1e-09,
     crossing_list: List[Crossing] = None,
 ) -> float:
@@ -496,9 +563,9 @@ def crossing_density(
         crossing involves a vertex if an endpoint of an edge lies on another edge without actually crossing it.
         Singletons will never be considered, even if the vertex lies exactly on another edge.
     :type include_node_crossings: bool
-    :param use_quadratic_algorithm: If set to true, the slower quadratic time algorithm is used to obtain crossings.
-        Use this method if you have problems with precision using the default method.
-        See :func:`get_crossings_quadratic()` for details.
+    :param use_quadratic_algorithm: If set to true, the default, crossings are obtained with
+        :func:`get_crossings_quadratic()`, which is faster on most drawings and more robust with respect to precision.
+        If set to false, the sweep line algorithm :func:`get_crossings()` is used instead.
     :type use_quadratic_algorithm: bool
     :param precision: Sets the absolute numeric precision. Usually, it should not be necessary to adjust the default.
     :type precision: float
