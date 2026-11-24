@@ -1450,7 +1450,7 @@ class TestNearCollinearOverlaps(unittest.TestCase):
     Two segments that are *almost* collinear - every point of one lies within
     `numeric.get_precision()` of the other's infinite line - should be reported
     as an overlapping `CrossingLine`, the same as if they were exactly
-    collinear. See `tests/unit/utils/test_intersections.py`
+    collinear. See `tests/unit/crossings/test_intersections.py`
     (`TestNearCollinearOverlaps`) for the same two cases tested directly
     against `check_lines`.
     """

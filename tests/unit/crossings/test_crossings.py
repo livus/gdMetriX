@@ -47,7 +47,8 @@ def _assert_crossing_equality(
         include_rotation,
         include_node_crossings,
         consider_singletons,
-        title=inspect.getouterframes(inspect.currentframe(), 2)[1][3],
+        # The calling test's name, read straight off the caller's frame (see crossing_test_helper)
+        title=inspect.currentframe().f_back.f_code.co_name,
     )
 
 
@@ -1622,7 +1623,7 @@ class TestNearCollinearOverlaps(unittest.TestCase):
     Two segments that are *almost* collinear - every point of one lies within
     `numeric.get_precision()` of the other's infinite line - should be reported
     as an overlapping `CrossingLine`, the same as if they were exactly
-    collinear. See `tests/unit/utils/test_intersections.py`
+    collinear. See `tests/unit/crossings/test_intersections.py`
     (`TestNearCollinearOverlaps`) for the same two cases tested directly
     against `check_lines`.
     """

@@ -95,8 +95,15 @@ class ParameterizedBalancedBinarySearchTree:
         self._length = 0
         self._greater_than = greater_than
 
+    # The height bookkeeping below runs for every node on every path the tree changes, so it reads
+    # the heights directly rather than through _get_height.
+
     def _update_height(self, root):
-        root.height = 1 + max(self._get_height(root.left), self._get_height(root.right))
+        left = root.left
+        right = root.right
+        left_height = 0 if left is None else left.height
+        right_height = 0 if right is None else right.height
+        root.height = 1 + (left_height if left_height > right_height else right_height)
 
     def insert(self, item: SortableObject, key_parameter: object) -> None:
         """
@@ -152,10 +159,8 @@ class ParameterizedBalancedBinarySearchTree:
         node.right = old_left
 
         # Update changed heights
-        node.height = 1 + max(self._get_height(node.left), self._get_height(node.right))
-        old_right.height = 1 + max(
-            self._get_height(old_right.left), self._get_height(old_right.right)
-        )
+        self._update_height(node)
+        self._update_height(old_right)
 
         return old_right
 
@@ -168,10 +173,8 @@ class ParameterizedBalancedBinarySearchTree:
         node.left = old_right
 
         # Update changed heights
-        node.height = 1 + max(self._get_height(node.left), self._get_height(node.right))
-        old_left.height = 1 + max(
-            self._get_height(old_left.left), self._get_height(old_left.right)
-        )
+        self._update_height(node)
+        self._update_height(old_left)
 
         return old_left
 
@@ -184,7 +187,11 @@ class ParameterizedBalancedBinarySearchTree:
     def _get_balance(self, root):
         if root is None:
             return 0
-        return self._get_height(root.left) - self._get_height(root.right)
+        left = root.left
+        right = root.right
+        return (0 if left is None else left.height) - (
+            0 if right is None else right.height
+        )
 
     def get_left(
         self, key_value: Numeric, key_parameter: object
@@ -326,10 +333,19 @@ class ParameterizedBalancedBinarySearchTree:
             # matches. Items that are == to value can still be tied (not less_than in either
             # direction) with this node, so further occurrences of value can live on either
             # side - force_remove must find all of them, not just the first one encountered.
+            removed_before = removed_count
+
             root.left = _remove_recursive(root.left, value)
             root.right = _remove_recursive(root.right, value)
 
-            if value == root.content:
+            matches = value == root.content
+
+            if not matches and removed_count == removed_before:
+                # Nothing was removed in this subtree, so it is still the balanced subtree it
+                # was: updating its height and rebalancing it would change nothing.
+                return root
+
+            if matches:
                 removed_count += 1
 
                 # If either the left or right is None, we can simply move the node one up
@@ -521,12 +537,11 @@ class ParameterizedBalancedBinarySearchTree:
                 start_key, current_end
             ) and not self._greater_than(current_start, end_key)
 
-        def _get_range_recursive(
-            root: BBTNode, current_start, current_end
-        ) -> Iterable[SortableObject]:
-            if root is None:
-                return
+        # Collected into a list in order, rather than chained through nested generators: one
+        # generator per level of the tree costs more than the search itself.
+        result: List[SortableObject] = []
 
+        def _get_range_recursive(root: BBTNode, current_start, current_end) -> None:
             root_key = root.content.get_key(key_parameter)
 
             if root.left is not None:
@@ -534,21 +549,24 @@ class ParameterizedBalancedBinarySearchTree:
                 new_end = min(current_end, root_key)
 
                 if _range_overlaps(new_start, new_end):
-                    yield from _get_range_recursive(root.left, new_start, new_end)
+                    _get_range_recursive(root.left, new_start, new_end)
 
             if not root.content.less_than_key(
                 start_key, key_parameter
             ) and not root.content.greater_than_key(end_key, key_parameter):
-                yield root.content
+                result.append(root.content)
 
             if root.right is not None:
                 new_start = max(current_start, root_key)
                 new_end = current_end
 
                 if _range_overlaps(new_start, new_end):
-                    yield from _get_range_recursive(root.right, new_start, new_end)
+                    _get_range_recursive(root.right, new_start, new_end)
 
-        yield from _get_range_recursive(self.root, start_key, end_key)
+        if self.root is not None:
+            _get_range_recursive(self.root, start_key, end_key)
+
+        return result
 
     def empty(self):
         """

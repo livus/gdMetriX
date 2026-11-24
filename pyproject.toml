@@ -14,7 +14,7 @@ packages = ["src/gdMetriX"]
 
 [project]
 name = "gdMetriX"
-version = "0.0.5"
+version = "0.1.0"
 license = { file = "LICENSE" }
 keywords = [
     "graph drawing",
@@ -38,13 +38,17 @@ authors = [
 ]
 description = "A NetworkX extension for computing graph drawing quality metrics (crossings, symmetry, node distribution, edge directions, area/boundary) and benchmark datasets."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Visualization",
     "Topic :: Scientific/Engineering :: Mathematics",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
 ]
@@ -54,7 +58,6 @@ dependencies = [
     "scipy>=1.10",
     "osfclient>=0.0.5",
     "numpy>=1.24.4",
-    "scikit-image>=0.21.0",
     "matplotlib>=3.10"
 ]
 

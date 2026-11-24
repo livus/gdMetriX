@@ -12,12 +12,19 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    # The oldest supported Python version, and the newest one we test. The latest dependency
+    # versions differ between them, as e.g. numpy and networkx drop old Python versions quickly.
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.14"]
+
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
       # The dataset tests in tests/unit/test_datasets.py download real benchmark
       # graphs from OSF. Caching the download dir keeps CI fast after the first run.
@@ -35,6 +42,7 @@ jobs:
         run: pytest --cov=gdMetriX --cov-report=xml
 
       - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.14'
         uses: codecov/codecov-action@v4
         with:
           files: coverage.xml

@@ -17,6 +17,7 @@
 import math
 from typing import Union
 
+from gdMetriX.common import segment_distance_squared
 from gdMetriX.utils import numeric
 from gdMetriX.utils.sweep_line import CrossingLine, CrossingPoint, SweepLineEdgeInfo
 
@@ -37,16 +38,18 @@ def check_lines(
     if line_a is None or line_b is None:
         return None
 
-    result = _intersect(line_a, line_b)
-
-    if (
-        isinstance(result, CrossingPoint)
-        and line_a.share_endpoint(line_b)
+    # If two edges share a node, they are not considered to be crossing - unless one of them has
+    # no length. Only an overlap can then still be reported, so there is no point in computing
+    # where they meet.
+    adjacent = (
+        line_a.share_endpoint(line_b)
         and not _is_zero_length(line_a)
         and not _is_zero_length(line_b)
-    ):
-        # If two edges share a node, they are not
-        # considered to be crossing.
+    )
+
+    result = _intersect(line_a, line_b, adjacent)
+
+    if adjacent and isinstance(result, CrossingPoint):
         return None
 
     return result
@@ -77,22 +80,33 @@ def check_point_and_line(
 
 
 def _intersect(
-    line_a: SweepLineEdgeInfo, line_b: SweepLineEdgeInfo
+    line_a: SweepLineEdgeInfo, line_b: SweepLineEdgeInfo, overlap_only: bool = False
 ) -> Union[CrossingPoint, CrossingLine, None]:
+    """
+    Intersects the two segments. With overlap_only, a result that could only be a single point is
+    not computed - None is returned in its place - as the caller discards it anyway.
+    """
     p1, p2 = line_a.start_position, line_a.end_position
     p3, p4 = line_b.start_position, line_b.end_position
+    x1, y1, x2, y2 = p1.x, p1.y, p2.x, p2.y
+    x3, y3, x4, y4 = p3.x, p3.y, p4.x, p4.y
 
-    d1 = p2 - p1
-    d2 = p4 - p3
-    len1_sq = d1.dot(d1)
-    len2_sq = d2.dot(d2)
+    d1x = x2 - x1
+    d1y = y2 - y1
+    d2x = x4 - x3
+    d2y = y4 - y3
+    len1_sq = d1x * d1x + d1y * d1y
+    len2_sq = d2x * d2x + d2y * d2y
 
-    precision = numeric.get_precision()
+    precision = numeric.PRECISION
     precision_sq = precision * precision
 
     if len1_sq == 0 or len2_sq == 0:
+        if overlap_only:
+            # A segment without length can only ever touch in a single point
+            return None
         return _intersect_degenerate(
-            p1, len1_sq, p3, len2_sq, line_a, line_b, precision_sq
+            x1, y1, x2, y2, len1_sq, x3, y3, x4, y4, len2_sq, precision_sq
         )
 
     # Decide whether the two segments are collinear within precision - i.e.
@@ -100,91 +114,85 @@ def _intersect(
     # using whichever segment is longer as the reference line.
     if len1_sq >= len2_sq:
         is_collinear = (
-            _perpendicular_distance_squared(p3, p1, d1, len1_sq) <= precision_sq
-            and _perpendicular_distance_squared(p4, p1, d1, len1_sq) <= precision_sq
+            _perpendicular_distance_squared(x3, y3, x1, y1, d1x, d1y, len1_sq)
+            <= precision_sq
+            and _perpendicular_distance_squared(x4, y4, x1, y1, d1x, d1y, len1_sq)
+            <= precision_sq
         )
     else:
         is_collinear = (
-            _perpendicular_distance_squared(p1, p3, d2, len2_sq) <= precision_sq
-            and _perpendicular_distance_squared(p2, p3, d2, len2_sq) <= precision_sq
+            _perpendicular_distance_squared(x1, y1, x3, y3, d2x, d2y, len2_sq)
+            <= precision_sq
+            and _perpendicular_distance_squared(x2, y2, x3, y3, d2x, d2y, len2_sq)
+            <= precision_sq
         )
 
     if is_collinear:
-        return _collinear_overlap(p1, d1, len1_sq, p3, p4, precision)
+        return _collinear_overlap(x1, y1, d1x, d1y, len1_sq, x3, y3, x4, y4, precision)
 
-    return _crossing_point(p1, d1, p3, d2, line_a, line_b, precision_sq)
+    if overlap_only:
+        return None
+
+    return _crossing_point(
+        x1, y1, x2, y2, d1x, d1y, x3, y3, x4, y4, d2x, d2y, precision_sq
+    )
 
 
 def _intersect_degenerate(
-    p1: CrossingPoint,
-    len1_sq: float,
-    p3: CrossingPoint,
-    len2_sq: float,
-    line_a: SweepLineEdgeInfo,
-    line_b: SweepLineEdgeInfo,
-    precision_sq: float,
+    x1, y1, x2, y2, len1_sq, x3, y3, x4, y4, len2_sq, precision_sq
 ) -> Union[CrossingPoint, None]:
     # At least one side has zero length (its "segment" is really just a
     # point) - the only possible result is a single touching point, never an
     # overlapping CrossingLine.
     if len1_sq == 0 and len2_sq == 0:
-        diff = p1 - p3
-        distance_sq = diff.dot(diff)
-        point = p1
+        diff_x = x1 - x3
+        diff_y = y1 - y3
+        distance_sq = diff_x * diff_x + diff_y * diff_y
+        point_x, point_y = x1, y1
     elif len1_sq == 0:
-        distance_sq = line_b.crossing_line.distance_squared_to_point(p1)
-        point = p1
+        distance_sq = segment_distance_squared(x3, y3, x4, y4, x1, y1)
+        point_x, point_y = x1, y1
     else:
-        distance_sq = line_a.crossing_line.distance_squared_to_point(p3)
-        point = p3
+        distance_sq = segment_distance_squared(x1, y1, x2, y2, x3, y3)
+        point_x, point_y = x3, y3
 
     if distance_sq <= precision_sq:
-        return CrossingPoint(point.x, point.y)
+        return CrossingPoint(point_x, point_y)
     return None
 
 
 def _perpendicular_distance_squared(
-    point, origin, direction, direction_len_sq
+    point_x, point_y, origin_x, origin_y, direction_x, direction_y, direction_len_sq
 ) -> float:
-    """Squared distance from `point` to the infinite line through `origin` along `direction`."""
-    cross = direction.cross(point - origin)
+    """Squared distance from the point to the infinite line through the origin along the direction."""
+    cross = direction_x * (point_y - origin_y) - direction_y * (point_x - origin_x)
     return (cross * cross) / direction_len_sq
 
 
 def _crossing_point(
-    p1: CrossingPoint,
-    d1,
-    p3: CrossingPoint,
-    d2,
-    line_a: SweepLineEdgeInfo,
-    line_b: SweepLineEdgeInfo,
-    precision_sq: float,
+    x1, y1, x2, y2, d1x, d1y, x3, y3, x4, y4, d2x, d2y, precision_sq
 ) -> Union[CrossingPoint, None]:
-    denom = d1.cross(d2)
+    denom = d1x * d2y - d1y * d2x
     if denom == 0:
         # Exactly parallel - and, since _intersect already ruled out being
         # collinear within precision, genuinely offset - so no intersection
         # point exists at all.
         return None
 
-    t = (p3 - p1).cross(d2) / denom
-    point = p1 + d1 * t
+    t = ((x3 - x1) * d2y - (y3 - y1) * d2x) / denom
+    point_x = x1 + d1x * t
+    point_y = y1 + d1y * t
 
     if (
-        line_a.crossing_line.distance_squared_to_point(point) <= precision_sq
-        and line_b.crossing_line.distance_squared_to_point(point) <= precision_sq
+        segment_distance_squared(x1, y1, x2, y2, point_x, point_y) <= precision_sq
+        and segment_distance_squared(x3, y3, x4, y4, point_x, point_y) <= precision_sq
     ):
-        return CrossingPoint(point.x, point.y)
+        return CrossingPoint(point_x, point_y)
     return None
 
 
 def _collinear_overlap(
-    p1: CrossingPoint,
-    d1,
-    len1_sq: float,
-    p3: CrossingPoint,
-    p4: CrossingPoint,
-    precision: float,
+    x1, y1, d1x, d1y, len1_sq, x3, y3, x4, y4, precision
 ) -> Union[CrossingLine, CrossingPoint, None]:
     # Line a and line b are collinear within precision - find the overlap of
     # their extents by projecting b's endpoints onto a's direction. Working in
@@ -193,8 +201,8 @@ def _collinear_overlap(
     # check, regardless of how long line a happens to be.
     length1 = math.sqrt(len1_sq)
 
-    t3 = d1.dot(p3 - p1) / length1
-    t4 = d1.dot(p4 - p1) / length1
+    t3 = (d1x * (x3 - x1) + d1y * (y3 - y1)) / length1
+    t4 = (d1x * (x4 - x1) + d1y * (y4 - y1)) / length1
     lo_b, hi_b = (t3, t4) if t3 <= t4 else (t4, t3)
 
     lo = max(0.0, lo_b)
@@ -202,16 +210,17 @@ def _collinear_overlap(
     overlap = hi - lo
 
     if overlap > precision:
-        start = p1 + d1 * (lo / length1)
-        end = p1 + d1 * (hi / length1)
+        start = lo / length1
+        end = hi / length1
         return CrossingLine(
-            CrossingPoint(start.x, start.y), CrossingPoint(end.x, end.y)
+            CrossingPoint(x1 + d1x * start, y1 + d1y * start),
+            CrossingPoint(x1 + d1x * end, y1 + d1y * end),
         )
 
     if overlap >= -precision:
         # Touching tip-to-tip (or separated by less than precision) rather
         # than genuinely overlapping - report it as a single point.
-        mid_point = p1 + d1 * (((lo + hi) / 2) / length1)
-        return CrossingPoint(mid_point.x, mid_point.y)
+        mid = ((lo + hi) / 2) / length1
+        return CrossingPoint(x1 + d1x * mid, y1 + d1y * mid)
 
     return None

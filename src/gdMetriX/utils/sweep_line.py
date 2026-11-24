@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import math
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import (
@@ -34,7 +35,8 @@ from gdMetriX.utils.avl_tree import (
     SortableObject,
     ParameterizedBalancedBinarySearchTree,
 )
-from gdMetriX.utils.numeric import numeric_eq, get_precision, greater_than
+from gdMetriX.utils import numeric
+from gdMetriX.utils.numeric import numeric_eq, greater_than
 
 
 class CrossingPoint(Vector):
@@ -47,7 +49,10 @@ class CrossingPoint(Vector):
     def __eq__(self, other: Vector):
         if other is None or not isinstance(other, CrossingPoint):
             return False
-        return numeric_eq(self.distance(other), 0)
+        # Inlined implementation as numeric_eq(distance, 0)
+        diff_x = self.x - other.x
+        diff_y = self.y - other.y
+        return math.sqrt(diff_x**2 + diff_y**2) <= numeric.PRECISION
 
     @staticmethod
     def from_point(pos: Tuple[Numeric, Numeric]) -> Self:
@@ -56,8 +61,12 @@ class CrossingPoint(Vector):
 
     def __lt__(self, other):
         if isinstance(other, CrossingPoint):
-            return greater_than(self.y, other.y) or (
-                numeric_eq(self.y, other.y) and greater_than(other.x, self.x)
+            precision = numeric.PRECISION
+            if not math.isclose(self.y, other.y, abs_tol=precision):
+                return self.y > other.y
+            return (
+                not math.isclose(other.x, self.x, abs_tol=precision)
+                and other.x > self.x
             )
         if isinstance(other, CrossingLine):
             return True
@@ -122,6 +131,9 @@ class SweepLineEdgeInfo(SortableObject):
         self.crossing_line = CrossingLine(position_a, position_b)
         self.start_position = self.crossing_line.start
         self.end_position = self.crossing_line.end
+        # The line through the edge as used by get_x_at_y, with the precision it was computed
+        # for: (precision, x if vertical or horizontal else None, slope, intercept)
+        self._line = None
 
     @staticmethod
     def from_edge(
@@ -147,11 +159,15 @@ class SweepLineEdgeInfo(SortableObject):
 
     # region Implementation of SortableObject
 
+    # The comparisons below run millions of times while sweeping, so they inline numeric_eq and
+    # greater_than rather than calling them. They decide exactly as those do.
+
     def less_than(self, other: Self, key_parameter: Numeric):
         x_self = get_x_at_y(self, key_parameter)
         x_other = get_x_at_y(other, key_parameter)
+        precision = numeric.PRECISION
 
-        if numeric_eq(x_self, x_other):
+        if math.isclose(x_self, x_other, abs_tol=precision):
             # Break the tie by looking at the order slightly off key_parameter. For two
             # straight, non-identical lines the sign of (x_self - x_other) is constant on
             # either side of their unique intersection, so jumping all the way down to
@@ -163,24 +179,29 @@ class SweepLineEdgeInfo(SortableObject):
             # are guaranteed to still exist.
             lower_end = min(self.end_position.y, other.end_position.y)
 
-            if greater_than(key_parameter, lower_end):
+            if (
+                not math.isclose(key_parameter, lower_end, abs_tol=precision)
+                and key_parameter > lower_end
+            ):
                 probe = lower_end
             else:
-                probe = key_parameter + 100 * get_precision()
+                probe = key_parameter + 100 * precision
 
             x_self = get_x_at_y(self, probe)
             x_other = get_x_at_y(other, probe)
 
-        return greater_than(x_other, x_self)
+        # greater_than(x_other, x_self)
+        return not math.isclose(x_other, x_self, abs_tol=precision) and x_other > x_self
 
     def less_than_key(self, key: Numeric, y: Numeric):
         x_self = get_x_at_y(self, y)
-
-        return greater_than(key, x_self)
+        # greater_than(key, x_self)
+        return not math.isclose(key, x_self, abs_tol=numeric.PRECISION) and key > x_self
 
     def greater_than_key(self, key: Numeric, y: Numeric):
         x_self = get_x_at_y(self, y)
-        return greater_than(x_self, key)
+        # greater_than(x_self, key)
+        return not math.isclose(x_self, key, abs_tol=numeric.PRECISION) and x_self > key
 
     def get_key(self, key_parameter: Numeric) -> Numeric:
         return get_x_at_y(self, key_parameter)
@@ -259,7 +280,7 @@ class SweepLinePoint(SortableObject):
     # region Implementation of SortableObject
 
     def less_than(self, other: Self, _):
-        return self < other
+        return self.position < other.position
 
     # endregion
 
@@ -342,22 +363,71 @@ class EventQueue:
         :return: None
         :rtype: None
         """
-        new_point_to_add = SweepLinePoint(point)
-        sweep_line_point = self.sorted_list.find(new_point_to_add, None)
+        sweep_line_point = self._find(point)
         if sweep_line_point is None:
-            sweep_line_point = new_point_to_add
+            sweep_line_point = SweepLinePoint(point)
             self.sorted_list.insert(sweep_line_point, None)
         sweep_line_point.singletons.add(node)
+
+    def _find(self, position: CrossingPoint) -> Optional[SweepLinePoint]:
+        """
+        Returns the event point at the given position, or None if there is none.
+
+        This is ParameterizedBalancedBinarySearchTree.find for event points, with
+        SweepLinePoint.__eq__ / less_than - and the CrossingPoint comparisons behind them -
+        inlined: it visits the same nodes and decides exactly as they do. Adding an event looks
+        its position up first, which makes this one of the hottest paths of the sweep.
+        """
+        precision = numeric.PRECISION
+        isclose = math.isclose
+        sqrt = math.sqrt
+        px = position.x
+        py = position.y
+
+        def _find_recursive(node):
+            while node is not None:
+                r = node.content.position
+                rx = r.x
+                ry = r.y
+
+                # node.content == item: CrossingPoint.__eq__(r, position)
+                diff_x = rx - px
+                diff_y = ry - py
+                if sqrt(diff_x**2 + diff_y**2) <= precision:
+                    return node
+
+                # node.content.less_than(item) and item.less_than(node.content):
+                # CrossingPoint.__lt__ both ways. isclose is symmetric, so it is evaluated once.
+                if not isclose(ry, py, abs_tol=precision):
+                    node_less = ry > py
+                    item_less = py > ry
+                else:
+                    x_close = isclose(px, rx, abs_tol=precision)
+                    node_less = not x_close and px > rx
+                    item_less = not x_close and rx > px
+
+                if node_less and not item_less:
+                    node = node.right
+                elif item_less and not node_less:
+                    node = node.left
+                else:
+                    # Tied, see ParameterizedBalancedBinarySearchTree.find
+                    found = _find_recursive(node.left)
+                    if found is not None:
+                        return found
+                    node = node.right
+            return None
+
+        found_node = _find_recursive(self.sorted_list.root)
+        return None if found_node is None else found_node.content
 
     def _add(
         self, point: CrossingPoint, edge_info: SweepLineEdgeInfo, event_type: _EventType
     ) -> None:
 
-        new_point_to_add = SweepLinePoint(point)
-
-        sweep_line_point = self.sorted_list.find(new_point_to_add, None)
+        sweep_line_point = self._find(point)
         if sweep_line_point is None:
-            sweep_line_point = new_point_to_add
+            sweep_line_point = SweepLinePoint(point)
             self.sorted_list.insert(sweep_line_point, None)
 
         list_to_add_to = None
@@ -460,7 +530,57 @@ class SweepLineStatus:
         :param right_x:
         :type right_x:
         """
-        return self.sorted_list.get_range(left_x, right_x, y)
+        # ParameterizedBalancedBinarySearchTree.get_range for edges, with get_key, less_than_key,
+        # greater_than_key and the tree's greater_than inlined: it visits the same nodes and
+        # decides exactly as they do. Every event queries the status, often several times.
+        precision = numeric.PRECISION
+        isclose = math.isclose
+        start_key = left_x
+        end_key = right_x
+        result: List[SweepLineEdgeInfo] = []
+
+        def _overlaps(current_start, current_end) -> bool:
+            # _range_overlaps, with greater_than(a, b) = not isclose(a, b) and a > b
+            if (
+                not isclose(current_start, current_end, abs_tol=precision)
+                and current_start > current_end
+            ):
+                return False
+            return not (
+                not isclose(start_key, current_end, abs_tol=precision)
+                and start_key > current_end
+            ) and not (
+                not isclose(current_start, end_key, abs_tol=precision)
+                and current_start > end_key
+            )
+
+        def _get_range_recursive(node, current_start, current_end) -> None:
+            content = node.content
+            root_key = get_x_at_y(content, y)
+
+            if node.left is not None:
+                new_end = min(current_end, root_key)
+                if _overlaps(current_start, new_end):
+                    _get_range_recursive(node.left, current_start, new_end)
+
+            # not less_than_key(start_key) and not greater_than_key(end_key), where
+            # less_than_key(k) = greater_than(k, x) and greater_than_key(k) = greater_than(x, k)
+            # for x = get_x_at_y(content, y) = root_key
+            x = root_key
+            if not (
+                not isclose(start_key, x, abs_tol=precision) and start_key > x
+            ) and not (not isclose(x, end_key, abs_tol=precision) and x > end_key):
+                result.append(content)
+
+            if node.right is not None:
+                new_start = max(current_start, root_key)
+                if _overlaps(new_start, current_end):
+                    _get_range_recursive(node.right, new_start, current_end)
+
+        if self.sorted_list.root is not None:
+            _get_range_recursive(self.sorted_list.root, start_key, end_key)
+
+        return result
 
 
 # endregion
@@ -540,15 +660,27 @@ def get_x_at_y(edge_info: SweepLineEdgeInfo, y: Numeric) -> Numeric:
     :return: X value
     :rtype: Numeric
     """
-    start = edge_info.start_position
-    end = edge_info.end_position
+    precision = numeric.PRECISION
+    line = edge_info._line
 
-    if numeric_eq(start.x, end.x):
-        return start.x
-    if numeric_eq(end.y - start.y, 0):
-        return min(start.x, end.x)
+    # The line only depends on the edge and the precision, so it is computed once per edge
+    # rather than on every call - with the exact same arithmetic, so the results are the same.
+    if line is None or line[0] != precision:
+        start = edge_info.start_position
+        end = edge_info.end_position
 
-    m = (end.y - start.y) / (end.x - start.x)
-    b = start.y - m * start.x
+        if math.isclose(start.x, end.x, abs_tol=precision):
+            line = (precision, start.x, None, None)
+        elif math.isclose(end.y - start.y, 0, abs_tol=precision):
+            line = (precision, min(start.x, end.x), None, None)
+        else:
+            m = (end.y - start.y) / (end.x - start.x)
+            b = start.y - m * start.x
+            line = (precision, None, m, b)
 
-    return (y - b) / m
+        edge_info._line = line
+
+    if line[1] is not None:
+        return line[1]
+
+    return (y - line[3]) / line[2]

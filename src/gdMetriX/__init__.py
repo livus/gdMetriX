@@ -34,6 +34,7 @@ from gdMetriX.crossings import (
     crossing_density,
     get_crossings,
     get_crossings_quadratic,
+    has_crossings,
     number_of_crossings,
     OverlappingEdgesError,
     planarize,
@@ -73,4 +74,4 @@ from gdMetriX.symmetry import (
     even_neighborhood_distribution,
 )
 
-__version__ = "0.0.5"
+__version__ = "0.1.0"

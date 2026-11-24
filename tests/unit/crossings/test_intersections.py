@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Unit tests for `gdMetriX.utils.intersections.check_lines` and `check_point_and_line`.
+Unit tests for `gdMetriX.crossings.intersections.check_lines` and `check_point_and_line`.
 
 Both are a custom (non-shapely) implementation that is precision-aware
 throughout, built on `numeric.get_precision()`: two segments that come within
@@ -31,7 +31,7 @@ import math
 import pytest
 
 from gdMetriX.utils import numeric
-from gdMetriX.utils.intersections import check_lines, check_point_and_line
+from gdMetriX.crossings.intersections import check_lines, check_point_and_line
 from gdMetriX.utils.sweep_line import CrossingLine, CrossingPoint, SweepLineEdgeInfo
 
 _edge_id_counter = itertools.count()
@@ -229,7 +229,7 @@ class TestZeroLengthEdges:
         # edge stands in for a node-like point rather than a real edge.
         # share_endpoint() is deliberately not applied here: whether this
         # counts as a crossing is the include_node_crossings/prune()
-        # machinery's call to make (see crossing_data_types.Crossing.prune,
+        # machinery's call to make (see gdMetriX.crossings.data_types.Crossing.prune,
         # which keeps exactly this case), not check_lines'.
         a = _edge((5, 5), (5, 5), edge_id=(1, 2))
         b = _edge((5, 5), (5, 5), edge_id=(2, 3))

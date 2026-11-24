@@ -21,10 +21,15 @@ Supporting module for the crossings module containing some datastructures.
 from typing import (
     Union,
     Dict,
+    List,
+    Optional,
 )
 
+import networkx as nx
+
+from gdMetriX import common
 from gdMetriX.utils import numeric
-from gdMetriX.utils.intersections import check_lines
+from gdMetriX.crossings.intersections import check_lines
 from gdMetriX.utils.sweep_line import (
     CrossingPoint,
     CrossingLine,
@@ -73,22 +78,38 @@ class Crossing:
         return len(self.involved_edges) + len(self.involved_singletons)
 
     def prune(
-        self, pos: Dict[object, CrossingPoint], include_node_crossings: bool
+        self,
+        pos: Dict[object, CrossingPoint],
+        include_node_crossings: bool,
+        edge_infos: Optional[Dict[object, SweepLineEdgeInfo]] = None,
+        known_relations: Optional[Dict[tuple, object]] = None,
     ) -> None:
         """
         Removes all elements of the crossing, which are false positives, i.e. which do not take part in the crossing.
+        :param pos: Node positions
+        :param include_node_crossings: Whether crossings involving vertices are kept
+        :param edge_infos: Optionally, the already built SweepLineEdgeInfo of the edges, keyed by
+            edge, so that they need not be built again for every crossing
+        :param known_relations: Optionally, a cache of `check_lines` results keyed by the ordered
+            pair of edges, computed from those same edge infos. It is used and extended in place.
         :return: None
         :rtype: None
         """
         if isinstance(self.pos, CrossingPoint):
-            self._prune_crossing_point(pos, include_node_crossings)
+            self._prune_crossing_point(
+                pos, include_node_crossings, edge_infos, known_relations
+            )
         elif isinstance(self.pos, CrossingLine):
             self.involved_singletons = set()
             if len(self.involved_edges) == 1:
                 self.involved_edges = set()
 
     def _prune_crossing_point(
-        self, pos: Dict[object, CrossingPoint], include_node_crossings: bool
+        self,
+        pos: Dict[object, CrossingPoint],
+        include_node_crossings: bool,
+        known_edge_infos: Optional[Dict[object, SweepLineEdgeInfo]],
+        known_relations: Optional[Dict[tuple, object]] = None,
     ) -> None:
         if not include_node_crossings:
             # Only add those edges which actually cross and not those just ending in that point
@@ -122,10 +143,19 @@ class Crossing:
 
         if len(self.involved_edges) > 1:
             edge_list = list(self.involved_edges)
+            if known_edge_infos is None:
+                known_edge_infos = {}
             edge_infos = {
-                edge: SweepLineEdgeInfo.from_edge(edge, pos) for edge in edge_list
+                edge: (
+                    known_edge_infos[edge]
+                    if edge in known_edge_infos
+                    else SweepLineEdgeInfo.from_edge(edge, pos)
+                )
+                for edge in edge_list
             }
-            relation_cache: Dict[tuple, object] = {}
+            relation_cache: Dict[tuple, object] = (
+                {} if known_relations is None else known_relations
+            )
 
             def relation(a, b):
                 key = (a, b)
@@ -178,3 +208,11 @@ def _share_common_endpoint(edges: set) -> bool:
         common_elements &= set(edge)
 
     return len(common_elements) > 0
+
+
+def convert_to_crossing_points(
+    g: nx.Graph, pos: Union[List, dict, None]
+) -> Dict[object, CrossingPoint]:
+    """Returns the node positions of the drawing as crossing points."""
+    pos = common.get_node_positions(g, pos)
+    return {key: CrossingPoint.from_point(position) for key, position in pos.items()}

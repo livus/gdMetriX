@@ -452,7 +452,7 @@ class _ClosestPairSweep(SweepLineAlgorithm):
     """
     Finds the closest node-to-edge pair using a left-to-right sweep over the x-axis, reusing the generic
     driving loop from :class:`SweepLineAlgorithm` (the same base class used by the crossing detection sweep,
-    see :class:`gdMetriX.crossings._CrossingSweep`).
+    see :class:`gdMetriX.crossings._sweep.CrossingSweep`).
 
     Unlike the crossing detection sweep, this does *not* reuse the AVL-backed SweepLineStatus for its active
     set. A single "position at the current sweep coordinate" key (such as x-at-y, or its mirror y-at-x) is only
@@ -585,9 +585,9 @@ def closest_pair_of_elements(
     :rtype: (object, object, float)
     """
     if consider_crossings:
-        crossing_list = crossings.get_crossings(g, pos)
-        if len(crossing_list) > 0:
-            first_crossing = crossing_list[0]
+        # Any crossing will do, so the search can stop at the first one
+        first_crossing = crossings._first_crossing(g, pos)
+        if first_crossing is not None:
             return (
                 first_crossing.involved_edges.pop(),
                 first_crossing.involved_edges.pop(),

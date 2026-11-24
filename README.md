@@ -62,7 +62,7 @@ academic research in graph drawing and network visualization.
 
 ## Installation
 
-gdMetriX requires Python 3.9 or higher.
+gdMetriX requires Python 3.11 or higher.
 
 Before installing, make sure you have the latest version of `pip` installed:
 
